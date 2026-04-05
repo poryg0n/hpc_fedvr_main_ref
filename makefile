@@ -1,0 +1,57 @@
+FC = gfortran
+FFLAGS = -O3 -Wall -cpp -MMD -MP -fcheck=all -g
+LAPACK = -llapack -lblas
+SRC = src
+
+# --- Core modules (NO main here) ---
+CORE_OBJS = \
+       lobatto.o \
+       constants.o \
+       structure_parameters.o \
+       dynamic_parameters.o \
+       exploit_parameters.o \
+       math_util.o \
+       util.o \
+       fedvr.o \
+       fedvr_topology.o \
+       fedvr_conf_struct.o \
+       fedvr_derivative_ops.o \
+       space_time_ops.o \
+       global_assembly.o \
+       propagation.o \
+       observables.o \
+       io_module.o \
+       conv_tests.o
+
+# --- Executables ---
+STRUCTURE_EXE = structure
+DYNAMICS_EXE  = dynamic
+EXPLOIT_EXE   = exploit
+
+all: $(STRUCTURE_EXE)
+
+# --- Structure build ---
+$(STRUCTURE_EXE): $(CORE_OBJS) main_structure.o
+	$(FC) $^ -o $@ $(LAPACK)
+
+# --- Future ---
+$(DYNAMICS_EXE): $(CORE_OBJS) main_dynamics.o
+	$(FC) $^ -o $@ $(LAPACK)
+
+$(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
+	$(FC) $^ -o $@ $(LAPACK)
+
+# --- Compilation rule ---
+%.o: $(SRC)/%.f
+	$(FC) $(FFLAGS) -c $<
+
+%.o: $(SRC)/%.f90
+	$(FC) $(FFLAGS) -c $<
+
+# --- Dependency include ---
+-include *.d
+
+.PHONY: clean
+clean:
+	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(DYNAMICS_EXE) $(EXPLOIT_EXE)
+

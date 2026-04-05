@@ -1,0 +1,26 @@
+#exec
+main
+structure
+dynamics
+exploit
+
+# fortran binaries
+*.o
+*.mod
+*.d
+
+# backup folders
+data/exp_*
+
+# log conversation folder
+log/
+
+
+# temp files
+.*.swp
+
+# fortran test files
+fort.*
+
+# plot
+*.png
