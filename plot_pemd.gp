@@ -22,8 +22,11 @@ set yrange [1.e-9 : 1.e-3]
 set ytics  1.e-9, 1.e-2, 1.e-2
 set xtics -1.0, .5, 1.0
 
+
 if (logscale == 1) {
-    plot datafile using 1:(log10($2)) with lines lw 2 lc 8 title 'P(k)'
+    set log y
+#   plot datafile using 1:(log10($2)) with lines lw 2 lc 8 title 'P(k)'
+    plot datafile using 1:($2) with lines lw 2 lc 8 title 'P(k)'
 } else {
     plot datafile using 1:2 with lines lw 2 title 'P(k)'
 }

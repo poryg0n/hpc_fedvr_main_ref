@@ -9,17 +9,17 @@ exploit
 *.mod
 *.d
 
-# backup folders
-data/exp_*
+# data files
+data/
 
 # log conversation folder
 log/
 
 
 # temp files
-.*.swp
+.*.sw*
 
-# fortran test files
+# fortran junk files
 fort.*
 
 # plot

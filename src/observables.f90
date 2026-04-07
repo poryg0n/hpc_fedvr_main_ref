@@ -159,7 +159,8 @@
 
 
 
-      subroutine compute_phi_elems(nmax, krange, t_end,              &
+      subroutine compute_phi_elems(workdir,                  &
+                           nmax, krange, t_end,              &
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
                            wf0_1, wf_1, wf0_2, wf_2,                 &
@@ -173,6 +174,9 @@
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
         complex(8), intent(in) :: a0
+
+        character(255) :: workdir
+
         real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: wf0_1(nmax)
         complex(8), intent(in) :: wf0_2(nmax)
@@ -209,13 +213,13 @@
         real(8), parameter :: ppi = 4.d0*datan(1.d0)
 
         real(8) :: eta = 1.d-6
-        complex(8) :: d0k_, dkk_
-        complex(8) :: p0k_, pkk_
-        complex(8) :: p0k(krange), pkk(krange)
+        complex(8) :: dk0_, dkk_
+        complex(8) :: pk0_, pkk_
+        complex(8) :: pk0(krange), p0k(krange), pkk(krange)
 
-        integer :: unit_p0k, unit_pkk
-        open(newunit=unit_p0k, file="p0k.dat", status="replace")
-        open(newunit=unit_pkk, file="pkk.dat", status="replace")
+        integer :: unit_pk0, unit_pkk
+        open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat", status="replace")
+        open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat", status="replace")
       
         p=0
         do p=1,nmax
@@ -301,18 +305,19 @@
            call integr_over_range(krange, kk, vec_2, vec_k(j))
 
            auxc = conjg(wfc_k) * pwfc_0 * wx*wx*jacc
-           p0k(j) = sum(auxc)
+           pk0(j) = sum(auxc)
+           p0k(j) = conjg(pk0(j))
 
 
            auxc = conjg(wfc_k) * xx * wfc0_1 * wx*wx*jacc
-           d0k_ = sum(auxc)
-           d0k_ = -ci* ( Ek - E0 ) * d0k_
+           dk0_ = sum(auxc)
+           dk0_ = -ci* ( Ek - E0 ) * dk0_
 
            denom = ( kapp**2 + kk(j)**2 )
 
-           p0k_ = 2.d0 * kk(j) * kapp**(3.d0/2) /denom
+           pk0_ = 2.d0 * kk(j) * kapp**(3.d0/2) /denom
      
-           write(unit_p0k, *) kk(j), p0k(j), d0k_, p0k_
+           write(unit_pk0, *) kk(j), pk0(j), dk0_, pk0_
 
            vec_1(j) = p0k(j) * ak(j) / ( E0 + omega - Ek + ci*eta )
            vec_1(j) = exp(ci * ( E0 + omega - Ek ) * t_end ) * vec_1(j)
@@ -328,11 +333,14 @@
         bkwT = sum(auxc)
         bkwT = exp(ci*eigval(1)*t_end) * bkwT
        
-        aux = conjg(p0k(j)) * a0 / ( Ek + omega - E0 + ci*eta )
-        aux = exp(ci * ( Ek + omega - E0 ) * t_end ) * aux
+        vec_1 = pk0 * a0 / ( Ek + omega - E0 + ci*eta )
+        vec_1 = exp(ci * ( Ek + omega - E0 ) * t_end ) * aux
 
         b0w = b0wT + vec_0
-        bkw = bkwT + aux +  vec_k
+        bkw = bkwT + vec_1 +  vec_k
+
+        close(unit_pk0)
+        close(unit_pkk)
       
       end subroutine
 
