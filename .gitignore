@@ -11,6 +11,7 @@ exploit
 
 # data files
 data/
+hpc_fedvr_data/
 
 # log conversation folder
 log/

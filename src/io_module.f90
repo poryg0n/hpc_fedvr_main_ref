@@ -285,7 +285,7 @@
         write(unit,*) "t_ini     =", t_ini
         write(unit,*) "nsteps    =", nsteps
         write(unit,*) "noc       =", noc
-        write(unit,*) "ntau       =", ntau
+        write(unit,*) "ntau      =", ntau
         write(unit,*) "src_type  =", src_type
         write(unit,*) "omg       =", omg
         write(unit,*) "order     =", order
@@ -403,6 +403,33 @@
         close(unit)
       end subroutine
 
+      subroutine write_observables(filename, nt,                      &
+                                     time, energy, dipole, momentum)
+      
+        implicit none
+        character(*), intent(in) :: filename
+        integer, intent(in) :: nt
+        real(8), intent(in) :: time(nt)
+        complex(8), intent(in) :: energy(nt), dipole(nt), momentum(nt)
+      
+        integer :: i, unit
+      
+        open(newunit=unit, file=filename, status='replace')
+      
+        do i = 1, nt
+           write(unit,'(7E20.10)') time(i),                     &
+                                   real(energy(i)),             &
+                                   real(dipole(i)),             &
+                                   real(momentum(i)),           &
+                                   aimag(dipole(i)),            &
+                                   aimag(momentum(i)),          &
+                                   aimag(energy(i))
+        end do
+      
+        close(unit)
+      
+      end subroutine
+
 
       subroutine read_observables_bin(filename, nobs, time,            &
                                      norm_1, norm_2,                   &
@@ -443,6 +470,28 @@
 
       end subroutine
 
+      subroutine write_density_prob(filename, n, jacc,                &
+                                              xx, wx, rho1, rho2)
+      
+        implicit none
+        character(*), intent(in) :: filename
+        integer, intent(in) :: n
+        real(8), intent(in) :: jacc
+        real(8), intent(in) :: xx(n), wx(n)
+        complex(8), intent(in) :: rho1(n), rho2(n)
+      
+        integer :: i, unit
+      
+        open(newunit=unit, file=filename, status='replace')
+
+        do i=1,n
+           write(unit,*) xx(i), real(rho1(i)), real(rho2(i))
+        enddo
+      
+        close(unit)
+      
+      end subroutine
+
 
       subroutine write_pemd(filename, n, kk, ak, logscale)
         implicit none
@@ -476,17 +525,18 @@
 
 
       subroutine write_hhg(filename, n_omg, omg,                       &
-                                      qvc1, qvc2, qvc3, qvc4, logscale)
+                                    qvc1, qvc2, qvc3, logscale)
         implicit none
         integer, intent(in) :: n_omg
         real(8), intent(in) :: omg(n_omg)
         real(8), intent(in) :: qvc1(n_omg), qvc2(n_omg)
-        real(8), intent(in) :: qvc3(n_omg), qvc4(n_omg)
+        real(8), intent(in) :: qvc3(n_omg)
+!       real(8), intent(in) :: qvc3(n_omg), qvc4(n_omg)
         logical, intent(in) :: logscale
         character(len=*), intent(in) :: filename
       
         integer :: i, unit
-        real(8) :: v1, v2, v3, v4
+        real(8) :: v1, v2, v3
       
         open(newunit=unit, file=filename, status='replace')
       
@@ -495,20 +545,50 @@
            v1 = qvc1(i)
            v2 = qvc2(i)
            v3 = qvc3(i)
-           v4 = qvc4(i)
       
            if (logscale) then
               write(unit,*) omg(i), log10(max(v1,1d-20)),             &
                                      log10(max(v2,1d-20)),            &
-                                     log10(max(v3,1d-20)),            &
-                                     log10(max(v4,1d-20))
+                                     log10(max(v3,1d-20))
            else
-              write(unit,*) omg(i), v1, v2, v3, v4
+              write(unit,*) omg(i), v1, v2, v3
            end if
       
         end do
       
         close(unit)
+      end subroutine
+
+      subroutine write_Qw(filename, krange, kk, bkw, b0w, Qw)
+      
+        implicit none
+        character(*), intent(in) :: filename
+        integer, intent(in) :: krange
+        real(8), intent(in) :: kk(krange)
+        complex(8), intent(in) :: bkw(krange)
+        complex(8), intent(in) :: b0w
+        real(8), intent(in) :: Qw
+      
+        integer :: i, unit
+      
+        open(newunit=unit, file=filename, status='replace')
+      
+        write(unit,*) '# k, Re[b_k], Im[b_k], |b_k|^2'
+      
+        do i = 1, krange
+           write(unit,*) kk(i), real(bkw(i)), aimag(bkw(i)), abs(bkw(i))**2
+        enddo
+      
+        write(unit,*)
+        write(unit,*) '# b0(w):'
+        write(unit,*) real(b0w), aimag(b0w), abs(b0w)**2
+      
+        write(unit,*)
+        write(unit,*) '# Q(w):'
+        write(unit,*) Qw
+      
+        close(unit)
+      
       end subroutine
 
 
