@@ -17,8 +17,8 @@ set format y "10^{%L}";
 set terminal pngcairo size 1000,700
 set output outfile
 
-set xlabel '{/Symbol w} (a.u.)'
-set ylabel 'Q^{(c)}({/Symbol w})'
+set xlabel '{/Symbol w} (a.u.)' font ', 16'
+set ylabel 'Q^{(c)}({/Symbol w})' font ', 16'
 set title 'HHG Spectrum'
 
 set logscale y
@@ -28,7 +28,7 @@ set key left bottom
 
 set size ratio  0.3182 1,1
 set xrange [.5:1.13]
-set yrange [1.e-14:1.e-2]
+#set yrange [1.e-14:1.e-2]
 set xtics .5, .1, 1.1
 set ytics 1.e-13, 1.e-2, 1.e-3
 

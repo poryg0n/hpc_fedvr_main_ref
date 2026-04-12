@@ -123,12 +123,11 @@
        call set_resolution_order(order_)
        call set_other_dyn_params(do_time_obs_, obs_stride_)
 
-
- 
        duration = int((t_end - t_ini))
 !      allocate(fvec(nt))
        tc = 0.d0
  
+       call print_structure_parameters()
        call print_dynamic_parameters()
 
        allocate( auxc(nmax_), svec(nmax_,3) )
@@ -197,6 +196,9 @@
       call write_dynamic_bin(trim(workdir)//"dynamic.bin",             &
                        f0, omega, pfai, t_end, t_ini, nt, noc, ntau,   &
                        src_type, omg, order, struct_dir)
+
+      call write_problem_txt(trim(workdir)//"/input.txt",        &
+                             nmax_, ns, np, xx1, xx2, jacc)
       call write_dynamic_input(trim(workdir)//"input.txt",             &
                        f0, omega, pfai, t_end, t_ini, nt, noc, ntau,   &
                        src_type, omg, order, struct_dir)
@@ -210,7 +212,7 @@
 
       open(newunit=force_unit, file=trim(workdir)//"force.dat",       &
                                                   status='replace')
-      call plot_force(force_unit, t1, t0, dt0)
+      call plot_force(force_unit, t_end, t_ini, dt0)
       close(force_unit)
 
       open(newunit=obs_unit, file=trim(workdir)//"norm.dat",           &

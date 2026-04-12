@@ -56,6 +56,7 @@
         end subroutine
 
 
+
         subroutine set_resolution_order(order_)
   
         integer, intent(in) :: order_
@@ -63,6 +64,8 @@
         order =  order_
   
         end subroutine
+
+
 
         subroutine set_other_dyn_params(do_time_obs_, obs_stride_)
   
@@ -74,6 +77,7 @@
   
         end subroutine
 
+
         logical function advance_time(t_out)
           ! Optional argument: user can ask for current time
           real(8), intent(out), optional :: t_out
@@ -83,6 +87,7 @@
       
           if (present(t_out)) t_out = t
         end function
+
       
         function current_time() result(t_now)
           ! Just in case you want to peek without advancing
@@ -124,15 +129,15 @@
 
         subroutine print_dynamic_parameters()
   
-        print*, "----- Dynamic parameters -----"
-        print*, "field f0    :", f0
-        print*, "source_type :", src_type
-        print*, "omega       :", omega
-        print*, "time ini    :", t_ini
-        print*, "time end    :", t_end
-        print*, "dt0         :", dt0
-        print*, "nt          :", nt
-  
+          print*, "----- Dynamic parameters -----"
+          print*, "field f0    :", f0
+          print*, "source_type :", src_type
+          print*, "omega       :", omega
+          print*, "time ini    :", t_ini
+          print*, "time end    :", t_end
+          print*, "dt0         :", dt0
+          print*, "nt          :", nt
+    
         end subroutine
 
 

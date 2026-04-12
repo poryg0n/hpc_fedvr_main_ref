@@ -6,10 +6,11 @@
       !=========================================
       ! Write problem (human-readable)
       !=========================================
-      subroutine write_problem_txt(filename, nmax, snbr, nnbr,         &
-                                                      xmin, xmax, jac)
+      subroutine write_problem_input(filename, struct_dir,       &
+                                       nmax, snbr, nnbr,         &
+                                       xmin, xmax, jac)
         implicit none
-        character(*), intent(in) :: filename
+        character(*), intent(in) :: filename, struct_dir
         integer, intent(in) :: nmax, snbr, nnbr
         real(8), intent(in) :: xmin, xmax, jac
       
@@ -17,12 +18,13 @@
       
         open(newunit=unit, file=filename, status='replace')
       
-        write(unit,*) "nmax =", nmax
-        write(unit,*) "snbr =", snbr
-        write(unit,*) "nnbr =", nnbr
-        write(unit,*) "xmin =", xmin
-        write(unit,*) "xmax =", xmax
-        write(unit,*) "jac  =", jac
+        write(unit,*) "nmax       =", nmax
+        write(unit,*) "snbr       =", snbr
+        write(unit,*) "nnbr       =", nnbr
+        write(unit,*) "xmin       =", xmin
+        write(unit,*) "xmax       =", xmax
+        write(unit,*) "jac        =", jac
+        write(unit,*) "struct_dir =", struct_dir
       
         close(unit)
       end subroutine
@@ -35,7 +37,7 @@
       subroutine write_problem_bin(filename, nmax, snbr, nnbr,         &
                                            xmin, xmax, jac, xx, wx)
         implicit none
-        character(*), intent(in) :: filename
+        character(*), intent(in) :: filename, struct_dir
         integer, intent(in) :: nmax, snbr, nnbr
         real(8), intent(in) :: xmin, xmax, jac
         real(8), intent(in) :: xx(:), wx(:)
@@ -50,13 +52,177 @@
         write(unit) xmin, xmax, jac
         write(unit) xx
         write(unit) wx
+        write(unit) struct_dir
+      
+        close(unit)
+      end subroutine
+
+
+      
+      !=========================================
+      ! Read problem (binary)
+      !=========================================
+      subroutine read_problem_bin(filename, workdir,         &
+                                     nmax, snbr, nnbr,          &
+                                     xmin, xmax, jac, xx, wx)
+        implicit none
+        character(*), intent(in) :: filename
+        character(*), intent(out) :: workdir
+        integer, intent(out) :: nmax, snbr, nnbr
+        real(8), intent(out) :: xmin, xmax, jac
+        real(8), allocatable, intent(out) :: xx(:), wx(:)
+      
+        integer :: unit, version
+      
+        open(newunit=unit, file=filename, form='unformatted',          &
+                                                 status='old')
+      
+        read(unit) version
+        read(unit) nmax, snbr, nnbr
+        read(unit) xmin, xmax, jac
+      
+        allocate(xx(nmax), wx(nmax))
+      
+        read(unit) xx
+        read(unit) wx
+        read(unit) workdir
       
         close(unit)
       end subroutine
       
       
       
+
+      subroutine write_dynamic_input(filename, dyn_dir, struct_dir,    &
+                                 f0, omega, pfai, t_end, t_ini,        &
+                                 nsteps, noc, ntau,                    &
+                                 src_type, omg, order)
+        implicit none
+        character(*), intent(in) :: filename, struct_dir, dyn_dir
+        integer, intent(in) ::  noc, ntau, nsteps
+        integer, intent(in) :: order, src_type
+        real(8), intent(in) :: f0, omega, pfai, omg
+        real(8), intent(in) :: t_end, t_ini
       
+        integer :: unit
+      
+        open(newunit=unit, file=filename, status='replace')
+      
+        write(unit,*) "# Dynamic input parameters"
+        write(unit,*) "f0        =", f0
+        write(unit,*) "omega0    =", omega
+        write(unit,*) "pfai      =", pfai
+        write(unit,*) "t_end     =", t_end
+        write(unit,*) "t_ini     =", t_ini
+        write(unit,*) "nsteps    =", nsteps
+        write(unit,*) "noc       =", noc
+        write(unit,*) "ntau      =", ntau
+        write(unit,*) "src_type  =", src_type
+        write(unit,*) "omg       =", omg
+        write(unit,*) "order     =", order
+        write(unit,*) "struct    =", trim(struct_dir)
+        write(unit,*) "dyn_dir   =", trim(dyn_dir)
+      
+        close(unit)
+      end subroutine
+
+
+
+      subroutine write_dynamic_bin(filename, workdir, struct_dir,      &
+                                 f0, omega, pfai, t_end, t_ini,        &
+                                 nsteps, noc, ntau,                    &
+                                 src_type, omg, order)
+        implicit none
+        character(*), intent(in) :: filename, struct_dir
+        integer, intent(in) ::  noc, ntau, nsteps
+        integer, intent(in) :: order, src_type
+        real(8), intent(in) :: f0, omega, pfai
+        real(8), intent(in) :: omg
+        real(8), intent(in) :: t_end, t_ini
+      
+        integer :: unit
+      
+        open(newunit=unit, file=filename, form='unformatted',          &
+                                                   status='replace')
+      
+        write(unit) 2              ! version
+!       write(unit) filename
+        write(unit) f0, omega, pfai
+        write(unit) t_end, t_ini
+        write(unit) noc, ntau
+        write(unit) nsteps
+        write(unit) src_type
+        write(unit) omg
+        write(unit) order
+        write(unit) struct_dir
+        write(unit) workdir
+      
+        close(unit)
+      end subroutine
+
+
+
+      subroutine read_dynamic_bin(filename, dyn_dir, struct_dir,      &
+                                 f0, omega, pfai, t_end, t_ini,       &
+                                 nsteps, noc, ntau,                   &
+                                 src_type, omg, order)
+      
+        implicit none
+      
+        character(*), intent(in) :: filename
+
+        character(*), intent(out) :: struct_dir
+        character(*), intent(out) :: dyn_dir
+        integer, intent(out) :: nsteps, noc, ntau
+        integer, intent(out) :: order, src_type
+        real(8), intent(out) :: f0, omega, pfai, omg
+        real(8), intent(out) :: t_end, t_ini
+      
+        integer :: unit, version
+      
+        open(newunit=unit, file=filename, form='unformatted',          &
+                                                          status='old')
+      
+        read(unit) version
+      
+        if (version /= 2) then
+           write(*,*) "Unsupported dynamic.bin version:", version
+           stop
+        end if
+      
+        read(unit) f0, omega, pfai
+        read(unit) t_end, t_ini
+        read(unit) noc, ntau
+        read(unit) nsteps
+        read(unit) src_type
+        read(unit) omg
+        read(unit) order
+        read(unit) struct_dir
+        read(unit) dyn_dir
+
+!       select case(version)
+!       case(2)
+!          read(unit) f0, omega, pfai
+!          read(unit) t_end, t_ini
+!          read(unit) nsteps
+!          read(unit) src_type
+!          read(unit) order
+!          read(unit) struct_dir
+!       case default
+!          write(*,*) "Unsupported dynamic.bin version:", version
+!          stop
+!       end select
+      
+        close(unit)
+
+      
+      end subroutine
+
+
+
+
+
+
       !=========================================
       ! Write eigenvalues
       !=========================================
@@ -99,33 +265,6 @@
       end subroutine
 
 
-      !=========================================
-      ! Read problem (binary)
-      !=========================================
-      subroutine read_problem_bin(filename, nmax, snbr, nnbr,          &
-                                     xmin, xmax, jac, xx, wx)
-        implicit none
-        character(*), intent(in) :: filename
-        integer, intent(out) :: nmax, snbr, nnbr
-        real(8), intent(out) :: xmin, xmax, jac
-        real(8), allocatable, intent(out) :: xx(:), wx(:)
-      
-        integer :: unit, version
-      
-        open(newunit=unit, file=filename, form='unformatted',          &
-                                                 status='old')
-      
-        read(unit) version
-        read(unit) nmax, snbr, nnbr
-        read(unit) xmin, xmax, jac
-      
-        allocate(xx(nmax), wx(nmax))
-      
-        read(unit) xx
-        read(unit) wx
-      
-        close(unit)
-      end subroutine
 
 
 
@@ -170,126 +309,6 @@
         read(unit) nmax
         allocate(eigvec(nmax,nmax))
         read(unit) eigvec
-      
-        close(unit)
-      end subroutine
-
-
-
-      subroutine write_dynamic_bin(filename, f0, omega, pfai,          &
-                                 t_end, t_ini, nsteps, noc, ntau,      &
-                                 src_type, omg, order, struct_dir)
-        implicit none
-        character(*), intent(in) :: filename, struct_dir
-        integer, intent(in) ::  noc, ntau, nsteps
-        integer, intent(in) :: order, src_type
-        real(8), intent(in) :: f0, omega, pfai
-        real(8), intent(in) :: omg
-        real(8), intent(in) :: t_end, t_ini
-      
-        integer :: unit
-      
-        open(newunit=unit, file=filename, form='unformatted',          &
-                                                   status='replace')
-      
-        write(unit) 2              ! version
-!       write(unit) filename
-        write(unit) f0, omega, pfai
-        write(unit) t_end, t_ini
-        write(unit) noc, ntau
-        write(unit) nsteps
-        write(unit) src_type
-        write(unit) omg
-        write(unit) order
-        write(unit) struct_dir
-      
-        close(unit)
-      end subroutine
-
-
-
-      subroutine read_dynamic_bin(filename, f0, omega, pfai,          &
-                                 t_end, t_ini, nsteps, noc, ntau,      &
-                                 src_type, omg, order, struct_dir)
-      
-        implicit none
-      
-        character(*), intent(in) :: filename
-        character(*), intent(out) :: struct_dir
-      
-        integer, intent(out) :: nsteps, noc, ntau
-        integer, intent(out) :: order, src_type
-        real(8), intent(out) :: f0, omega, pfai, omg
-        real(8), intent(out) :: t_end, t_ini
-      
-        integer :: unit, version
-      
-        open(newunit=unit, file=filename, form='unformatted',          &
-                                                          status='old')
-      
-        read(unit) version
-      
-        if (version /= 2) then
-           write(*,*) "Unsupported dynamic.bin version:", version
-           stop
-        end if
-      
-        read(unit) f0, omega, pfai
-        read(unit) t_end, t_ini
-        read(unit) noc, ntau
-        read(unit) nsteps
-        read(unit) src_type
-        read(unit) omg
-        read(unit) order
-        read(unit) struct_dir
-
-!       select case(version)
-!       case(2)
-!          read(unit) f0, omega, pfai
-!          read(unit) t_end, t_ini
-!          read(unit) nsteps
-!          read(unit) src_type
-!          read(unit) order
-!          read(unit) struct_dir
-!       case default
-!          write(*,*) "Unsupported dynamic.bin version:", version
-!          stop
-!       end select
-      
-        close(unit)
-
-      
-      end subroutine
-
-
-
-      subroutine write_dynamic_input(filename, f0, omega, pfai,        &
-                                 t_end, t_ini, nsteps, noc, ntau,      &
-                                 src_type, omg, order, struct_dir)
-        implicit none
-        character(*), intent(in) :: filename, struct_dir
-        integer, intent(in) ::  noc, ntau, nsteps
-        integer, intent(in) :: order, src_type
-        real(8), intent(in) :: f0, omega, pfai, omg
-        real(8), intent(in) :: t_end, t_ini
-      
-        integer :: unit
-      
-        open(newunit=unit, file=filename, status='replace')
-      
-        write(unit,*) "# Dynamic input parameters"
-        write(unit,*) "f0        =", f0
-        write(unit,*) "omega0    =", omega
-        write(unit,*) "pfai      =", pfai
-        write(unit,*) "t_end     =", t_end
-        write(unit,*) "t_ini     =", t_ini
-        write(unit,*) "nsteps    =", nsteps
-        write(unit,*) "noc       =", noc
-        write(unit,*) "ntau      =", ntau
-        write(unit,*) "src_type  =", src_type
-        write(unit,*) "omg       =", omg
-        write(unit,*) "order     =", order
-        write(unit,*) "struct =", trim(struct_dir)
       
         close(unit)
       end subroutine

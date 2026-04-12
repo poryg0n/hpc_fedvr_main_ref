@@ -8,8 +8,8 @@ logscale = int(ARG3)
 set terminal pngcairo size 1000,700
 set output outfile
 
-set xlabel 'k (a.u.)' enhanced
-set ylabel 'P(k)' enhanced
+set xlabel 'k (a.u.)' font ', 15' enhanced
+set ylabel 'P(k)' font ', 15' enhanced
 set title 'Photoelectron Momentum Distribution (PEMD)' font ",16" enhanced
 
 set format y "10^{%L}";
