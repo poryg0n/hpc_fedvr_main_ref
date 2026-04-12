@@ -1,7 +1,7 @@
 #exec
 main
 structure
-dynamics
+dynamic
 exploit
 
 # fortran binaries

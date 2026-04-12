@@ -14,27 +14,6 @@
 !        call spatial_obs(...)
 !     end subroutine
 
-      subroutine compute_dens_probab(n, jacc, wx, eigvec, wf, rho)
-
-        implicit none
-        integer, intent(in) :: n
-        real(8), intent(in) :: jacc
-        real(8), intent(in) :: wx(n)
-        real(8), intent(in) :: eigvec(n,n)
-        complex(8), intent(in) :: wf(n)
-        complex(8), allocatable, intent(out) :: rho(:)
-!       real(8), intent(out) :: norm
-
-        complex(8) :: wfc(n)
-        integer :: i
-
-        allocate(rho(n))
-        call eigen_to_dvr(n, jacc, wx, eigvec, wf, wfc)
-        rho = conjg(wfc)* wfc * wx*wx*jacc
-
-      end subroutine
-
-      
 
       subroutine compute_dyn_observables(nmax, psi, phi,           &
                                         xx, wx, jac,               &
@@ -53,20 +32,21 @@
         real(8), intent(out) :: p0, pexc, pion
         complex(8), intent(out) :: energy, dipole, momentum
       
-        complex(8) :: psi_x(nmax), p_psi(nmax)
-        complex(8) :: phi_x(nmax), p_phi(nmax)
+        complex(8) :: psic(nmax), dpsic(nmax), ppsic(nmax)
+        complex(8) :: phic(nmax), dphic(nmax), pphic(nmax)
         integer :: i
       
 
         ! --- transform to DVR ---
-        psi_x = matmul(eigvec, psi)
-        phi_x = matmul(eigvec, phi)
-        psi_x = psi_x/wx/dsqrt(jac)
-        phi_x = phi_x/wx/dsqrt(jac)
+        call eigen_to_dvr(nmax, jac, wx, eigvec, phi, phic)
+        call eigen_to_dvr(nmax, jac, wx, eigvec, psi, psic)
+        call differentiate(xx, phic, dpsic)
+        ppsic = -ci * dpsic
+
         
         ! --- norm ---
-        norm_1 = sum(abs(psi_x)**2 * (wx**2) * jac)
-        norm_2 = sum(abs(phi_x)**2 * (wx**2) * jac)
+        norm_1 = sum(abs(psic)**2 * (wx**2) * jac)
+        norm_2 = sum(abs(phic)**2 * (wx**2) * jac)
         
         ! --- populations ---
         p0   = abs(psi(1))**2
@@ -74,17 +54,41 @@
         pion = 1.d0 - norm_1
         
         ! --- dipole ---
-        dipole = sum(conjg(psi_x) * xx * psi_x * (wx**2) * jac)
+        dipole = sum(conjg(psic) * xx * psic * (wx**2) * jac)
         
         ! --- energy (field-free) ---
         energy = sum(abs(psi)**2 * eigval)
         
         ! --- momentum (CLEAN) ---
-        call apply_momentum_operator(nmax, eigvec, xx, wx, jac,        &
-                                                     psi, p_psi, 0)
-        momentum = sum(conjg(psi) * p_psi)
+!       call apply_momentum_operator(nmax, eigvec, xx, wx, jac,        &
+!                                                    psi, p_psi, 0)
+
+        momentum = sum(conjg(psic) * ppsic * wx * wx * jac)
       
       end subroutine
+
+
+      subroutine compute_dens_probab(n, jacc, wx, eigvec, wf, rho)
+      
+        implicit none
+        integer, intent(in) :: n
+        real(8), intent(in) :: jacc
+        real(8), intent(in) :: wx(n)
+        real(8), intent(in) :: eigvec(n,n)
+        complex(8), intent(in) :: wf(n)
+        complex(8), allocatable, intent(out) :: rho(:)
+!       real(8), intent(out) :: norm
+      
+        complex(8) :: wfc(n)
+        integer :: i
+     
+        allocate(rho(n)) 
+        call eigen_to_dvr(n, jacc, wx, eigvec, wf, wfc)
+        rho = conjg(wfc)* wfc * wx*wx*jacc
+      
+      end subroutine
+
+
 
 
       subroutine compute_pemd_zrp(nmax, krange, t_end,           &
@@ -152,6 +156,8 @@
            wfc_k = exp(ci*kk(j)*xx) +                                   &
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                  &
                    exp(-ci*abs(kk(j)*xx))
+
+!          wfc_k = wfc_k/(dsqrt(2.d0*ppi))
       
            auxc = conjg(wfc_k) * wfc * wx*wx*jacc
            ak(j) = sum(auxc)
@@ -163,7 +169,7 @@
         ! --- probabilities ---
         p_ion = 0.d0
         call integr_over_range(krange, kk, ak, auxc_)
-        p_ion = real(auxc_) / (2.d0*ppi)
+        p_ion = real(auxc_)/(2.d0*ppi)
         write(*,*) p_ion
 
 
@@ -179,7 +185,8 @@
       end subroutine
 
 
-     subroutine compute_phi_elems(workdir,                  &
+
+      subroutine compute_phi_elems(workdir,                  &
                            nmax, krange, t_end,              &
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
@@ -197,7 +204,7 @@
 
         character(255) :: workdir
 
-        real(8), intent(in) :: kk(krange)
+        real(8), intent(inout) :: kk(krange)
         complex(8), intent(in) :: wf0_1(nmax)
         complex(8), intent(in) :: wf0_2(nmax)
         complex(8), intent(in) :: wf_1(nmax)
@@ -264,19 +271,19 @@
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_1, wfc_1)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_2, wfc_2)
      
-!       kk = 0.d0 
-!       do j=1,krange
-!     
-!          if (j.le.(krange/2-p+1)) then
-!             ij = krange/2 + 1 - j
-!             kk(j)= -k_max + (j-1)*dk
-!     
-!          else if (j.ge.(krange/2+p)) then
-!             ij = j - krange/2
-!             kk(j) = (ij-1)*dk
-!     
-!          end if
-!       enddo
+        kk = 0.d0 
+        do j=1,krange
+      
+           if (j.le.(krange/2-p+1)) then
+              ij = krange/2 + 1 - j
+              kk(j)= -k_max + (j-1)*dk
+      
+           else if (j.ge.(krange/2+p)) then
+              ij = j - krange/2
+              kk(j) = (ij-1)*dk
+      
+           end if
+        enddo
 
         Ek = 0.5d0 * kk**2 
 
@@ -287,6 +294,8 @@
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                 &
                    exp(-ci*abs(kk(j)*xx))
        
+!          wfc_k = wfc_k/(dsqrt(2.d0*ppi))
+
            Ek_  = 0.5d0 * kk(j)**2 
 
            auxc_1 = 0.d0
@@ -301,6 +310,8 @@
                       (ci*kapp/(-abs(kk(l)) - ci*kapp)) *              &
                       exp(-ci*abs(kk(l)*xx))
      
+!             wfc_k_ = wfc_k_/(dsqrt(2.d0*ppi))
+
               Ekp = 0.5d0 * kk(l)**2 
 
               call differentiate(xx, wfc_k_, dwfc_k)
@@ -321,6 +332,7 @@
               end if
 
 !             delta_kk = 0.d0
+!             denom  = 2.d0 * ppi * ( kk(j)**2 - kk(l)**2 + ci*eta )
               denom  = ( kk(j)**2 - kk(l)**2 + ci*eta )
               factor = ( kk(l)*abs(kk(j)) / (abs(kk(j)) -ci*kapp)      &
                       -  kk(j)*abs(kk(l)) / (abs(kk(l)) +ci*kapp) )
@@ -329,13 +341,13 @@
               pkk_ = 2.d0*ppi*kk(j) * delta_kk                         &
                                    - 2.d0 * kapp * factor/denom
      
+!             pkk_ = kk(j) * delta_kk - 2.d0 * kapp * factor/denom
 
 !             auxc_1 = sum(pkk *ak*dk)
 
 !             auxc_1 = sum(pkk(l) *ak*dk)
 !             auxc_2 = sum(dkk_   *ak*dk)
 !             auxc_3 = sum(pkk_   *ak*dk)
-
 
               auxc_1 = auxc_1 + pkk(l) * ak(l) * dk
               auxc_2 = auxc_2 + dkk_   * ak(l) * dk
@@ -362,7 +374,7 @@
            call differentiate(xx, wfc_k, dwfc_k)
            pwfc_k = -ci * dwfc_k
            auxc = conjg(wfc0_1) * pwfc_k * wx*wx*jacc
-           p0k(j) = sum(auxc)
+           p0k(j) = sum(auxc) 
 
            E0  = - 0.5d0 * kapp**2
 !          E0  = eigval(1)
@@ -371,8 +383,8 @@
            dk0_ = sum(auxc)
            dk0_ = -ci* ( Ek_ - E0 ) * dk0_
 
+!          denom = dsqrt(2.d0*ppi) * ( kapp**2 + kk(j)**2 )
            denom = ( kapp**2 + kk(j)**2 )
-
            pk0_ = 2.d0 * kk(j) * kapp**(3.d0/2) / denom
 
      
@@ -396,9 +408,14 @@
         vec_1 = pk0 * a0 / ( Ek + omega - E0 )
         vec_1 = exp(ci * ( Ek + omega - E0 ) * t_end ) * vec_1
 
-        b0w = b0wT + vec_0
-        bkw = bkwT + vec_1 +  vec_k
+        b0w = b0wT 
+        bkw = bkwT 
 
+!       b0w =  vec_0
+!       bkw =  vec_1 +  vec_k
+
+!       b0w = b0wT + vec_0
+!       bkw = bkwT + vec_1 +  vec_k
 
         close(unit_pk0)
         close(unit_pkk)
@@ -407,10 +424,8 @@
       end subroutine
 
 
-
-
       subroutine compute_hhg_ip(nt, time, x_t, wsteps, omg,          &
-                                               hhg_1, hhg_2)
+                                               hhg_1, hhg_2, hhg_3)
       
         implicit none
         integer, intent(in) :: nt
@@ -420,14 +435,18 @@
         real(8), allocatable, intent(out) :: omg(:)
         real(8), allocatable, intent(out) :: hhg_1(:)
         real(8), allocatable, intent(out) :: hhg_2(:)
+        real(8), allocatable, intent(out) :: hhg_3(:)
       
-        complex(8) :: auxc(nt), integral, amp
+        complex(8) :: amp1, amp2, amp3
+        complex(8) :: a_t(nt)
+        complex(8) :: auxc1(nt), auxc2(nt), auxc3(nt)
+        complex(8) :: integral
         complex(8), parameter :: ci = (0.d0, 1.d0)
         integer :: nw, i, it
-        real :: w
+        real(8) :: w, dt
 
         nw = wsteps+1
-        allocate(omg(nw), hhg_1(nw), hhg_2(nw))
+        allocate(omg(nw), hhg_1(nw), hhg_2(nw), hhg_3(nw))
 
         do i=1,nw
            omg(i) = wmin + (i-1)*dw0
@@ -438,31 +457,45 @@
         do i = 1, nw
       
            ! --- integral term ---
-           auxc = exp(ci*omg(i)*time) * x_t
-           call composite_simpson_18c(nt, time, auxc, amp)
+           auxc1 = exp(ci*omg(i)*time) * x_t
+           call composite_simpson_18c(nt, time, auxc1, amp1)
       
 !          hhg_2(i) = omg(i)**2 * abs(amp)**2
            ! --- integration by parts ---
-           amp = exp(ci*omg(i)*time(nt)) * x_t(nt)   &
+           amp1 = exp(ci*omg(i)*time(nt)) * x_t(nt)   &
                - exp(ci*omg(i)*time(1))  * x_t(1)    &
-               - ci*omg(i) * amp
+               - ci*omg(i) * amp1
+      
+
+
+           a_t = (0.d0, 0.d0)
+           w = sin(ppi*(time(1)-time(1))/(time(nt)-time(1)))**2
+           auxc2(1) = exp(ci*omg(i)*time(1))* x_t(1) * w
+           do it=2,nt-1
+              w = sin(ppi*(time(it)-time(1))/(time(nt)-time(1)))**2
+              auxc2(it) = exp(ci*omg(i)*time(it))* x_t(it) * w
+
+              dt = time(2) - time(1)
+              a_t(it) = (x_t(i+1) - 2.d0*x_t(it) + x_t(it-1)) / (dt*dt)
+              auxc3(it) = exp(ci*omg(i)*time(it)) * a_t(it) * w
+           enddo
+           w = sin(ppi*(time(nt)-time(1))/(time(nt)-time(1)))**2
+           auxc2(nt) = exp(ci*omg(i)*time(1))* x_t(nt) * w
+
+           call composite_simpson_18c(nt, time, auxc2, amp2)
+           call composite_simpson_18c(nt, time, auxc3, amp3)
+
       
            ! --- spectrum ---
-           hhg_1(i) = abs(amp)**2
+           hhg_1(i) = abs(amp1)**2
+           hhg_2(i) = omg(i)**2 * abs(amp2)**2
+           hhg_3(i) = abs(amp3)**2
 
 
-
-           do it=1,nt
-              w = sin(ppi*(time(it)-time(1))/(time(nt)-time(1)))**2
-              auxc(it) = exp(ci*omg(i)*time(it))* x_t(it) * w
-           enddo
-           call composite_simpson_18c(nt, time, auxc, amp)
-      
-!          hhg_2(i) = abs(amp)**2
-           hhg_2(i) = omg(i)**2 * abs(amp)**2
         end do
       
       end subroutine
+
 
       subroutine compute_Qw(krange, dk, bkw, b0w, Qw)
         implicit none
@@ -470,22 +503,21 @@
         real(8), intent(in) :: dk
         complex(8), intent(in) :: bkw(krange)
         complex(8), intent(in) :: b0w
-        complex(8), intent(out) :: Qw
-
+        real(8), intent(out) :: Qw
+      
         integer :: i
         real(8) :: sum_k
-
+      
         sum_k = 0.d0
-
+      
         do i = 1, krange
            sum_k = sum_k + abs(bkw(i))**2
         enddo
-
+      
         sum_k = sum_k * dk / (2.d0 * ppi)
-
+      
         Qw = abs(b0w)**2 + sum_k
-
+      
       end subroutine
-
       
       end module

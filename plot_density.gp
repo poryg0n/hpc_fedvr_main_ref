@@ -21,7 +21,7 @@ set size ratio  0.3182 1,1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
 set xlabel 'x (a.u.)'
-set ylabel 'Density'
+set ylabel 'D(x,T)'
 set title  'Density Probability'
 
 set grid
