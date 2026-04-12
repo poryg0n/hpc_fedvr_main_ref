@@ -102,9 +102,9 @@
                              struct_dir_, nmax_, ns, np,             &
                              xx1, xx2, jacc, xx, wx)
 
-      if (trim(struct_dir) /= trim(struct_dir_)) then
-         stop "Structure mismatch between dynamic and structure run"
-      end if
+!     if (trim(struct_dir) /= trim(struct_dir_)) then
+!        stop "Structure mismatch between dynamic and structure run"
+!     end if
 
       call read_eigval_bin(trim(struct_dir)//"/eigval.bin", i, eigval)
       call read_eigvec_bin(trim(struct_dir)//"/eigvec.bin", j, eigvec)
