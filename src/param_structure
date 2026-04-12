@@ -1,0 +1,8 @@
+      integer, parameter :: np = 10
+      integer, parameter :: ns = 100
+      real(8), parameter :: xmin_ = -500.d0
+      real(8), parameter :: xmax_ =  500.d0
+      real(8), parameter :: xc_ = 0.d0
+
+!     real(8), parameter :: kapp = 1.d0
+
