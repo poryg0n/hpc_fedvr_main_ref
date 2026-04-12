@@ -15,8 +15,8 @@ set output outfile
 #set key left bottom
 
 set size ratio  0.3182 1,1
-#set xrange [.5:1.13]
-#set yrange [1.e-14:1.e-2]
+set xrange [-1120:1120]
+#set yrange [-3.e-1:3.e-1]
 #set xtics .5, .1, 1.1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
@@ -31,7 +31,7 @@ set grid
 set key top right
 
 
-set title "Observables vs Time"
+#set title "Observables vs Time"
 set xlabel "time"
 set grid
 
