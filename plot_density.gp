@@ -12,7 +12,6 @@ set output outfile
 
 set logscale y
 set grid
-set key left bottom
 
 set size ratio  0.3182 1,1
 #set xrange [.5:1.13]
@@ -20,18 +19,15 @@ set size ratio  0.3182 1,1
 #set xtics .5, .1, 1.1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
-<<<<<<< HEAD
 set xlabel 'x (a.u.)' font ', 15'
 set ylabel 'D(x,t)' font ', 15'
-=======
 set xlabel 'x (a.u.)'
 set ylabel 'D(x,T)'
->>>>>>> 8820a474e2dc2c2773a6f162d17b40b8098a6d80
 set title  'Density Probability'
 
 set grid
 
-set key top right
+set key center bottom
 
 plot datafile using 1:2 with lines lw 2 lc 8 title "|{/Symbol y}(x,T)|^2", \
      datafile using 1:3 with lines lw 2 lc 2 title "|{/Symbol f}_{/Symbol w}(x,T)|^2"

@@ -83,7 +83,7 @@
 
 
 
-      include 'param_dynamics'
+      include 'param_dynamic'
 
       integer :: log_unit
       integer :: obs_unit

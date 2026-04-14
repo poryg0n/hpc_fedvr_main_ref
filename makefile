@@ -1,5 +1,6 @@
 FC = gfortran
-FFLAGS = -O3 -Wall -cpp -MMD -MP -fcheck=all -g
+#FFLAGS = -O3 -Wall -cpp -MMD -MP -fcheck=all -g
+FFLAGS = -O3 -march=native -ffast-math -funroll-loops -fopenmp
 LAPACK = -llapack -lblas
 SRC = src
 

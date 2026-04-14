@@ -1,7 +1,7 @@
       integer, parameter :: np = 40
-      integer, parameter :: ns = 100
-      real(8), parameter :: xmin_ = -3000.d0
-      real(8), parameter :: xmax_ =  3000.d0
+      integer, parameter :: ns = 200
+      real(8), parameter :: xmin_ = -4000.d0
+      real(8), parameter :: xmax_ =  4000.d0
       real(8), parameter :: xc_ = 0.d0
 
 !     real(8), parameter :: kapp = 1.d0

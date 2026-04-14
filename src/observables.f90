@@ -240,10 +240,12 @@
         complex(8) :: pk0(krange), p0k(krange), pkk(krange)
         complex(8) :: pkkp(krange), dkk(krange)
 
-        integer :: unit_pk0, unit_pkk, unit_pkl
+        integer :: unit_pk0, unit_pkk, unit_pkl, unit_pkl_
         open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat", status="replace")
         open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat", status="replace")
         open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
+                                                    status="replace")
+        open(newunit=unit_pkl_, file=trim(workdir)//"/pkl_.dat",         &
                                                     status="replace")
       
         p=0
@@ -342,6 +344,11 @@
               auxc_3 = auxc_3 + pkk_   * ak(l) * dk
 
               write(unit_pkk, *) kk(j), kk(l), pkk(l), dkk_, pkk_ 
+!             write(unit_pkk, *) kk(j), kk(l),                        &
+!                        real(pkk(l)), imag(pkk(l)),                  &
+!                        real(dkk_), imag(dkk_),                      &
+!                        real(pkk_), imag(pkk_)
+
               vec_2(l) = pkk(l) * ak(l) / ( Ek_ + omega - Ekp + ci*eta )
               vec_2(l) = exp(ci*( Ek_+omega-Ekp ) * t_end ) * vec_2(l)
 
@@ -351,7 +358,15 @@
 
            enddo
 
-           write(unit_pkl, *) kk(j), auxc_1, auxc_2, auxc_3 
+           write(unit_pkl, *) kk(j),                                  &
+                               real(auxc_1), imag(auxc_1),            &
+                               real(auxc_2), imag(auxc_2),            &
+                               real(auxc_3), imag(auxc_3)
+
+           write(unit_pkl_, *) kk(j),                                  &
+                        abs(real(auxc_1)), abs(imag(auxc_1)),          &
+                        abs(real(auxc_2)), abs(imag(auxc_2)),          &
+                        abs(real(auxc_3)), abs(imag(auxc_3))
 
            call integr_over_range(krange, kk, vec_2, vec_k(j))
 
@@ -463,6 +478,7 @@
         end do
       
       end subroutine
+
 
       subroutine compute_Qw(krange, dk, bkw, b0w, Qw)
         implicit none
