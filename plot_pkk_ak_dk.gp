@@ -28,7 +28,7 @@ set log y
 
 plot \
 datafile using 1:2 with lines lw 2 title "p_{kk'}a_{k'}dk", \
-datafile using 1:4 with lines dt 2 title "(E_k - E_{k'})d_{kk'}a_{k'}dk", \
+datafile using 1:4 with lines lw .5 title "(E_k - E_{k'})d_{kk'}a_{k'}dk", \
 datafile using 1:6 with lines lw 3 title "analytic"
 
 
