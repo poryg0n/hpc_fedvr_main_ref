@@ -131,14 +131,17 @@
 
 
       subroutine write_dynamic_bin(filename, workdir, struct_dir,      &
-                                 f0, omega, pfai, t_end, t_ini,        &
-                                 nsteps, noc, ntau,                    &
-                                 src_type, omg, order)
+                                 f0, omega, pfai,                      &
+                                 t_end, t_ini, nsteps, dt0,            &
+                                 noc, ntau, src_type,                  &
+                                 omg, order)
+
         implicit none
         character(*), intent(in) :: filename, workdir, struct_dir
         integer, intent(in) ::  noc, ntau, nsteps
         integer, intent(in) :: order, src_type
         real(8), intent(in) :: f0, omega, pfai
+        real(8), intent(in) :: dt0
         real(8), intent(in) :: omg
         real(8), intent(in) :: t_end, t_ini
       
@@ -153,6 +156,7 @@
         write(unit) t_end, t_ini
         write(unit) noc, ntau
         write(unit) nsteps
+        write(unit) dt0
         write(unit) src_type
         write(unit) omg
         write(unit) order
@@ -165,9 +169,10 @@
 
 
       subroutine read_dynamic_bin(filename, dyn_dir, struct_dir,      &
-                                 f0, omega, pfai, t_end, t_ini,       &
-                                 nsteps, noc, ntau,                   &
-                                 src_type, omg, order)
+                                 f0, omega, pfai,                     &
+                                 t_end, t_ini, nsteps, dt0,           &
+                                 noc, ntau, src_type,                 &
+                                 omg, order)
       
         implicit none
       
@@ -178,7 +183,7 @@
         integer, intent(out) :: nsteps, noc, ntau
         integer, intent(out) :: order, src_type
         real(8), intent(out) :: f0, omega, pfai, omg
-        real(8), intent(out) :: t_end, t_ini
+        real(8), intent(out) :: t_end, t_ini, dt0
       
         integer :: unit, version
       
@@ -196,6 +201,7 @@
         read(unit) t_end, t_ini
         read(unit) noc, ntau
         read(unit) nsteps
+        read(unit) dt0
         read(unit) src_type
         read(unit) omg
         read(unit) order
