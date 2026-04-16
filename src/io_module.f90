@@ -96,14 +96,14 @@
 
       subroutine write_dynamic_input(filename, dyn_dir, struct_dir,    &
                                  f0, omega, pfai, t_end, t_ini,        &
-                                 nsteps, noc, ntau,                    &
+                                 nsteps, dt, noc, ntau,                &
                                  src_type, omg, order)
         implicit none
         character(*), intent(in) :: filename, struct_dir, dyn_dir
         integer, intent(in) ::  noc, ntau, nsteps
         integer, intent(in) :: order, src_type
         real(8), intent(in) :: f0, omega, pfai, omg
-        real(8), intent(in) :: t_end, t_ini
+        real(8), intent(in) :: t_end, t_ini, dt
       
         integer :: unit
       
@@ -116,6 +116,7 @@
         write(unit,*) "t_end     =", t_end
         write(unit,*) "t_ini     =", t_ini
         write(unit,*) "nsteps    =", nsteps
+        write(unit,*) "dt        =", dt
         write(unit,*) "noc       =", noc
         write(unit,*) "ntau      =", ntau
         write(unit,*) "src_type  =", src_type

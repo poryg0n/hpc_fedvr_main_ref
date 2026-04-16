@@ -132,13 +132,13 @@
            print*, "field f0    :", f0
            print*, "omega       :", omega
            print*, "pfai_       :", pfai
-           print*, "init. time  :", t_ini
            print*, "final time  :", t_end
+           print*, "init. time  :", t_ini
            print*, "nsteps      :", nt
            print*, "dt0         :", dt0
-           print*, "noc         : ", noc
-           print*, "ntau        : ", ntau
-           print*, "              "
+           print*, "noc         :", noc
+           print*, "ntau        :", ntau
+           print*, "             "
            print*, "source_type :", src_type
 
            print*, "omeg_       = ", omeg
