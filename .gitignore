@@ -24,5 +24,8 @@ log/
 # fortran junk files
 fort.*
 
+# python junk files
+__pycache__/
+
 # plot
 *.png
