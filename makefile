@@ -2,6 +2,7 @@ FC = gfortran
 #FFLAGS = -O3 -Wall -cpp -MMD -MP -fcheck=all -g
 FFLAGS = -O3 -march=native -ffast-math -funroll-loops -fopenmp
 LAPACK = -llapack -lblas
+#LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
 SRC = src
 
 # --- Core modules (NO main here) ---
@@ -36,7 +37,7 @@ $(STRUCTURE_EXE): $(CORE_OBJS) main_structure.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 # --- Future ---
-$(DYNAMIC_EXE): $(CORE_OBJS) main_dynamics.o
+$(DYNAMIC_EXE): $(CORE_OBJS) main_dynamic.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
