@@ -322,6 +322,45 @@
       end subroutine
 
 
+      subroutine write_wavefunction_input(filename, t, omg, jac,       &
+                                              w, x, eigvec, wf)
+        implicit none
+      
+        character(len=*), intent(in) :: filename
+        real(8), intent(in) :: t, omg, jac
+        real(8), intent(in) :: w(:), x(:)
+        real(8), intent(in) :: eigvec(:,:)
+        complex(8), intent(in) :: wf(:)
+      
+        integer :: i, n, unit
+        complex(8), allocatable :: wfc(:)
+      
+        open(newunit=unit, file=filename, status='unknown',            &
+                                               position='replace')
+      
+        n = size(wf,1)
+        allocate(wfc(n))
+      
+        ! --- header
+        write(unit,*) "# t   = ", t
+        write(unit,*) "# omg = ", omg
+      
+        ! --- eigenbasis → configuration space
+        wfc = matmul(eigvec, wf)
+      
+        do i = 1, n
+           wfc(i) = wfc(i) / ( w(i) * dsqrt(jac) )
+           write(unit,*) x(i), real(wfc(i)), aimag(wfc(i))
+        end do
+      
+!       write(unit,*) ""  ! separator between snapshots
+      
+        deallocate(wfc)
+        close(unit)
+      
+      end subroutine
+
+
       subroutine write_wavefunction_bin(filename, nmax,               &
                                                 psi, phi, omg, t)
         implicit none

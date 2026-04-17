@@ -14,6 +14,8 @@
 !        call spatial_obs(...)
 !     end subroutine
 
+
+
       subroutine compute_dens_probab(n, jacc, wx, eigvec, wf, rho)
 
         implicit none
