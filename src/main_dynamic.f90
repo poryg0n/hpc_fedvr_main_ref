@@ -151,16 +151,13 @@
        allocate(src_x(nmax_))
 
 ! --- initial condition ---
-       wfc0 = eigvec(:,1)
-       wf0 = matmul(transpose(eigvec),wfc0)
-       wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
-!      do i=1,10
-!         write(*,*) i, wf0(i)
-!      enddo
+!      wfc0 = eigvec(:,1)
+!      wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
+!      wf0 = matmul(transpose(eigvec),wfc0)
 
-!      write(*,*) "src_type is ", src_type
-!      pause
-
+       wfc0 = (ppi)*(-1.d0/4) * exp(-varkap*abs(xx))
+       wf0 = wfc0 * wx * dsqrt(jacc)
+       wf0 = matmul(transpose(eigvec),wf0)
 
 
        tt = t_ini                ! start time
@@ -180,6 +177,9 @@
              phi_inc(i) = (-ci*kapp**(3.d0/2)/omg) * sgn(xx(i)) *    &
               (  exp(-kapp*abs(xx(i)))  -  exp(-kappa_w*abs(xx(i))) ) 
           enddo
+
+          phi_inc = phi_inc * wx * dsqrt(jacc)
+          phi_in = matmul(transpose(eigvec), phi_inc)
        end if
 
 
