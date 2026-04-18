@@ -1,7 +1,10 @@
 import os
 import sys
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")   # <-- non-interactive backend
 import matplotlib.pyplot as plt
+
 
 def find_runs(base_dir, keyword=None):
     runs = []
@@ -85,7 +88,7 @@ def format_param(val, mode="float"):
 # ---- execution part ----
 
 output_dir = "data/exp/" 
-runs = find_runs(output_dir, keyword="10000")
+runs = find_runs(output_dir, keyword=keyword)
 
 if len(sys.argv) > 1:
     prefix = sys.argv[1]
@@ -96,6 +99,11 @@ if len(sys.argv) > 2:
     scale = sys.argv[2]
 else:
     scale = "linear"
+
+if len(sys.argv) > 3:
+    keyword = sys.argv[3]
+else:
+    keyword = None
 
 #plt.figure()
 
