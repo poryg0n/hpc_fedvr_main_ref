@@ -335,8 +335,7 @@
         integer :: i, n, unit
         complex(8), allocatable :: wfc(:)
       
-        open(newunit=unit, file=filename, status='unknown',            &
-                                               position='replace')
+        open(newunit=unit, file=filename, status='new')
       
         n = size(wf,1)
         allocate(wfc(n))
