@@ -139,6 +139,7 @@
        allocate( auxc(nmax_), svec(nmax_,3) )
  
        allocate(psi0(nmax_), phi0(nmax_))
+       allocate(wfc0(nmax_), wf0(nmax_))
        allocate(psi_in(nmax_), psi_out(nmax_))
        allocate(psi_inx(nmax_), psi_outx(nmax_))
        allocate(phi_in(nmax_), phi_out(nmax_))
@@ -151,13 +152,13 @@
        allocate(src_x(nmax_))
 
 ! --- initial condition ---
-!      wfc0 = eigvec(:,1)
-!      wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
-!      wf0 = matmul(transpose(eigvec),wfc0)
+       wfc0 = eigvec(:,1)
+       wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
+       psi0 = matmul(transpose(eigvec),wfc0)
 
-       wfc0 = (ppi)*(-1.d0/4) * exp(-varkap*abs(xx))
-       wf0 = wfc0 * wx * dsqrt(jacc)
-       wf0 = matmul(transpose(eigvec),wf0)
+       wfc0 = (ppi)*(-1.d0/4) * exp(-kapp*abs(xx))
+!      wf0 = wfc0 * wx * dsqrt(jacc)
+!      wf0 = matmul(transpose(eigvec),wf0)
 
 
        tt = t_ini                ! start time
@@ -178,9 +179,23 @@
               (  exp(-kapp*abs(xx(i)))  -  exp(-kappa_w*abs(xx(i))) ) 
           enddo
 
-          phi_inc = phi_inc * wx * dsqrt(jacc)
-          phi_in = matmul(transpose(eigvec), phi_inc)
        end if
+
+      call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi_in)
+      call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi_in)
+
+
+
+      do i=nmax_/2-5, nmax_/2+5
+         write(*,*) xx(i), eigvec(i,1), wfc0(i)
+      enddo
+      write(*,*)
+      do i=1, 10
+         write(*,*) i, psi0(i), wf0(i)
+      enddo
+
+      write(*,*) "src_type is ", src_type
+
 
 
        phi0 = phi_in

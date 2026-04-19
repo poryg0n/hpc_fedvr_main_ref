@@ -282,7 +282,6 @@
 !          end if
 !       enddo
 
-        Ek = 0.5d0 * kk**2 
 
         do j=1,krange
 !          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
@@ -406,9 +405,21 @@
         b0wT = sum(auxc)
         b0wT = exp(ci*eigval(1)*t_end) * b0wT
 
-        auxc = conjg(wfc_k) * wfc_2 * wx*wx*jacc
-        bkwT = sum(auxc)
-        bkwT = exp(ci*eigval(1)*t_end) * bkwT
+        do k=1, krange
+
+           wfc_k = exp(ci*kk(j)*xx) +                                  &
+                   (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                 &
+                   exp(-ci*abs(kk(j)*xx))
+       
+           auxc = conjg(wfc_k) * wfc_2 * wx*wx*jacc
+           bkwT = sum(auxc)
+
+        enddo
+
+        Ek = 0.5d0 * kk**2 
+
+        bkwT = exp(ci*Ek*t_end) * bkwT
+
       
         vec_1 = pk0 * a0 / ( Ek + omega - E0 )
         vec_1 = exp(ci * ( Ek + omega - E0 ) * t_end ) * vec_1

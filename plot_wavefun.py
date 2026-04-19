@@ -44,6 +44,8 @@ def plot_wavefunction(x, re, im, mode="all", title=""):
         plt.legend()
         plt.grid()
 
+
+
     elif mode == "all":
         # --- Re/Im + amplitude
         fig, axs = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
@@ -58,6 +60,8 @@ def plot_wavefunction(x, re, im, mode="all", title=""):
         axs[1].set_ylabel(r"$|\psi(x)|$")
         axs[1].set_xlabel(r"$x$")
         axs[1].grid()
+
+        plt.yscale("log")
 
     elif mode == "phase":
         # --- amplitude + phase
