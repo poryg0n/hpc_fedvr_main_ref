@@ -1,4 +1,4 @@
-      integer, parameter :: np = 10
+      integer, parameter :: np = 20
       integer, parameter :: ns = 100
       real(8), parameter :: xmin_ = -2000.d0
       real(8), parameter :: xmax_ =  2000.d0
