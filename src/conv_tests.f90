@@ -299,8 +299,8 @@
 !      write(*,'(a)') '         Inside of convergence test         '
        write(*,*) 'nt = ', nt
        write(*,'(a)') '# t  Re[psi(1)] Im[psi(1)] ||psi||          '// & 
-                      '                   Re[phi(1)] Im[phi(1)] ||phi||'
-             write(*,'(f8.4,3x,6e16.8)') t,                       &
+                      '                   Re[phi(2)] Im[phi(2)] ||phi||'
+             write(*,'(f10.4,3x,6e16.8)') t,                       &
                   real(psi_in(1)), aimag(psi_in(1)),              &
                                      sqrt(sum(abs(psi_in)**2)),   &
                   real(phi_in(j)), aimag(phi_in(j)),              &
@@ -349,7 +349,7 @@
 
          ! === diagnostics ===
          if (mod(i,10) == 0) then
-            write(*,'(f8.4,3x,6e16.8)') t,                      &
+            write(*,'(f10.4,3x,6e16.8)') t,                      &
                  real(psi(1)), aimag(psi(1)),                    &
                                       sqrt(sum(abs(psi)**2)),    &
                  real(phi(j)), aimag(phi(j)),                    &

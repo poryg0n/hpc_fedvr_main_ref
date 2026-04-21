@@ -152,26 +152,26 @@
        allocate(src_x(nmax_))
 
 ! --- initial condition ---
-       wfc0 = eigvec(:,1)
-       wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
-       psi0 = matmul(transpose(eigvec),wfc0)
+!      wfc0 = eigvec(:,1)
+!      wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
+!      psi0 = matmul(transpose(eigvec),wfc0)
 
-       wfc0 = (ppi)*(-1.d0/4) * exp(-kapp*abs(xx))
+!      wfc0 =  kapp**(.5d0) * exp(-kapp*abs(xx))
 !      wf0 = wfc0 * wx * dsqrt(jacc)
 !      wf0 = matmul(transpose(eigvec),wf0)
 
-
-       tt = t_ini                ! start time
-       psi_in = wf0              ! initial wavefunction
-
+       
+       
        j=1
+       psi0    = (0.d0,0.d0)
+       psi0(1) = (1.d0,0.d0)
+       wf0 = psi0
 
-       phi_in = psi_in
 
        if (src_type.eq.3) then
           j = 2
-          call apply_momentum_operator(nmax_, eigvec, xx, wx,  &
-                  jacc, psi_in, phi_in, qho)
+!         call apply_momentum_operator(nmax_, eigvec, xx, wx,  &
+!                 jacc, psi_in, phi_in, qho)
 
           kappa_w = varkap(kapp, omeg)
           do i=1, nmax_
@@ -181,9 +181,12 @@
 
        end if
 
-      call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi_in)
-      call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi_in)
+       call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
+       call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
 
+       tt = t_ini                ! start time
+       psi_in = psi0                ! initial wavefunction
+       phi_in = phi0                ! initial wavefunction
 
 
 !     do i=nmax_/2-5, nmax_/2+5
@@ -197,11 +200,8 @@
 !     write(*,*) "src_type is ", src_type
 
 
-
-       phi0 = phi_in
-       psi0 = psi_in
-       phi_inx = phi_in
-       psi_inx = psi_in
+      psi_inx = psi_in
+      phi_inx = phi_in
 
       open(newunit=init_unit, file=trim(workdir)//"initial_conds.dat", &
                                                status='replace')
@@ -219,6 +219,19 @@
 !      write(log_unit,'(f10.4,1x,6e20.10)') tt,                        &
 !        real(psi_in(1)), aimag(psi_in(1)), sqrt(sum(abs(psi_in)**2)), &
 !          real(phi_in(j)), aimag(phi_in(j)), sqrt(sum(abs(phi_in)**2))
+
+
+      call test_richardson_inhomogeneous( nmax_, ns, np,               &
+                                           jacc,                       &
+                                           xs, xx, wx,                 &
+                                           map, Dref,                  &
+                                           dt0, t_end, t_ini,          &
+                                           eigval, eigvec,             &
+                                           psi0, phi0,                 &
+                                           src_type, omeg, order)
+
+!    pause
+
 
 
       write(*,*) "Saving the dynamic parameters"
@@ -379,8 +392,8 @@
 
          psi_in = psi_out
          phi_in = phi_out
-         psi_inx = psi_ex
-         phi_inx = phi_ex
+!        psi_inx = psi_ex
+!        phi_inx = phi_ex
       enddo
 
       call write_observables_bin(trim(workdir)//"dyn_obs.bin", &

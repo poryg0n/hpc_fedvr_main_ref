@@ -9,6 +9,7 @@
       use fedvr_derivative_ops
       use global_assembly
       use fedvr_conf_struct
+      use space_time_ops
       use io_module
       implicit none
       integer :: lwork, info, store_val,                              &
@@ -198,10 +199,11 @@
                            file=trim(workdir)//"fundamental.dat", &
                            status='replace')
 
-      wfc0 = eigvec(:,1)/wx/dsqrt(jac)
-      wf0 = wfc0 * wx * dsqrt(jac)
-      auxc=wf0
-      wf0 = matmul(transpose(eigvec),auxc)
+      wf0 = (0.0d0,0.d0)
+      wf0(1) = (1.0d0,0.d0)
+
+      call eigen_to_dvr(nmax, jac, wx, eigvec, wf0, wfc0)
+
 
       write(*,*) "Norm of the fundamental", sum( abs(wfc0)**2 * wx**2 * jac ) 
       write(*,*) "writing fundamental to file"
