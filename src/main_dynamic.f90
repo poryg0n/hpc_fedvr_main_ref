@@ -24,7 +24,7 @@
                     p0, pexc, pion,                             &
                     err1, err2,                                       &
                     rowsum,                                    &
-                    kappa_w,                                    &
+                    kappa_w,                               &
                     jacc, xx1, xx2
 
       complex(8) :: cnum, a0, nrg_, xt_, pt_
@@ -124,9 +124,9 @@
 !     enddo
 
 
-       call set_force_params(f0_, omega_, pfai_)  
+       call set_force_params(f0_, omega_0, pfai_)  
        call init_time_grid(noc_, ntau_, nsteps)
-       call init_src(src_type_, omg)
+       call init_src(src_type_, omega_)
        call set_resolution_order(order_)
        call set_other_dyn_params(do_time_obs_, obs_stride_)
 
@@ -173,9 +173,9 @@
           call apply_momentum_operator(nmax_, eigvec, xx, wx,  &
                   jacc, psi_in, phi_in, qho)
 
-          kappa_w = varkap(kapp, omg)
+          kappa_w = varkap(kapp, omeg)
           do i=1, nmax_
-             phi_inc(i) = (-ci*kapp**(3.d0/2)/omg) * sgn(xx(i)) *    &
+             phi_inc(i) = (-ci*kapp**(3.d0/2)/omeg) * sgn(xx(i)) *    &
               (  exp(-kapp*abs(xx(i)))  -  exp(-kappa_w*abs(xx(i))) ) 
           enddo
 
@@ -207,7 +207,7 @@
                                                status='replace')
       do i=1,nmax_
          write(init_unit,*) i, xx(i),                                  &
-                         real(wfc0(i)), imag(phi_inc(i)), omg_
+                         real(wfc0(i)), imag(phi_inc(i)), omeg
       enddo
 
 !      write(*,*) "Check the initial condition"
@@ -224,10 +224,10 @@
       write(*,*) "Saving the dynamic parameters"
       call write_dynamic_bin(trim(workdir)//"dynamic.bin",             &
                        workdir, struct_dir_,                           &
-                       f0, omega, pfai,                                &
+                       f0, omega0, pfai,                                &
                        t_end, t_ini, nt, dt0,                          &
                        noc, ntau, src_type,                            &
-                       omg, order)
+                       omeg, order)
 
 
       call write_problem_input(trim(workdir)//"param_structure.txt",   &
@@ -236,16 +236,16 @@
 
       call write_dynamic_input(trim(workdir)//"param_dynamic.txt",     &
                        workdir, struct_dir_,                           &
-                       f0, omega, pfai,                                &
+                       f0, omega0, pfai,                                &
                        t_end, t_ini, nt, dt0,                          &
                        noc, ntau, src_type,                            &
-                       omg, order)
+                       omeg, order)
 
 
 
       write(*,*) "Saving the initial conditions"
       call write_wavefunction_bin(trim(workdir)//'initial_state.bin',  &
-                                     nmax_, psi_in, phi_in, omg, t_ini)
+                                     nmax_, psi_in, phi_in, omeg, t_ini)
       write(*,*) "initial conditions - saved"
 
 
@@ -285,6 +285,8 @@
       write(*,*) "nobs = ", nobs
 !     pause
 
+
+
       do i = 1, nt
 
          ! --- propagation ---
@@ -292,16 +294,16 @@
          call process_src_ingredients ( nmax_, ns, np,              &
                                    jacc,                            &
                                    xs, xx, wx, map, Dref,     &
-                                   dt0, tt, omega,                     &
+                                   dt0, tt,                            &
                                    eigval, eigvec, psi_in, svec,       &
-                                   src_type, order)
+                                   src_type, omeg, order)
 
          call build_source_quadrature ( nmax_, ns, np,             &
                                                xs, xx, map, Dref,     &
-                                               dt0, tt, omega,        &
+                                               dt0, tt,               &
                                                eigval, eigvec,        &
                                                svec,                  &
-                                               src,                   &
+                                               src, omeg,            &
                                                order )
          
          call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,       &
@@ -364,14 +366,14 @@
 
          end if
 
-         call exact_closed_duhamel(nmax_, omega,                       &
-                tt, t_ini, eigval, psi0, phi0, psi_ex, phi_ex, src_type)
+         call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
+                 eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
 
 
 !        write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
          if (mod(i,100).eq.0) then
             call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                     nmax_, psi_out, phi_out, omg, tt)
+                                     nmax_, psi_out, phi_out, omeg, tt)
          end if
 
 
@@ -387,7 +389,7 @@
                 nrg_t, x_t, p_t)
 
       call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                nmax_, psi_out, phi_out, omg, tt)
+                                nmax_, psi_out, phi_out, omeg, tt)
 
       close(obs_unit)
       write(log_unit,*) workdir

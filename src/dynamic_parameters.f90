@@ -4,7 +4,7 @@
         public :: force_t, set_force_params
       
         real(8), public :: f0        ! field amplitude
-        real(8), public :: omega     ! field frequency
+        real(8), public :: omega0    ! field frequency
         real(8), public :: pfai      ! field cep phase
         real(8), public :: period    ! field period
         real(8), public :: tau       ! pulse active duration
@@ -38,7 +38,7 @@
            ntau  = ntau_
            nt    = nsteps
 
-           tau    = 2.d0*ppi*noc/omega
+           tau    = 2.d0*ppi*noc/omega0
            trange = ntau * tau
            t_end  =  trange/2.d0
            t_ini  = -t_end
@@ -48,13 +48,13 @@
         end subroutine
 
 
-        subroutine init_src(src_type_, omg)
+        subroutine init_src(src_type_, omega)
   
            integer, intent(in) :: src_type_
-           real(8), intent(in) :: omg
+           real(8), intent(in) :: omega
   
            src_type =  src_type_
-           omeg = omg
+           omeg = omega
   
         end subroutine
 
@@ -99,7 +99,7 @@
         subroutine set_force_params(f0_in, omega_in, pfai_in)
           real(8), intent(in) :: f0_in, omega_in, pfai_in
           f0    = f0_in
-          omega = omega_in
+          omega0 = omega_in
           pfai  = pfai_in
         end subroutine
 
@@ -107,7 +107,7 @@
         real(8) function force_t(tt)
           real(8), intent(in) :: tt
 
-          force_t = f0 * exp(-(2*tt/tau)**2) * cos(omega * tt)
+          force_t = f0 * exp(-(2*tt/tau)**2) * cos(omega0 * tt)
         end function
 
 
@@ -130,7 +130,7 @@
   
            print*, "----- Dynamic parameters -----"
            print*, "field f0    :", f0
-           print*, "omega       :", omega
+           print*, "omega0      :", omega0
            print*, "pfai_       :", pfai
            print*, "final time  :", t_end
            print*, "init. time  :", t_ini

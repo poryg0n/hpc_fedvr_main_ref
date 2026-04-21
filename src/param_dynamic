@@ -2,7 +2,7 @@
       integer :: nb_points = 100
       
  
-      integer, parameter :: nsteps = 20d3
+      integer, parameter :: nsteps = 10d3
       integer, parameter :: noc_ = 5
       integer, parameter :: ntau_ = 8
       integer, parameter :: order_ = 2
@@ -10,8 +10,8 @@
       integer, parameter :: obs_stride_ = 10
       logical, parameter :: do_time_obs_ = .true.
 
-      real(8), parameter :: omega_ = 0.057d0
-!     real(8), parameter :: omega_ = 0.114d0
+!     real(8), parameter :: omega_0 = 0.057d0
+      real(8), parameter :: omega_0 = 0.114d0
 !     real(8), parameter :: t1 = 500.d0
 !     real(8), parameter :: t0 = -t1
       real(8), parameter :: f0_ = .03d0
@@ -20,5 +20,5 @@
       real(8), parameter :: pfai_ = 0.0d0
 
       real(8), parameter :: vkpa = 1.d0
-      real(8), parameter :: omg = .5d0
+      real(8), parameter :: omega_ = .5d0
       real(8), parameter :: alpha= 1.d0/137

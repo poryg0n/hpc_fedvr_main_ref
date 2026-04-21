@@ -26,12 +26,13 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                           dt0, tf, t0, omega,        &
+                                           dt0, tf, t0,                &
                                            eigval, eigvec,            &
-                                           psi0, phi0, flag, order)
+                                           psi0, phi0,               &
+                                           src_type, omega, order)
       
          implicit none
-         integer, intent(in) :: nmax, lnbr, nnbr, order, flag
+         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
          real(8), intent(in) :: t0, tf, dt0, omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
@@ -63,11 +64,11 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                        dt(k), tf, t0, omega,         &
+                                        dt(k), tf, t0,                &
                                         eigval, eigvec,               &
                                         psi0, phi0,                   &
                                         psi(:,k), phi(:,k),           &
-                                        flag, order)
+                                        src_type, omega, order)
             end do
 
 
@@ -107,14 +108,14 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                             dt0, tf, t0, omega,      &
+                                             dt0, tf, t0,        &
                                              eigval, eigvec,          &
                                              psi0, phi0,              &
-                                            flag, order)
+                                            src_type, omega, order)
       
          implicit none
       
-         integer, intent(in) :: nmax, lnbr, nnbr, order, flag
+         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
          real(8), intent(in) :: t0, tf, dt0, omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
@@ -150,8 +151,8 @@
          ! Compute exact solution once
          !--------------------------------------------
 
-         call exact_closed_duhamel(nmax, omega,                      &
-                tf, t0, eigval, psi0, phi0, psi_exact, phi_exact, flag )
+         call exact_closed_duhamel(nmax, tf, t0,                       &
+                eigval, psi0, phi0, psi_exact, phi_exact, src_type, omega )
       
          !--------------------------------------------
          ! Run numerical propagators
@@ -161,11 +162,11 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                           dt(k), tf, t0, omega,      &
+                                           dt(k), tf, t0,             &
                                            eigval, eigvec,            &
                                            psi0, phi0,                &
                                            psi(:,k), phi(:,k),        &
-                                           flag, order )
+                                           src_type, omega, order )
 
 
             end do
@@ -261,14 +262,14 @@
                                  jac,                   &
                                  xs, xx, wx,                &
                                  map, Dref,                 &
-                                     dt, tf, t0, omega,                &
+                                 dt, tf, t0,                 &
                                      eigval, eigvec,                   &
                                      psi0, phi0,                       &
-                                     psi, phi,                         &
-                                     flag, order)
+                                     psi, phi,                  &
+                                     src_type, omega, order)
       
          implicit none
-         integer, intent(in) :: nmax, lnbr, nnbr, order, flag
+         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
          real(8), intent(in) :: t0, tf, dt, omega, jac
          integer, intent(in) :: map(:,:)
          real(8), intent(in) :: xs(:), xx(:), wx(:)
@@ -293,7 +294,7 @@
        nt = int((tf - t0)/dt)
 
        j=1
-       if (flag.eq.3) j=2
+       if (src_type.eq.3) j=2
 
 !      write(*,'(a)') '         Inside of convergence test         '
        write(*,*) 'nt = ', nt
@@ -318,16 +319,16 @@
                                  jac,                   &
                                  xs, xx, wx,                &
                                  map, Dref,                 &
-                                 dt, t, omega,                         &
+                                 dt, t,                             &
                                  eigval, eigvec, psi_in, svec,         &
-                                 flag, order)
+                                 src_type, omega, order)
 
          call build_source_quadrature ( nmax, lnbr, nnbr,             &
                                                xs, xx, map, Dref,     &
-                                               dt, t, omega,        &
+                                               dt, t,                 &
                                                eigval, eigvec,        &
                                                svec,                  &
-                                               src,                   &
+                                               src, omega,           &
                                                order )
 
          call split_operator(nmax, dt, t, xx, eigval, eigvec,         &
@@ -340,23 +341,23 @@
          !--------------------------------------------
          phi = phi - ci * src
 
-          ! === state update ===
-          psi_in = psi
-          phi_in = phi
+         ! === state update ===
+         psi_in = psi
+         phi_in = phi
 
-          t     = t + dt
+         t     = t + dt
 
-          ! === diagnostics ===
-          if (mod(i,10) == 0) then
-             write(*,'(f8.4,3x,6e16.8)') t,                      &
-                  real(psi(1)), aimag(psi(1)),                    &
-                                       sqrt(sum(abs(psi)**2)),    &
-                  real(phi(j)), aimag(phi(j)),                    &
-                                       sqrt(sum(abs(phi)**2))
-          end if
+         ! === diagnostics ===
+         if (mod(i,10) == 0) then
+            write(*,'(f8.4,3x,6e16.8)') t,                      &
+                 real(psi(1)), aimag(psi(1)),                    &
+                                      sqrt(sum(abs(psi)**2)),    &
+                 real(phi(j)), aimag(phi(j)),                    &
+                                      sqrt(sum(abs(phi)**2))
+         end if
 
 
-       end do
+      end do
       end subroutine run_inhomogeneous_duhamel_driver
 
 
@@ -366,13 +367,13 @@
 
 !!  ***    S(t) = exp(i omega t) F(x,t)
 
-       subroutine exact_closed_duhamel(nmax,omega,t,t0,eigval,    &
+       subroutine exact_closed_duhamel(nmax, t,t0,eigval,    &
                                          psi0, phi0,              &
-                                         psi_out,phi_out, flag)
+                                         psi_out, phi_out, src_type, omega)
        
        implicit none
        
-       integer, intent(in) :: nmax, flag
+       integer, intent(in) :: nmax, src_type
        real(8), intent(in) :: t,t0,omega
        real(8), intent(in) :: eigval(nmax)
        
@@ -397,7 +398,7 @@
        !-----------------------------------------
        ! duhamel term
        !-----------------------------------------
-       select case(flag)
+       select case(src_type)
        
        !-----------------------------------------
        ! 1 : constant forcing  F(t) = psi0
@@ -478,13 +479,13 @@
        end subroutine exact_closed_duhamel
 
 
-       subroutine exact_increment_duhamel(nmax, omega, dt, tn,        &
+       subroutine exact_increment_duhamel(nmax, dt, tn,        &
                                   eigval, psi_in, phi_in,             &
-                                  psi_out, phi_out, flag)
+                                  psi_out, phi_out, src_type, omega)
        
        implicit none
        
-       integer, intent(in) :: nmax, flag
+       integer, intent(in) :: nmax, src_type
        real(8), intent(in) :: omega, dt, tn
        real(8), intent(in) :: eigval(nmax)
        
@@ -512,7 +513,7 @@
        !-----------------------------------
        ! duhamel term
        !-----------------------------------
-       select case(flag)
+       select case(src_type)
        
        !-----------------------------------
        ! 1 : constant forcing

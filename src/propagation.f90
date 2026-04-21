@@ -140,10 +140,10 @@
 
       subroutine build_source_quadrature( nmax, lnbr, nnbr,           &
                                                   xs, xx, map, Dref,  &
-                                                  dt, t, omega,       &
+                                                  dt, t,              &
                                                   eigval, eigvec,     &
                                                   svec,               &
-                                                  src,                &
+                                                  src, omega,         &
                                                   order )
          implicit none
          integer, intent(in) :: nmax, lnbr, nnbr, order
@@ -159,18 +159,18 @@
          if (order.eq.2) then
             call midpoint_quadrature( nmax, lnbr, nnbr,               &
                                                   xs, xx, map, Dref,  &
-                                                  dt, t, omega,       &
+                                                  dt, t,              &
                                                   eigval, eigvec,     &
                                                   svec,               &
-                                                  src, order )
+                                                  src, omega, order )
          else 
 
             call simpson_quadrature( nmax, lnbr, nnbr,                &
                                                   xs, xx, map, Dref,  &
-                                                  dt, t, omega,       &
+                                                  dt, t,              &
                                                   eigval, eigvec,     &
                                                   svec,               &
-                                                  src, order )
+                                                  src, omega, order )
          end if
 
 
@@ -186,10 +186,10 @@
 
       subroutine midpoint_quadrature( nmax, lnbr, nnbr,               &
                                                   xs, xx, map, Dref,  &
-                                                  dt, t, omega,       &
+                                                  dt, t,              &
                                                   eigval, eigvec,     &
                                                   svec,            &
-                                                  src, order )
+                                                  src, omega, order )
       
          implicit none
          integer, intent(in) :: nmax, lnbr, nnbr, order
@@ -220,10 +220,10 @@
 
       subroutine simpson_quadrature( nmax, lnbr, nnbr,   &
                                                   xs, xx, map, Dref,  &
-                                                  dt, t, omega,       &
+                                                  dt, t,              &
                                                   eigval, eigvec,     &
                                                   svec,               &
-                                                  src, order )
+                                                  src, omega, order )
       
          implicit none
          integer, intent(in) :: nmax, lnbr, nnbr, order
@@ -261,13 +261,13 @@
                                          jac,          &
                                          xs, xx, wx,           &
                                          map, Dref,                    &
-                                         dt, t, omega,                 &
+                                         dt, t,                  &
                                         eigval, eigvec,         &
                                         psi_in, svec,           &
-                                        flag, order )
+                                        src_type, omega, order )
 
       implicit none
-      integer, intent(in) :: nmax, lnbr, nnbr, order, flag
+      integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
       real(8), intent(in) :: dt, t, omega, jac
       real(8), intent(in) :: xs(:), xx(:), wx(:)
       integer, intent(in) :: map(:,:)
@@ -286,7 +286,7 @@
 
       dt2 = 0.5d0*dt
      
-      select case(flag)
+      select case(src_type)
          case(1)
             aux = 0.d0
             aux(1) = (1.d0, 0.d0)
@@ -297,16 +297,16 @@
 
 
      ! --- apply whatever function of time to the argument if there is ---
-     call apply_stuff_to_arg(nmax, xx, dt, t, omega,       &
-                 jac, wx, eigval, eigvec, aux, svec0, flag, order)
+     call apply_stuff_to_arg(nmax, xx, dt, t,      &
+              jac, wx, eigval, eigvec, aux, svec0, src_type, omega, order)
 
       !-----------------------------------------
       ! build Simpson nodes F(t), F(t+dt/2), F(t+dt)
       !-----------------------------------------
 
       call build_source_vector(nmax, xx, dt, t,                 &
-                               omega, jac, wx, eigval, eigvec, &
-                               svec0, svec, flag, order)
+                               jac, wx, eigval, eigvec, &
+                               svec0, svec, src_type, order)
         
          do k = 1,3
             tau = t+0.5d0 * (k-1)*dt
@@ -314,7 +314,7 @@
             aux0(:,k) = svec(:,k)
  
             !  Transport
-            call split_operator(nmax, delta, tau, xx,                   &
+            call split_operator(nmax, delta, tau, xx,                &
                            eigval, eigvec, aux0(:,k), svec(:,k), order)
  
          enddo
@@ -323,12 +323,12 @@
       end subroutine process_src_ingredients
 
 
-      subroutine build_source_vector(nmax, xx, dt, t, omega,       &
+      subroutine build_source_vector(nmax, xx, dt, t,       &
                        jac, wx, eigval, eigvec, svec0, svec,   &
-                       flag, order)
+                       src_type, order)
         implicit none
-        integer, intent(in) :: nmax, flag, order
-        real(8), intent(in) :: t, dt, omega, jac
+        integer, intent(in) :: nmax, src_type, order
+        real(8), intent(in) :: t, dt, jac
         real(8), intent(in) :: xx(nmax), wx(nmax), eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
         complex(8), intent(in) :: svec0(nmax)
@@ -345,13 +345,13 @@
 
             svec(:,k) = svec0
 
-            if (flag.gt.1) then  
-              !  Transport  (if the function is not constant, i.e  flag/=1 ) 
+            if (src_type.gt.1) then  
+              !  Transport  (if the function is not constant, i.e  src_type/=1 ) 
               call split_operator(nmax, tau, t, xx,                   &
                              eigval, eigvec, svec0, svec(:,k), order)
 
 
-               if (flag.eq.3) then  
+               if (src_type.eq.3) then  
                   ! -i \partial_x \psi(x,t)
                   aux = svec(:,k)
                   call apply_momentum_operator(nmax, eigvec, xx, wx,  &
@@ -365,10 +365,10 @@
       end subroutine build_source_vector
 
 
-      subroutine apply_stuff_to_arg(nmax, xx, dt, t, omega,       &
-                       jac, wx, eigval, eigvec, aux, svec0, flag, order)
+      subroutine apply_stuff_to_arg(nmax, xx, dt, t, jac, wx,          &
+                      eigval, eigvec, aux, svec0, src_type, omega, order)
         implicit none
-        integer, intent(in) :: nmax, order, flag
+        integer, intent(in) :: nmax, order, src_type
         real(8), intent(in) :: t, dt, omega, jac
         real(8), intent(in) :: xx(nmax), wx(nmax), eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
