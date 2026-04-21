@@ -186,15 +186,15 @@
 
 
 
-      do i=nmax_/2-5, nmax_/2+5
-         write(*,*) xx(i), eigvec(i,1), wfc0(i)
-      enddo
-      write(*,*)
-      do i=1, 10
-         write(*,*) i, psi0(i), wf0(i)
-      enddo
+!     do i=nmax_/2-5, nmax_/2+5
+!        write(*,*) xx(i), eigvec(i,1), wfc0(i)
+!     enddo
+!     write(*,*)
+!     do i=1, 10
+!        write(*,*) i, psi0(i), wf0(i)
+!     enddo
 
-      write(*,*) "src_type is ", src_type
+!     write(*,*) "src_type is ", src_type
 
 
 
