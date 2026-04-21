@@ -6,7 +6,7 @@
       IMPLICIT REAL*8(A,B,D-H,O-Z)
       IMPLICIT COMPLEX*16(C)
 
-      include 'param'
+      include 'param_structure'
       REAL*8 :: A
 C======================================
 C     Potential
