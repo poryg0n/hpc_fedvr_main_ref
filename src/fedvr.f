@@ -21,7 +21,7 @@ c      POTX=-1.d0/Dsqrt(1.41d0+XX**2)
 
 !     The zero-range potential
       IF (IX.eq.NX/2+1) THEN
-        POTX=-vkpa/WX**2/hscale
+        POTX=-kapp/WX**2/hscale
       ELSE
         POTX=0.d0
       ENDIF

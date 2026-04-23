@@ -171,9 +171,7 @@
 
 ! *** Construct H = T + V and diagonalize with external legacy procedures
 !     allocate(init1(nmax), init2(nmax))
-      allocate( auxc(nmax), svec(nmax,3) )
-      allocate(eigvec(nmax,nmax),xmat(nmax,nmax))
-      allocate( wf0(nmax), wfc0(nmax), wf(nmax),wfc(nmax), wfc_(nmax) )
+      allocate(eigvec(nmax,nmax))
       call fedvr_hamilton_conf(jac, xa, wa, xs, xx, wx,                &
                                                   eigval, eigvec)
 
@@ -192,13 +190,13 @@
 
       write(*,*) 
       write(*,*) 
-      call print_structure_parameters()
       write(*,*) workdir
 
       open(newunit=fundamental_unit,                              &
                            file=trim(workdir)//"fundamental.dat", &
                            status='replace')
 
+      allocate( wf0(nmax), wfc0(nmax), wf(nmax),wfc(nmax), wfc_(nmax) )
       wf0 = (0.0d0,0.d0)
       wf0(1) = (1.0d0,0.d0)
 
@@ -208,7 +206,8 @@
       write(*,*) "Norm of the fundamental", sum( abs(wfc0)**2 * wx**2 * jac ) 
       write(*,*) "writing fundamental to file"
       do i=1,nmax
-         write(fundamental_unit,*) i, xx(i), real(wf0(i)), real(wfc0(i))
+         write(fundamental_unit,*) xx(i),                              &
+                  real(wfc0(i)), eigvec(i,1)/wx(i)/dsqrt(jac), wf0(i)
       enddo
       close(fundamental_unit)
       write(*,*) "done"

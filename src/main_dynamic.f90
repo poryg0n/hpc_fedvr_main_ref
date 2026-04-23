@@ -221,7 +221,7 @@
 !          real(phi_in(j)), aimag(phi_in(j)), sqrt(sum(abs(phi_in)**2))
 
 
-      call test_richardson_inhomogeneous( nmax_, ns, np,               &
+      call test_richardson_inhomogeneous(log_unit, nmax_, ns, np,      &
                                            jacc,                       &
                                            xs, xx, wx,                 &
                                            map, Dref,                  &

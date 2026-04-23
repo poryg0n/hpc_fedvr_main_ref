@@ -22,7 +22,8 @@
 !         ***  Richardson tests ******
 
 
-      subroutine test_richardson_inhomogeneous( nmax, lnbr, nnbr,   &
+      subroutine test_richardson_inhomogeneous( log_unit,            &
+                                           nmax, lnbr, nnbr,   &
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
@@ -32,7 +33,8 @@
                                            src_type, omega, order)
       
          implicit none
-         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
+         integer, intent(in) :: nmax, lnbr, nnbr, order
+         integer, intent(in) :: src_type, log_unit
          real(8), intent(in) :: t0, tf, dt0, omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
@@ -60,7 +62,8 @@
       
          ! --- run propagations ---
             do k = 1, nrun
-               call run_inhomogeneous_duhamel_driver( nmax, lnbr, nnbr, &
+               call run_inhomogeneous_duhamel_driver( log_unit,       &
+                                           nmax, lnbr, nnbr, &
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
@@ -82,17 +85,17 @@
          order_psi = log(err_psi(nrun-2)/err_psi(nrun-1)) / log(2.0d0)
          order_phi = log(err_phi(nrun-2)/err_phi(nrun-1)) / log(2.0d0)
       
-         write(*,'(a)') '--- Richardson convergence test ---'
+         write(log_unit,'(a)') '--- Richardson convergence test ---'
          if (order.eq.2) then
-            print*, "order 2 duhamel test"
+            write(log_unit,*) "order 2 duhamel test"
          else
-            print*, "order 4 duhamel test"
+            write(log_unit,*) "order 4 duhamel test"
          end if
          do k = 1, nrun-1
-            write(*,'(a,i1,2e16.8)') 'dt level ',                      &
+            write(log_unit,'(a,i1,2e16.8)') 'dt level ',               &
                                           k, err_psi(k), err_phi(k)
          end do
-         write(*,'(a,2f8.4)') 'Observed order (psi, phi): ',           &
+         write(log_unit,'(a,2f8.4)') 'Observed order (psi, phi): ',    &
                                                order_psi, order_phi
       
          deallocate(psi, phi)
@@ -104,7 +107,8 @@
 
 !     ***     Absolute convergence tests     ***
 
-      subroutine test_against_exact_solution( nmax, lnbr, nnbr,        &
+      subroutine test_against_exact_solution( log_unit,                &
+                                           nmax, lnbr, nnbr,        &
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
@@ -115,7 +119,8 @@
       
          implicit none
       
-         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
+         integer, intent(in) :: nmax, lnbr, nnbr
+         integer, intent(in) :: order, src_type, log_unit
          real(8), intent(in) :: t0, tf, dt0, omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
@@ -158,7 +163,8 @@
          ! Run numerical propagators
          !--------------------------------------------
             do k = 1, nrun
-               call run_inhomogeneous_duhamel_driver( nmax, lnbr, nnbr,   &
+               call run_inhomogeneous_duhamel_driver( log_unit,       &
+                                           nmax, lnbr, nnbr,   &
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
@@ -185,11 +191,12 @@
          order_psi = log(err_psi(nrun-1)/err_psi(nrun)) / log(2.0d0)
          order_phi = log(err_phi(nrun-1)/err_phi(nrun)) / log(2.0d0)
       
-         write(*,'(a)') '--- Convergence vs Exact Solution ---'
+         write(log_unit,'(a)') '--- Convergence vs Exact Solution ---'
          do k = 1, nrun
-            write(*,'(a,i1,2e16.8)') 'dt level ', k, err_psi(k), err_phi(k)
+            write(log_unit,'(a,i1,2e16.8)') 'dt level ',               &
+                                             k, err_psi(k), err_phi(k)
          end do
-         write(*,'(a,2f8.4)') 'Observed order (psi, phi): ', &
+         write(log_unit,'(a,2f8.4)') 'Observed order (psi, phi): ',    &
                                            order_psi, order_phi
 
 
@@ -258,7 +265,8 @@
 
 
 
-      subroutine run_inhomogeneous_duhamel_driver( nmax, lnbr, nnbr,   &
+      subroutine run_inhomogeneous_duhamel_driver( log_unit,           &
+                                 nmax, lnbr, nnbr,   &
                                  jac,                   &
                                  xs, xx, wx,                &
                                  map, Dref,                 &
@@ -269,7 +277,8 @@
                                      src_type, omega, order)
       
          implicit none
-         integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
+         integer, intent(in) :: nmax, lnbr, nnbr
+         integer, intent(in) :: order, src_type, log_unit
          real(8), intent(in) :: t0, tf, dt, omega, jac
          integer, intent(in) :: map(:,:)
          real(8), intent(in) :: xs(:), xx(:), wx(:)
@@ -297,10 +306,10 @@
        if (src_type.eq.3) j=2
 
 !      write(*,'(a)') '         Inside of convergence test         '
-       write(*,*) 'nt = ', nt
-       write(*,'(a)') '# t  Re[psi(1)] Im[psi(1)] ||psi||          '// & 
+       write(log_unit,*) 'nt = ', nt
+       write(log_unit,'(a)') '# t  Re[psi(1)] Im[psi(1)] ||psi||  '// & 
                       '                   Re[phi(2)] Im[phi(2)] ||phi||'
-             write(*,'(f10.4,3x,6e16.8)') t,                       &
+             write(log_unit,'(f10.4,3x,6e16.8)') t,               &
                   real(psi_in(1)), aimag(psi_in(1)),              &
                                      sqrt(sum(abs(psi_in)**2)),   &
                   real(phi_in(j)), aimag(phi_in(j)),              &
@@ -349,7 +358,7 @@
 
          ! === diagnostics ===
          if (mod(i,10) == 0) then
-            write(*,'(f10.4,3x,6e16.8)') t,                      &
+            write(log_unit,'(f10.4,3x,6e16.8)') t,               &
                  real(psi(1)), aimag(psi(1)),                    &
                                       sqrt(sum(abs(psi)**2)),    &
                  real(phi(j)), aimag(phi(j)),                    &

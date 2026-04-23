@@ -1,17 +1,16 @@
       module fedvr_conf_struct
       use fedvr
-!     use structure_parameters
+      use structure_parameters
 !     use fedvr_basis
       implicit none
       contains
       subroutine fedvr_hamilton_conf(jac_,xa,wa,xs,xx,wx,eigval,     &
                          eigenvec)
-       integer :: ntot, np, ns, nout,                             &
+       integer :: ntot, nout,                             &
                   mdim2, mdim2s, mfnd, lwork2, liwork2, info,        &
                   vl, vu, il, iu, &
                   i, j, k
 
-!      real*8 :: jac_, abstol, start, lap
        real*8 :: jac_, abstol, start, lap, xrange_
        real*8, dimension(:) :: xa, wa, xx, xs, wx, eigval
        real*8, dimension(:,:) :: eigenvec
@@ -22,19 +21,20 @@
        real*8, allocatable, dimension(:) :: isuppz
        real*8, allocatable, dimension(:,:) :: ham0, id
 
-!      include 'param'
+!      include 'param_structure'
  
  
        nout = 200000
-       np = size(xa)
-       ns = size(xs)-1
-       ntot = ns*(np-1)-1
+!      nnbr = size(xa)
+!      snbr = size(xs)-1
+       ntot = snbr *(nnbr-1)-1
 
-       write(*,*) "np", np
-       write(*,*) "ns", ns
+       write(*,*) "nnbr", nnbr
+       write(*,*) "snbr", snbr
+       write(*,*) "xrange", xrange
        if (ntot.ne.(size(xx))) stop
 
-       mdim2 = ntot
+       mdim2 = nmax
 
        lwork2 = 26*mdim2
        liwork2 = 10*mdim2
@@ -49,17 +49,16 @@
 
        write(*,*) "Construction of kinetic energy matrix" 
        call cpu_time(start)
-       call kinetic_matrix_lobatto(eigenvec,ns,np,xa,wa)
-!      call basis_1d(basis,ns,np,xa,wa)
+       call kinetic_matrix_lobatto(eigenvec,snbr ,nnbr,xa,wa)
+!      call basis_1d(basis,snbr,nnbr,xa,wa)
        call cpu_time(lap)
        write(*,*) "Time required for kinetic energy matrix",         &
                     lap-start 
 
-          write(111,*) "np = ",np, "nelem", ns
-          write(111,*) "xa", xa
-          write(111,*) "wa", wa
-          write(111,*) "xrange", xrange_
-          write(111,*) "jac = 0.5d0*xrange/nelem", jac_
+!         write(*,*) "xa", xa
+!         write(*,*) "wa", wa
+          write(*,*) "xrange", xrange_
+          write(*,*) "jac = 0.5d0*xrange/nelem", jac_
       
           write(111,*) 
            write(*,*) "before jac"
@@ -70,14 +69,14 @@
        write(*,*) "kinetic matrix built"
        eigenvec=eigenvec/jac_**2
 
-       do i=1,ns
-          do j=1,np-1
-             if((i.ne.ns).or.(j.ne.(np-1))) then
-                k = (np-1)*(i-1)+j
-                xx(k) = xa(j+1) + (i-.5d0-.5d0*ns)*2
+       do i=1,snbr 
+          do j=1,nnbr-1
+             if((i.ne.snbr).or.(j.ne.(nnbr-1))) then
+                k = (nnbr-1)*(i-1)+j
+                xx(k) = xa(j+1) + (i-.5d0-.5d0*snbr)*2
                 xx(k) = xx(k)*jac_
-                if(j.eq.(np-1)) then
-                   wx(k) = dsqrt(wa(np)+wa(1))
+                if(j.eq.(nnbr-1)) then
+                   wx(k) = dsqrt(wa(nnbr)+wa(1))
                 else
                    wx(k) = dsqrt(wa(j+1))
                 end if 
