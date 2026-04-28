@@ -10,6 +10,7 @@ endif
 
 ifeq ($(FC),ifort)
     FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
+#   LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
     LAPACK = -mkl
 endif
 
