@@ -41,7 +41,7 @@
          real(8), intent(in) :: Dref(:,:), eigval(:), eigvec(:,:)
          complex(8), intent(in) :: psi0(:), phi0(:)
       
-         integer, parameter :: nrun = 2
+         integer, parameter :: nrun = 3
          real(8) :: dt(nrun)
          complex(8), allocatable :: psi(:,:), phi(:,:)
          real(8) :: errL2_psi(nrun), errL2_phi(nrun)
@@ -127,7 +127,7 @@
          real(8), intent(in) :: Dref(:,:), eigval(:), eigvec(:,:)
          complex(8), intent(in) :: psi0(:), phi0(:)
       
-         integer, parameter :: nrun = 2
+         integer, parameter :: nrun = 3
          real(8) :: dt(nrun)
          complex(8), allocatable :: psi(:,:), phi(:,:)
          complex(8), allocatable :: psi_exact(:), phi_exact(:), svec(:)
