@@ -221,14 +221,6 @@
 !          real(phi_in(j)), aimag(phi_in(j)), sqrt(sum(abs(phi_in)**2))
 
 
-!     call test_richardson_inhomogeneous(log_unit, nmax_, ns, np,      &
-!                                          jacc,                       &
-!                                          xs, xx, wx,                 &
-!                                          map, Dref,                  &
-!                                          dt0, t_end, t_ini,          &
-!                                          eigval, eigvec,             &
-!                                          psi0, phi0,                 &
-!                                          src_type, omeg, order)
 
 !    pause
 
@@ -276,6 +268,18 @@
       write(*,*) "struct_dir  = ", trim(struct_dir)
       write(*,*) "dyn_dir     = ", trim(workdir)
 
+
+      write(*,*) "performing the richardson test"
+      call test_richardson_inhomogeneous(log_unit, nmax_, ns, np,      &
+                                           jacc,                       &
+                                           xs, xx, wx,                 &
+                                           map, Dref,                  &
+                                           dt0, t_end, t_ini,          &
+                                           eigval, eigvec,             &
+                                           psi0, phi0,                 &
+                                           src_type, omeg, order)
+      write(*,*) "richardson test done"
+
       write(*,*) "Starting propagation"
       write(*,*) "nt =", nt
 
@@ -297,6 +301,8 @@
       kobs = 0
       write(*,*) "nobs = ", nobs
 !     pause
+
+
 
 
 
