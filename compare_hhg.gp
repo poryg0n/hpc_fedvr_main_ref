@@ -24,10 +24,10 @@ set size ratio  0.3182 1,1
 #set xtics .5, .1, 1.1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
-set xlabel 'x (a.u.)' font ', 15'
-set ylabel '|{/Symbol y}(x,t)|^2' font ', 15'
+set xlabel '{/Symbol w} (a.u.)' font ', 15'
+set ylabel 'Q^{(c)}_{/Symbol w}' font ', 15'
 set xlabel 'x (a.u.)'
-set title  'Density Probability'
+set title  'HHG'
 
 set grid
 
@@ -37,14 +37,14 @@ plot datafile1 using 1:2 with lines lw 2 lc 8 title label1, \
      datafile2 using 1:2 with lines lw 1 lc 2 title label2
 
 
-set terminal pngcairo size 1000,700
-set output outfile2
-
-set xlabel 'x (a.u.)' font ', 15'
-#set ylabel 'D(x,t)' font ', 15'
-set ylabel '|{/Symbol f}_{/Symbol o}(x,t)|^2' font ', 15'
-set xlabel 'x (a.u.)'
-set title  'Density Probability'
-
-plot datafile1 using 1:3 with lines lw 2 lc 8 title label1, \
-     datafile2 using 1:3 with lines lw 1 lc 2 title label2 
+#set terminal pngcairo size 1000,700
+#set output outfile2
+#
+#set xlabel 'x (a.u.)' font ', 15'
+##set ylabel 'D(x,t)' font ', 15'
+#set ylabel '|{/Symbol f}_{/Symbol w}(x,t)|^2' font ', 15'
+#set xlabel 'x (a.u.)'
+#set title  'Density Probability'
+#
+#plot datafile1 using 1:3 with lines lw 2 lc 8 title label1, \
+#     datafile2 using 1:3 with lines lw 1 lc 2 title label2 
