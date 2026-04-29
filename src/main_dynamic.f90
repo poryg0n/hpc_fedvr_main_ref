@@ -274,10 +274,12 @@
                                            jacc,                       &
                                            xs, xx, wx,                 &
                                            map, Dref,                  &
-                                           dt0, t_end, t_ini,          &
+                                           5000, omega0,            &
                                            eigval, eigvec,             &
                                            psi0, phi0,                 &
                                            src_type, omeg, order)
+
+
       write(*,*) "richardson test done"
 
       write(*,*) "Starting propagation"

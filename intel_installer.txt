@@ -1,0 +1,25 @@
+iWhat's included in the installer
+Size 	2171.55 MB
+Version 	2026.0.0
+Date 	April 24, 2026
+SHA384 	b3931405eca08c75acffc3dd870f6f79c6acdc4bd4bb1438b2f3d71326ce45bf24f6169c3e8190072138cfb159d52e31
+
+Intel® oneAPI Toolkit (version 2026.0.0) has been updated to include functional and security updates. Users should update to the latest version.
+Continue as a Guest (download starts immediately) →
+By downloading, you agree to our Privacy and Terms of use
+
+  Install with Offline GUI Installer
+
+    From the console, locate the downloaded install file.
+        To launch the GUI installer as the root, enter sudo sh ./<file name>. For example: 
+        (this is not a real file name) sudo sh ./intel-oneapi-toolkit-YYYY.1.1.36.sh
+        Optionally, to launch the GUI installer as the current user, enter $ sh ./<file name>.
+    Follow the instructions in the installer. 
+
+  Installation from the Command Line
+
+    Read the documentation for Command Line Installation Parameters.
+
+    Decide which parameters you want to use. For example (not a real file name): sudo sh ./intel-oneapi-toolkit-YYYY.1.1.36_offline.sh -a --silent --cli --eula accept indicates that you are doing a silent install (--silent) using a command line interface (--cli) and accepting the End User License Agreement (--eula accept).
+
+Note You must accept the End User License Agreement. Make sure you add the parameter --eula accept to the command.

@@ -1,23 +1,23 @@
 
 # ===== Compiler selection =====
-FC ?= gfortran
+FC = gfortran
 
-# ===== Flags per compiler =====
+## ===== Flags per compiler =====
 ifeq ($(FC),gfortran)
     FFLAGS = -O3 -march=native -ffast-math -funroll-loops -fopenmp
     LAPACK = -llapack -lblas
 endif
-
-ifeq ($(FC),ifort)
-    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
-#   LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
-    LAPACK = -mkl
-endif
-
-ifeq ($(FC),ifx)
-    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
-    LAPACK = -mkl
-endif
+#
+#ifeq ($(FC),ifort)
+#    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
+##   LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
+#    LAPACK = -mkl
+#endif
+#
+#ifeq ($(FC),ifx)
+#    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
+#    LAPACK = -mkl
+#endif
 
 SRC = src
 

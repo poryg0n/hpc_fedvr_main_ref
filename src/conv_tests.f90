@@ -1,5 +1,6 @@
       module conv_tests
         use constants, only : omg_ => omega_qho
+        use constants, only : ppi
         use dynamic_parameters
         use propagation
 !       use force_field
@@ -27,7 +28,7 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                           dt0, tf, t0,                &
+                                           nsteps, omega0,            &
                                            eigval, eigvec,            &
                                            psi0, phi0,               &
                                            src_type, omega, order)
@@ -35,7 +36,9 @@
          implicit none
          integer, intent(in) :: nmax, lnbr, nnbr, order
          integer, intent(in) :: src_type, log_unit
-         real(8), intent(in) :: t0, tf, dt0, omega, jac
+         integer, intent(in) :: nsteps
+         real(8), intent(in) :: omega0
+         real(8), intent(in) :: omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
          real(8), intent(in) :: Dref(:,:), eigval(:), eigvec(:,:)
@@ -43,6 +46,7 @@
       
          integer, parameter :: nrun = 3
          real(8) :: dt(nrun)
+         real(8) :: t0, tf, dt0, trange, tau
          complex(8), allocatable :: psi(:,:), phi(:,:)
          real(8) :: errL2_psi(nrun), errL2_phi(nrun)
          real(8) :: errMax_psi(nrun), errMax_phi(nrun)
@@ -54,6 +58,14 @@
          integer :: k
       
          allocate(psi(nmax,nrun), phi(nmax,nrun))
+
+         tau    = 2.d0*ppi*5/omega0
+         trange = 3 * tau
+         tf  =  trange/2.d0
+         t0  = -t_end
+
+         dt0   = trange/nsteps
+
       
          ! --- time steps ---
          do k = 1, nrun
