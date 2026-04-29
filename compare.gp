@@ -35,11 +35,17 @@ set grid
 set key center bottom
 
 plot datafile1 using 1:2 with lines lw 2 lc 8 title label1, \
-     datafile2 using 1:2 with lines lw 2 lc 2 title label2
+     datafile2 using 1:2 with lines lw 1 lc 2 title label2
 
 
 set terminal pngcairo size 1000,700
 set output outfile2
 
+set xlabel 'x (a.u.)' font ', 15'
+set ylabel 'D(x,t)' font ', 15'
+set xlabel 'x (a.u.)'
+set ylabel 'D(x,T)'
+set title  'Density Probability'
+
 plot datafile1 using 1:3 with lines lw 2 lc 8 title label1, \
-     datafile2 using 1:3 with lines lw 2 lc 2 title label2 
+     datafile2 using 1:3 with lines lw 1 lc 2 title label2 
