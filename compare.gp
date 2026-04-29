@@ -44,7 +44,6 @@ set xlabel 'x (a.u.)' font ', 15'
 #set ylabel 'D(x,t)' font ', 15'
 set ylabel '|{/Symbol f}_{/Symbol o}(x,t)|^2' font ', 15'
 set xlabel 'x (a.u.)'
-set ylabel 'D(x,T)'
 set title  'Density Probability'
 
 plot datafile1 using 1:3 with lines lw 2 lc 8 title label1, \
