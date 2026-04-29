@@ -25,7 +25,7 @@ set size ratio  0.3182 1,1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
 set xlabel 'x (a.u.)' font ', 15'
-set ylabel 'D(x,t)' font ', 15'
+set ylabel '|{/Symbol y}(x,t)|^2' font ', 15'
 set xlabel 'x (a.u.)'
 set ylabel 'D(x,T)'
 set title  'Density Probability'
@@ -43,6 +43,7 @@ set output outfile2
 
 set xlabel 'x (a.u.)' font ', 15'
 set ylabel 'D(x,t)' font ', 15'
+set ylabel '|{/Symbol f}_{/Symbol o}(x,t)|^2' font ', 15'
 set xlabel 'x (a.u.)'
 set ylabel 'D(x,T)'
 set title  'Density Probability'
