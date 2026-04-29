@@ -41,5 +41,5 @@ plot datafile1 using 1:2 with lines lw 2 lc 8 title label1, \
 set terminal pngcairo size 1000,700
 set output outfile2
 
-plot datafile1 using 1:3 with lines lw 2 lc 2 title label1, \
+plot datafile1 using 1:3 with lines lw 2 lc 8 title label1, \
      datafile2 using 1:3 with lines lw 2 lc 2 title label2 
