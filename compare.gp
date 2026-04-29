@@ -35,7 +35,7 @@ set grid
 set key center bottom
 
 plot datafile1 using 1:2 with lines lw 2 lc 8 title label1, \
-     datafile1 using 1:3 with lines lw 2 lc 2 title label2
+     datafile2 using 1:2 with lines lw 2 lc 2 title label2
 
 
 set terminal pngcairo size 1000,700
