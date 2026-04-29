@@ -27,7 +27,6 @@ set size ratio  0.3182 1,1
 set xlabel 'x (a.u.)' font ', 15'
 set ylabel '|{/Symbol y}(x,t)|^2' font ', 15'
 set xlabel 'x (a.u.)'
-set ylabel 'D(x,T)'
 set title  'Density Probability'
 
 set grid
@@ -42,7 +41,7 @@ set terminal pngcairo size 1000,700
 set output outfile2
 
 set xlabel 'x (a.u.)' font ', 15'
-set ylabel 'D(x,t)' font ', 15'
+#set ylabel 'D(x,t)' font ', 15'
 set ylabel '|{/Symbol f}_{/Symbol o}(x,t)|^2' font ', 15'
 set xlabel 'x (a.u.)'
 set ylabel 'D(x,T)'
