@@ -4,9 +4,7 @@
 datafile1 = ARG1
 datafile2 = ARG2
 outfile1  = ARG3
-outfile2  = ARG4
-label1    = ARG5 
-label2    = ARG6 
+label1    = ARG4
 
 #mode     = int(ARG3)
 
