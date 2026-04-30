@@ -24,8 +24,8 @@ set size ratio  0.3182 1,1
 #set ytics 1.e-13, 1.e-2, 1.e-3
 
 set xlabel '{/Symbol w} (a.u.)' font ', 15'
-set ylabel 'Q^{(c)}_{/Symbol w}' font ', 15'
-set xlabel 'x (a.u.)'
+set ylabel 'Q^{(c)}({/Symbol w})' font ', 15'
+set xlabel '{/Symbol w} (a.u.)'
 set title  'HHG'
 
 set grid

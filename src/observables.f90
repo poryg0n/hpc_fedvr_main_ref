@@ -424,6 +424,9 @@
         vec_1 = pk0 * a0 / ( Ek + omega - E0 )
         vec_1 = exp(ci * ( Ek + omega - E0 ) * t_end ) * vec_1
 
+        vec_0 = 0.d0
+        vec_1 = 0.d0
+        vec_k = 0.d0
         b0w = b0wT + vec_0
         bkw = bkwT + vec_1 +  vec_k
 
