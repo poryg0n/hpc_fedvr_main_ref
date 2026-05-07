@@ -28,7 +28,7 @@
                                            jac,                   &
                                            xs, xx, wx,                &
                                            map, Dref,                 &
-                                           nsteps, omega0,            &
+                                           nsteps, omega0_,            &
                                            eigval, eigvec,            &
                                            psi0, phi0,               &
                                            src_type, omega, order)
@@ -37,7 +37,7 @@
          integer, intent(in) :: nmax, lnbr, nnbr, order
          integer, intent(in) :: src_type, log_unit
          integer, intent(in) :: nsteps
-         real(8), intent(in) :: omega0
+         real(8), intent(in) :: omega0_
          real(8), intent(in) :: omega, jac
          real(8), intent(in) :: xs(:), xx(:), wx(:)
          integer, intent(in) :: map(:,:)
@@ -46,7 +46,7 @@
       
          integer, parameter :: nrun = 3
          real(8) :: dt(nrun)
-         real(8) :: t0, tf, dt0, trange, tau
+         real(8) :: t0, t1, dt0, trange, tau
          complex(8), allocatable :: psi(:,:), phi(:,:)
          real(8) :: errL2_psi(nrun), errL2_phi(nrun)
          real(8) :: errMax_psi(nrun), errMax_phi(nrun)
@@ -59,12 +59,12 @@
       
          allocate(psi(nmax,nrun), phi(nmax,nrun))
 
-         tau    = 2.d0*ppi*5/omega0
+         tau    = 5 * 2.d0*ppi/omega0
          trange = 3 * tau
-         tf  =  trange/2.d0
-         t0  = -t_end
+         t1     =  trange/2.d0
+         t0     = -t1
 
-         dt0   = trange/nsteps
+         dt0    = trange/nsteps
 
       
          ! --- time steps ---
@@ -73,18 +73,18 @@
          end do
       
          ! --- run propagations ---
-            do k = 1, nrun
-               call run_inhomogeneous_duhamel_driver( log_unit,       &
-                                           nmax, lnbr, nnbr, &
-                                           jac,                   &
-                                           xs, xx, wx,                &
-                                           map, Dref,                 &
-                                        dt(k), tf, t0,                &
-                                        eigval, eigvec,               &
-                                        psi0, phi0,                   &
-                                        psi(:,k), phi(:,k),           &
-                                        src_type, omega, order)
-            end do
+         do k = 1, nrun
+            call run_inhomogeneous_duhamel_driver( log_unit,       &
+                                     nmax, lnbr, nnbr,             &
+                                     jac,                          &
+                                     xs, xx, wx,                   &
+                                     map, Dref,                    &
+                                     dt(k), t1, t0,                &
+                                     eigval, eigvec,               &
+                                     psi0, phi0,                   &
+                                     psi(:,k), phi(:,k),           &
+                                     src_type, omega, order)
+         end do
 
 
          ! --- errors ---
@@ -98,15 +98,18 @@
          order_phi = log(err_phi(nrun-2)/err_phi(nrun-1)) / log(2.0d0)
       
          write(log_unit,'(a)') '--- Richardson convergence test ---'
+
          if (order.eq.2) then
             write(log_unit,*) "order 2 duhamel test"
          else
             write(log_unit,*) "order 4 duhamel test"
          end if
+
          do k = 1, nrun-1
             write(log_unit,'(a,i1,2e16.8)') 'dt level ',               &
                                           k, err_psi(k), err_phi(k)
          end do
+
          write(log_unit,'(a,2f8.4)') 'Observed order (psi, phi): ',    &
                                                order_psi, order_phi
       
@@ -278,15 +281,15 @@
 
 
       subroutine run_inhomogeneous_duhamel_driver( log_unit,           &
-                                 nmax, lnbr, nnbr,   &
-                                 jac,                   &
-                                 xs, xx, wx,                &
-                                 map, Dref,                 &
-                                 dt, tf, t0,                 &
-                                     eigval, eigvec,                   &
-                                     psi0, phi0,                       &
-                                     psi, phi,                  &
-                                     src_type, omega, order)
+                                 nmax, lnbr, nnbr,                     &
+                                 jac,                                  &
+                                 xs, xx, wx,                           &
+                                 map, Dref,                            &
+                                 dt, tf, t0,                           &
+                                 eigval, eigvec,                       &
+                                 psi0, phi0,                           &
+                                 psi, phi,                             &
+                                 src_type, omega, order)
       
          implicit none
          integer, intent(in) :: nmax, lnbr, nnbr
@@ -379,6 +382,7 @@
 
 
       end do
+
       end subroutine run_inhomogeneous_duhamel_driver
 
 

@@ -26,4 +26,4 @@ set logscale y
 set format y "10^{%L}"
 
 plot \
-    datafile using 1:(($2)**2 + ($3)**2) w l lw 2 title "|b_k|^2"
+    datafile using 1:(($2)**2 + ($3)**2) w l lw 2 title "|b_k{/Symbol w}|^2"

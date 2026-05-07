@@ -496,25 +496,31 @@
       end subroutine
 
 
-      subroutine compute_Qw(krange, dk, bkw, b0w, Qw)
+!     subroutine compute_Qw(krange, dk, bkw, b0w, Qw)
+      subroutine compute_Qw(krange, kk, bkw, b0w, Qw)
         implicit none
         integer, intent(in) :: krange
-        real(8), intent(in) :: dk
-        complex(8), intent(in) :: bkw(krange)
+!       real(8), intent(in) :: dk
+        real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: b0w
+        complex(8), intent(in) :: bkw(krange)
         complex(8), intent(out) :: Qw
 
-        integer :: i
+!       integer :: i
         real(8) :: sum_k
+        complex(8) :: auxc_
 
         sum_k = 0.d0
 
-        do i = 1, krange
-           sum_k = sum_k + abs(bkw(i))**2
-        enddo
+!       call composite_simpson_18c(nt, kk, bkw, amp)
+!       do i = 1, krange
+!          sum_k = sum_k + abs(bkw(i))**2
+!       enddo
 
-        sum_k = sum_k * dk / (2.d0 * ppi)
+!       sum_k = sum_k * dk / (2.d0 * ppi)
 
+        call integr_over_range(krange, kk, bkw, auxc_)
+        sum_k = real(auxc_) / (2.d0*ppi)
         Qw = abs(b0w)**2 + sum_k
 
       end subroutine

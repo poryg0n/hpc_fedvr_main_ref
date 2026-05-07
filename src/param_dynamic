@@ -2,10 +2,10 @@
       integer :: nb_points = 100
       
  
-      integer, parameter :: nsteps = 15d2
+      integer, parameter :: nsteps = 1d3
       integer, parameter :: noc_ = 5
       integer, parameter :: ntau_ = 5
-      integer, parameter :: order_ = 2
+      integer, parameter :: order_ = 4
       integer, parameter :: src_type_ = 3
       integer, parameter :: obs_stride_ = 10
       logical, parameter :: do_time_obs_ = .true.
