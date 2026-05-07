@@ -13,7 +13,7 @@
       use io_module
       implicit none
       integer :: lwork, info, store_val,                              &
-                  i, j, k, ij, p, q, r, s, m, n,                      &
+                  i, j, k, ij, p, r, s, m, n,                      &
                   jn, ijk,                                            &
                   ios, order, flag,                                   &
                   nmax_
