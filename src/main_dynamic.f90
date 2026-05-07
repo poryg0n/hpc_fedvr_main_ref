@@ -241,7 +241,7 @@
 
       call write_dynamic_input(trim(workdir)//"param_dynamic.txt",     &
                        workdir, struct_dir_,                           &
-                       f0, omega0, pfai,                                &
+                       f0, omega0, pfai,                               &
                        t_end, t_ini, nt, dt0,                          &
                        noc, ntau, src_type,                            &
                        omeg, order)
@@ -274,7 +274,7 @@
                                            jacc,                       &
                                            xs, xx, wx,                 &
                                            map, Dref,                  &
-                                           nt, omega0,            &
+                                           nt/4, omega0,               &
                                            eigval, eigvec,             &
                                            psi0, phi0,                 &
                                            src_type, omeg, order)
