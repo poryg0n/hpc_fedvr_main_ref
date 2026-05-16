@@ -1,0 +1,5 @@
+if (-e ~/intel/oneapi/setvars.sh) then
+    eval `bash -c 'source ~/intel/oneapi/setvars.sh >/dev/null 2>&1; env' | \
+    grep -E "^(PATH|LD_LIBRARY_PATH|LIBRARY_PATH|CPATH|MKLROOT|ONEAPI_ROOT)=" | \
+    sed 's/=/ /' | sed 's/^/setenv /'`
+endif
