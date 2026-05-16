@@ -1,31 +1,33 @@
 
 # ===== Compiler selection =====
-FC = gfortran
+FC  = gfortran
+#F77 = gfortran
 
 ## ===== Flags per compiler =====
 ifeq ($(FC),gfortran)
     FFLAGS = -O3 -march=native -ffast-math -funroll-loops -fopenmp
     LAPACK = -llapack -lblas
 endif
-#
-#ifeq ($(FC),ifort)
-#    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
-##   LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
-#    LAPACK = -mkl
-#endif
-#
-#ifeq ($(FC),ifx)
-#    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
-#    LAPACK = -mkl
-#endif
+
+ifeq ($(FC),ifort)
+    FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
+#   LAPACK = -L/s/fred/lapack-3.11 -llapack -L/s/fred/lapack-3.11 -lrefblas
+    LAPACK = -mkl
+endif
+
+ifeq ($(FC),ifx)
+#   FFLAGS = -O3 -xHost -qopenmp -ipo -fp-model fast=2
+    FFLAGS = -O3 -xHost -qopenmp -fp-model fast=2
+    LAPACK = -qmkl
+endif
 
 SRC = src
 
 
 # --- Core modules (NO main here) ---
 CORE_OBJS = \
-       lobatto.o \
        constants.o \
+       lobatto.o \
        structure_parameters.o \
        dynamic_parameters.o \
        exploit_parameters.o \
@@ -62,6 +64,7 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 
 # --- Compilation rule ---
 %.o: $(SRC)/%.f
+#	$(F77) -O2 -c $<
 	$(FC) $(FFLAGS) -c $<
 
 %.o: $(SRC)/%.f90

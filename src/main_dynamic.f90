@@ -269,18 +269,21 @@
       write(*,*) "dyn_dir     = ", trim(workdir)
 
 
-      write(*,*) "performing the richardson test"
-      call test_richardson_inhomogeneous(log_unit, nmax_, ns, np,      &
-                                           jacc,                       &
-                                           xs, xx, wx,                 &
-                                           map, Dref,                  &
-                                           nt/4, omega0,               &
-                                           eigval, eigvec,             &
-                                           psi0, phi0,                 &
-                                           src_type, omeg, order)
+      if (do_conv_test) then
+         write(*,*) "performing the richardson test"
+         call test_richardson_inhomogeneous(log_unit, nmax_, ns, np,   &
+                                              jacc,                    &
+                                              xs, xx, wx,              &
+                                              map, Dref,               &
+                                              nt/2, omega0,            &
+                                              eigval, eigvec,          &
+                                              psi0, phi0,              &
+                                              src_type, omeg, order)
+
+         write(*,*) "richardson test done"
+      end if
 
 
-      write(*,*) "richardson test done"
 
       write(*,*) "Starting propagation"
       write(*,*) "nt =", nt

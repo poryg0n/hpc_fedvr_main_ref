@@ -1,6 +1,15 @@
       module util
+       use iso_c_binding
       implicit none
+       interface
+           function getpid() bind(C, name="getpid") result(pid)
+               import :: c_int
+               integer(c_int) :: pid
+           end function getpid
+       end interface
       contains
+
+
        subroutine dump_wavefunction(fname, nmax, eigvec, t, inv_jac,  &
                            wx, xx, psi)
        implicit none
