@@ -3,3 +3,14 @@ if (-e ~/intel/oneapi/setvars.sh) then
     grep -E "^(PATH|LD_LIBRARY_PATH|LIBRARY_PATH|CPATH|MKLROOT|ONEAPI_ROOT)=" | \
     sed 's/=/ /' | sed 's/^/setenv /'`
 endif
+
+
+
+    The environment start up scripts have been migrated to POSIX compliant scripts. For non-POSIX shells, such as csh, there is a workaround for command-line usage for the Component Directory Layout:
+
+      % bash -c 'source /opt/intel/oneapi/setvars.sh ; exec csh'
+
+           For the Unified Directory Layout use
+
+     % bash -c 'source <install-dir>/<toolkit-version>/oneapi-vars.sh ; exec csh'
+is it different from what you werfre saying?
