@@ -275,7 +275,7 @@
                                               jacc,                    &
                                               xs, xx, wx,              &
                                               map, Dref,               &
-                                              nt/2, omega0,            &
+                                              nt/4, omega0,            &
                                               eigval, eigvec,          &
                                               psi0, phi0,              &
                                               src_type, omeg, order)

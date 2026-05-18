@@ -32,6 +32,7 @@
        write(*,*) "nnbr", nnbr
        write(*,*) "snbr", snbr
        write(*,*) "xrange", xrange
+       write(*,*) "jac = 0.5d0*xrange/nelem", jac_
        if (ntot.ne.(size(xx))) stop
 
        mdim2 = nmax
@@ -57,14 +58,13 @@
 
 !         write(*,*) "xa", xa
 !         write(*,*) "wa", wa
-          write(*,*) "xrange", xrange_
-          write(*,*) "jac = 0.5d0*xrange/nelem", jac_
+!         write(*,*) "xrange", xrange_
       
-          write(111,*) 
-           write(*,*) "before jac"
-           do i=1,ntot
-              write(111,*) eigenvec(i,:)
-           enddo
+!         write(111,*) 
+!          write(*,*) "before jac"
+!          do i=1,ntot
+!             write(111,*) eigenvec(i,:)
+!          enddo
      
        write(*,*) "kinetic matrix built"
        eigenvec=eigenvec/jac_**2
