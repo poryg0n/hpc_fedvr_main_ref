@@ -1,6 +1,7 @@
 # Usage:
 # gnuplot -c plot_density.gp datafile outputfile
 
+
 datafile = ARG1
 outfile  = ARG2
 #mode     = int(ARG3)
