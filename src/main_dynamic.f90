@@ -17,7 +17,7 @@
 
       real(8) ::    step, eft, duration,                           &
                     start, finish, lap, aux, aux1, aux2,              &
-                    abstol,                &
+                    abstol,  qq,                                      &
                     tt, tp, tc, tmid,                     &
                     fmid,                                             &
                     norm_1, norm_2,                                   &
@@ -100,7 +100,7 @@
 !     write(*,*) struct_dir
       call read_problem_bin(trim(struct_dir)//"/problem.bin",        &
                              struct_dir_, nmax_, ns, np,             &
-                             xx1, xx2, jacc, xx, wx)
+                             xx1, xx2, jacc, qq, xx, wx)
 
 !     if (trim(struct_dir) /= trim(struct_dir_)) then
 !        stop "Structure mismatch between dynamic and structure run"
@@ -237,7 +237,7 @@
 
       call write_problem_input(trim(workdir)//"param_structure.txt",   &
                                    struct_dir, nmax_, ns, np,          &
-                                   xx1, xx2, jacc)
+                                   xx1, xx2, jacc, qq)
 
       call write_dynamic_input(trim(workdir)//"param_dynamic.txt",     &
                        workdir, struct_dir_,                           &
