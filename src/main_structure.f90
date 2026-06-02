@@ -179,7 +179,7 @@
       call write_eigvec_bin(trim(workdir)//"eigvec.bin", nmax, eigvec)
       call write_problem_bin(trim(workdir)//"problem.bin",       &
                                     workdir, nmax, snbr, nnbr,   &
-                                    xmin, xmax, jac, xx, wx)
+                                    xmin, xmax, jac, q, xx, wx)
 
       call write_problem_input(trim(workdir)//"struct_params.dat",   &
                                     workdir, nmax, snbr, nnbr,       &
