@@ -5,7 +5,7 @@
       logical, parameter :: do_conv_test = .false.
 !     logical, parameter :: do_conv_test = .true.
 
-      integer, parameter :: nsteps = 10d3
+      integer, parameter :: nsteps = 20d3
       integer, parameter :: noc_ = 5
       integer, parameter :: ntau_ = 5
       integer, parameter :: order_ = 2

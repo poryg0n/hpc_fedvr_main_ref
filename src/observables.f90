@@ -181,7 +181,7 @@
       end subroutine
 
 
-     subroutine compute_phi_elems(workdir,                  &
+      subroutine compute_phi_elems(workdir,                  &
                            nmax, krange, t_end,              &
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
@@ -359,12 +359,12 @@
 
            enddo
 
-           write(unit_pkl, *) kk(j),                                  &
-                               real(auxc_1), imag(auxc_1),            &
-                               real(auxc_2), imag(auxc_2),            &
+           write(unit_pkl,'(7E20.10)') kk(j),                         &
+                               real(auxc_1), imag(auxc_1),             &
+                               real(auxc_2), imag(auxc_2),             &
                                real(auxc_3), imag(auxc_3)
 
-           write(unit_pkl_, *) kk(j),                                  &
+           write(unit_pkl_,'(7E20.10)') kk(j),                        &
                         abs(real(auxc_1)), abs(imag(auxc_1)),          &
                         abs(real(auxc_2)), abs(imag(auxc_2)),          &
                         abs(real(auxc_3)), abs(imag(auxc_3))
@@ -392,10 +392,12 @@
            pk0_ = 2.d0 * kk(j) * kapp**(3.d0/2) / denom
 
      
-           write(unit_pk0, *) kk(j), real(pk0(j)), real(p0k(j)),      & 
-                                              real(dk0_), real(pk0_)
+           write(unit_pk0,'(5E20.10)') kk(j),                         &
+                                     real(pk0(j)), real(p0k(j)),      & 
+                                     real(dk0_), real(pk0_)
 
-           vec_1(j) = p0k(j) * ak(j) / ( E0 + omega - Ek_ + ci*eta )
+!          vec_1(j) = p0k(j) * ak(j) / ( E0 + omega - Ek_ + ci*eta )
+           vec_1(j) = p0k_ * ak(j) / ( E0 + omega - Ek_ + ci*eta )
            vec_1(j) = exp(ci * ( E0 + omega - Ek_ ) * t_end ) * vec_1(j)
         enddo
 
@@ -424,9 +426,9 @@
         vec_1 = pk0 * a0 / ( Ek + omega - E0 )
         vec_1 = exp(ci * ( Ek + omega - E0 ) * t_end ) * vec_1
 
-        vec_0 = 0.d0
-        vec_1 = 0.d0
-        vec_k = 0.d0
+!       vec_0 = 0.d0
+!       vec_1 = 0.d0
+!       vec_k = 0.d0
         b0w = b0wT + vec_0
         bkw = bkwT + vec_1 +  vec_k
 

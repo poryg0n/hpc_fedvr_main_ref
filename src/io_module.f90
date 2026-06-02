@@ -350,6 +350,7 @@
         do i = 1, n
            wfc(i) = wfc(i) / ( w(i) * dsqrt(jac) )
            write(unit,*) x(i), real(wfc(i)), aimag(wfc(i))
+!          write(unit,'(3E20.10)') x(i), real(wfc(i)), aimag(wfc(i))
         end do
       
 !       write(unit,*) ""  ! separator between snapshots
@@ -550,7 +551,7 @@
         open(newunit=unit, file=filename, status='replace')
 
         do i=1,n
-           write(unit,*) xx(i), real(rho1(i)), real(rho2(i))
+           write(unit,'(3E20.10)') xx(i), real(rho1(i)), real(rho2(i))
         enddo
       
         close(unit)
@@ -576,12 +577,12 @@
       
            if (logscale) then
               if (pk > 1d-20) then
-                 write(unit,*) kk(i), log10(pk)
+                 write(unit,'(2E20.10)') kk(i), log10(pk)
               else
-                 write(unit,*) kk(i), -20.d0
+                 write(unit,'(2E20.10)') kk(i), -20.d0
               end if
            else
-              write(unit,*) kk(i), pk
+              write(unit,'(2E20.10)') kk(i), pk
            end if
         end do
       
@@ -612,10 +613,11 @@
 !          v3 = qvc3(i)
       
            if (logscale) then
-              write(unit,*) omg(i), log10(max(v1,1d-20)),             &
+!             write(unit,'(3E20.10)') omg(i), log10(max(v1,1d-20)),   &
+              write(unit,'(3E20.10)') omg(i), log10(max(v1,1d-20)),   &
                                      log10(max(v2,1d-20))
            else
-              write(unit,*) omg(i), v1, v2
+              write(unit,'(3E20.10)') omg(i), v1, v2
            end if
       
         end do
@@ -640,7 +642,9 @@
         write(unit,*) '# k, Re[b_k], Im[b_k], |b_k|^2'
       
         do i = 1, krange
-           write(unit,*) kk(i), real(bkw(i)), aimag(bkw(i)), abs(bkw(i))**2
+!          write(unit,*) kk(i), real(bkw(i)), aimag(bkw(i)), abs(bkw(i))**2
+           write(unit,'(4E20.10)') kk(i),                              &
+                         real(bkw(i)), aimag(bkw(i)), abs(bkw(i))**2
         enddo
       
         write(unit,*)

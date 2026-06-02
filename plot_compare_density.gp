@@ -1,11 +1,13 @@
 # Usage:
-# gnuplot -c plot_density.gp datafile outputfile
+# gnuplot -c plot_density.gp datafile1 datafile2 outfile1 outfile2 label1 label2
 
 
 datafile1 = ARG1
 datafile2 = ARG2
 outfile1  = ARG3
 outfile2  = ARG4
+label1  = ARG5
+label2  = ARG6
 #mode     = int(ARG3)
 
 set format y "10^{%L}";
@@ -36,8 +38,8 @@ set key center bottom
 #    datafile using 1:3 with lines lw 2 lc 2 title "|{/Symbol f}_{/Symbol w}(x,T)|^2"
 
 
-plot datafile1 using 1:2 with lines lw 2 lc 8 title "|{/Symbol y}(x,T)|^2", \
-     datafile2 using 1:2 with lines lw 2 dt 2 lc 6 title "|{/Symbol y}(x,T)|^2", \
+plot datafile1 using 1:2 with lines lw 2 lc 8 title label1, \
+     datafile2 using 1:2 with lines lw 2 dt 2 lc 6 title label2, \
 
 
 set output outfile2

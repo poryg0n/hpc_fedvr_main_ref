@@ -1,3 +1,5 @@
+# gnuplot -c "plot_pk0.gp" datafile outfile
+
 set terminal pngcairo size 1000,700
 
 datafile = ARG1
