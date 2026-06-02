@@ -82,10 +82,10 @@
         read(unit) version
         read(unit) nmax, snbr, nnbr
         read(unit) xmin, xmax, jac
+        read(unit) qq
       
         allocate(xx(nmax), wx(nmax))
       
-        read(unit) qq
         read(unit) xx
         read(unit) wx
         read(unit) struct_dir
