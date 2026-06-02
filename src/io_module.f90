@@ -8,11 +8,11 @@
       !=========================================
       subroutine write_problem_input(filename, struct_dir,       &
                                        nmax, snbr, nnbr,         &
-                                       xmin, xmax, jac)
+                                       xmin, xmax, jac, q)
         implicit none
         character(*), intent(in) :: filename, struct_dir
         integer, intent(in) :: nmax, snbr, nnbr
-        real(8), intent(in) :: xmin, xmax, jac
+        real(8), intent(in) :: xmin, xmax, jac, q
       
         integer :: unit
       
@@ -24,6 +24,7 @@
         write(unit,*) "xmin       =", xmin
         write(unit,*) "xmax       =", xmax
         write(unit,*) "jac        =", jac
+        write(unit,*) "q          =", q
         write(unit,*) "struct_dir =", struct_dir
       
         close(unit)
