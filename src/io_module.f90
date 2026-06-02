@@ -51,7 +51,8 @@
       
         write(unit) 1              ! version
         write(unit) nmax, snbr, nnbr
-        write(unit) xmin, xmax, jac, q
+        write(unit) xmin, xmax, jac
+        write(unit) q
         write(unit) xx
         write(unit) wx
         write(unit) workdir
