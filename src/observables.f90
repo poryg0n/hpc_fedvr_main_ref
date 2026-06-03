@@ -415,7 +415,7 @@
                    exp(-ci*abs(kk(j)*xx))
        
            auxc = conjg(wfc_k) * wfc_2 * wx*wx*jacc
-           bkwT = sum(auxc)
+           bkwT(j) = sum(auxc)
 
         enddo
 
