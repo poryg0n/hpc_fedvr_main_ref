@@ -24,8 +24,8 @@
            complex(8), intent(in) :: psi_dvr(nmax)
            complex(8), intent(out) :: psi(nmax)
          
-           psi = matmul(transpose(eigvec), psi_dvr)
-           psi = psi *  wx * dsqrt(jac)
+           psi = psi_dvr * wx * dsqrt(jac)
+           psi = matmul(transpose(eigvec), psi)
          
          end subroutine
 

@@ -181,15 +181,15 @@
 
        end if
 
-       call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
-       call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
-
-!      do i=1, nmax_
-!         wfc0(i) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
-!      enddo
-
-!      call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi0)
+!      call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
 !      call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
+
+       do i=1, nmax_
+          wfc0(i) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
+       enddo
+
+       call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi0)
+       call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
 
        tt = t_ini                ! start time
        psi_in = psi0                ! initial wavefunction
