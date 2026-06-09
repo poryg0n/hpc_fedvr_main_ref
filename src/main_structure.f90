@@ -196,12 +196,11 @@
                            file=trim(workdir)//"fundamental.dat", &
                            status='replace')
 
-      allocate( wf0(nmax), wfc0(nmax), wf(nmax),wfc(nmax), wfc_(nmax) )
+      allocate( wf0(nmax), wfc0(nmax), wf(nmax), wfc(nmax), wfc_(nmax) )
       wf0 = (0.0d0,0.d0)
       wf0(1) = (1.0d0,0.d0)
 
       call eigen_to_dvr(nmax, jac, wx, eigvec, wf0, wfc0)
-
 
       write(*,*) "Norm of the fundamental", sum( abs(wfc0)**2 * wx**2 * jac ) 
       write(*,*) "writing fundamental to file"
