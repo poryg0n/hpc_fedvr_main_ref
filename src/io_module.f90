@@ -35,9 +35,11 @@
       !=========================================
       ! Write problem (binary)
       !=========================================
-      subroutine write_problem_bin(filename, workdir,            &
-                                  nmax, snbr, nnbr,         &
-                                  xmin, xmax, jac, q, xx, wx)
+      subroutine write_problem_bin(filename, workdir,                 &
+                                  nmax, snbr, nnbr,                   &
+                                  xmin, xmax, jac,                    &
+                                  q, xx, wx)
+
         implicit none
         character(*), intent(in) :: filename, workdir
         integer, intent(in) :: nmax, snbr, nnbr
