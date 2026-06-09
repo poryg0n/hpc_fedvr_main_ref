@@ -205,7 +205,7 @@
       enddo
 
 !     write(*,*) "src_type is ", src_type
-      pause
+!     pause
 
 
       psi_inx = psi_in
