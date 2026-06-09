@@ -155,19 +155,20 @@
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                  &
                    exp(-ci*abs(kk(j)*xx))
       
-           auxc = conjg(wfc_k) * wfc * wx*wx*jacc
+           auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
            ak(j) = sum(auxc)
-           ak(j) = exp(ci*(0.5d0*kk(j)**2)*t_end) * ak(j)
+!          ak(j) = exp(ci*(0.5d0*kk(j)**2)*t_end) * ak(j)
       
         end do
+
+        ak = exp(ci*(0.5d0*kk**2)*t_end) * ak
 
       
         ! --- probabilities ---
         p_ion = 0.d0
         call integr_over_range(krange, kk, ak, auxc_)
         p_ion = real(auxc_) / (2.d0*ppi)
-        write(*,*) p_ion
-
+!       write(*,*) p_ion
 
         a0 = (0.d0, 0.d0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0, wfc0)
@@ -243,11 +244,13 @@
         complex(8) :: pkkp(krange), dkk(krange)
 
         integer :: unit_pk0, unit_pkk, unit_pkl, unit_pkl_
-        open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat", status="replace")
-        open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat", status="replace")
+        open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat",         &
+                                                      status="replace")
+        open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat",         &
+                                                      status="replace")
         open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
                                                     status="replace")
-        open(newunit=unit_pkl_, file=trim(workdir)//"/pkl_.dat",         &
+        open(newunit=unit_pkl_, file=trim(workdir)//"/pkl_.dat",       &
                                                     status="replace")
       
         p=0
@@ -263,7 +266,6 @@
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_1, wfc0_1)
         call differentiate(xx, wfc0_1, dwfc_0)
         pwfc_0 = -ci * dwfc_0
-
 
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_1, wfc_1)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_2, wfc_2)
