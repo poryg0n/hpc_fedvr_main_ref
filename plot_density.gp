@@ -28,5 +28,7 @@ set grid
 
 set key center bottom
 
-plot datafile using 1:2 with lines lw 2 lc 8 title "|{/Symbol y}(x,T)|^2", \
-     datafile using 1:3 with lines lw 2 lc 2 title "|{/Symbol f}_{/Symbol w}(x,T)|^2"
+#plot datafile using 1:2 with lines lw 2 lc 8 title "|{/Symbol y}(x,T)|^2", \
+#      datafile using 1:3 with lines lw 2 lc 2 title "|{/Symbol f}_{/Symbol w}(x,T)|^2"
+#
+plot datafile using 1:3 with lines lw 2 lc 2 title "|{/Symbol f}_{/Symbol w}(x,T)|^2"

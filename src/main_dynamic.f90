@@ -181,7 +181,14 @@
 
        end if
 
-       call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
+!      call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
+!      call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
+
+       do i=1, nmax_
+          wfc0(i) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
+       enddo
+
+       call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi0)
        call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
 
        tt = t_ini                ! start time
@@ -193,11 +200,12 @@
 !        write(*,*) xx(i), eigvec(i,1), wfc0(i)
 !     enddo
 !     write(*,*)
-!     do i=1, 10
-!        write(*,*) i, psi0(i), wf0(i)
-!     enddo
+      do i=1, 10
+         write(*,'(2E20.10)') psi0(i), phi0(i)
+      enddo
 
 !     write(*,*) "src_type is ", src_type
+      pause
 
 
       psi_inx = psi_in
@@ -315,20 +323,20 @@
 
          ! --- propagation ---
 
-         call process_src_ingredients ( nmax_, ns, np,              &
-                                   jacc,                            &
-                                   xs, xx, wx, map, Dref,     &
-                                   dt0, tt,                            &
-                                   eigval, eigvec, psi_in, svec,       &
-                                   src_type, omeg, order)
+!        call process_src_ingredients ( nmax_, ns, np,              &
+!                                  jacc,                            &
+!                                  xs, xx, wx, map, Dref,     &
+!                                  dt0, tt,                            &
+!                                  eigval, eigvec, psi_in, svec,       &
+!                                  src_type, omeg, order)
 
-         call build_source_quadrature ( nmax_, ns, np,             &
-                                               xs, xx, map, Dref,     &
-                                               dt0, tt,               &
-                                               eigval, eigvec,        &
-                                               svec,                  &
-                                               src, omeg,            &
-                                               order )
+!        call build_source_quadrature ( nmax_, ns, np,             &
+!                                              xs, xx, map, Dref,     &
+!                                              dt0, tt,               &
+!                                              eigval, eigvec,        &
+!                                              svec,                  &
+!                                              src, omeg,            &
+!                                              order )
          
          call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,       &
                                             psi_in, psi_out, order)
@@ -339,7 +347,7 @@
          !--------------------------------------------
          ! Add source contribution
          !--------------------------------------------
-         phi_out = phi_out - ci * src
+!        phi_out = phi_out - ci * src
 
          norm_1 = sqrt(sum(abs(psi_out)**2))
          norm_2 = sqrt(sum(abs(phi_out)**2))

@@ -1,5 +1,5 @@
       integer, parameter :: np = 20
-      integer, parameter :: ns = 120
+      integer, parameter :: ns = 100
       real(8), parameter :: q = 1.d0/4
       real(8), parameter :: xmax_ =  np*ns*(1.d0+q)/2
       real(8), parameter :: xmin_ = -xmax_
