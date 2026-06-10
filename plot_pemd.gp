@@ -1,12 +1,13 @@
 # Usage:
-# gnuplot -c plot_pemd.gp datafile outputfile logscale
+# gnuplot -c plot_pemd.gp datafile output1 output2 logscale
 
 datafile = ARG1
-outfile  = ARG2
-logscale = int(ARG3)
+outfile1  = ARG2
+outfile2  = ARG3
+logscale = int(ARG4)
 
 set terminal pngcairo size 1000,700
-set output outfile
+set output outfile1
 
 set xlabel 'k (a.u.)' font ', 15' enhanced
 set ylabel 'P(k)' font ', 15' enhanced
@@ -29,4 +30,16 @@ if (logscale == 1) {
     plot datafile using 1:($2) with lines lw 2 lc 8 title 'P(k)'
 } else {
     plot datafile using 1:2 with lines lw 2 title 'P(k)'
+}
+
+
+set output outfile2
+set ylabel 'b_{kw}(T)' font ', 15' enhanced
+unset yrange
+
+if (logscale == 1) {
+    set log y
+    plot datafile using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2'
+} else {
+    plot datafile using 1:3 with lines lw 2 title '|b_{kw}(T)|^2'
 }

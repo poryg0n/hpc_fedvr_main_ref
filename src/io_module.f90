@@ -354,8 +354,8 @@
       
         do i = 1, n
            wfc(i) = wfc(i) / ( w(i) * dsqrt(jac) )
-           write(unit,*) x(i), real(wfc(i)), aimag(wfc(i))
-!          write(unit,'(3E20.10)') x(i), real(wfc(i)), aimag(wfc(i))
+!          write(unit,*) x(i), real(wfc(i)), aimag(wfc(i))
+           write(unit,'(3E20.10)') x(i), real(wfc(i)), aimag(wfc(i))
         end do
       
 !       write(unit,*) ""  ! separator between snapshots
@@ -564,30 +564,31 @@
       end subroutine
 
 
-      subroutine write_pemd(filename, n, kk, ak, logscale)
+      subroutine write_pemd(filename, n, kk, ak, bkwT, logscale)
         implicit none
         integer, intent(in) :: n
         real(8), intent(in) :: kk(n)
-        complex(8), intent(in) :: ak(n)
+        complex(8), intent(in) :: ak(n), bkwT(n)
         logical, intent(in) :: logscale
         character(len=*), intent(in) :: filename
       
         integer :: i, unit
-        real(8) :: pk
+        real(8) :: pk, pkwT
       
         open(newunit=unit, file=filename, status='replace')
       
         do i = 1, n
            pk = abs(ak(i))**2
+           pkwT = abs(bkwT(i))**2
       
            if (logscale) then
               if (pk > 1d-20) then
-                 write(unit,'(2E20.10)') kk(i), log10(pk)
+                 write(unit,'(3E20.10)') kk(i), log10(pk), log10(pkwT)
               else
-                 write(unit,'(2E20.10)') kk(i), -20.d0
+                 write(unit,'(3E20.10)') kk(i), -20.d0, log10(pkwT)
               end if
            else
-              write(unit,'(2E20.10)') kk(i), pk
+              write(unit,'(3E20.10)') kk(i), pk, pkwT
            end if
         end do
       
@@ -654,7 +655,7 @@
       
         write(unit,*)
         write(unit,*) '# b0(w):'
-        write(unit,*) real(b0w), aimag(b0w), abs(b0w)**2
+        write(unit,'(3E20.10)') real(b0w), aimag(b0w), abs(b0w)**2
       
         write(unit,*)
         write(unit,*) '# Q(w):'

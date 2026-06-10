@@ -89,10 +89,12 @@
       end subroutine
 
 
-      subroutine compute_pemd_zrp(nmax, krange, t_end,           &
+      subroutine compute_pemd_zrp(nmax, krange, t_end,                 &
                            xx, wx, jacc,                               &
-                           eigvec, eigval, wf0, wf,                 &
-                           k_max, kk, p_ion, p0, a0, ak)
+                           eigvec, eigval,                             &
+                           psi0, phi0, psi, phi,                       &
+                           k_max, kk, p_ion, p0, a0, ak,               &
+                           b0wT, bkwT)
       
         implicit none
         integer, intent(in) :: nmax, krange
@@ -103,10 +105,10 @@
         real(8), intent(in) :: t_end, k_max
         real(8), intent(out) :: p_ion, p0
         real(8), intent(out) :: kk(krange)
-        complex(8), intent(in) :: wf0(nmax)
-        complex(8), intent(in) :: wf(nmax)
-        complex(8), intent(out) :: ak(krange)
-        complex(8), intent(out) :: a0
+        complex(8), intent(in) :: psi0(nmax), phi0(nmax)
+        complex(8), intent(in) :: psi(nmax), phi(nmax)
+        complex(8), intent(out) :: ak(krange), bkwT(krange)
+        complex(8), intent(out) :: a0, b0wT
       
         ! locals
         integer :: j, k, ij
@@ -115,8 +117,8 @@
         real(8) :: auxr1(krange/2), auxr2(krange/2)
         complex(8) :: auxc_
         complex(8) :: auxc(nmax), wfc_k(nmax)
-        complex(8) :: wfc0(nmax)
-        complex(8) :: wfc(nmax)
+        complex(8) :: psic0(nmax), phic0(nmax)
+        complex(8) :: psic(nmax), phic(nmax)
         complex(8), parameter :: ci = (0.d0,1.d0)
 !       real(8), parameter :: ppi = 3.141592653589793d0
         real(8), parameter :: ppi = 4.d0*datan(1.d0)
@@ -133,7 +135,8 @@
         ak = (0.d0, 0.d0)
         dk = k_max/(krange/2-1)
 
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf, wfc)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, psi, psic)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, phi, phic)
       
         do j=1,krange
       
@@ -155,27 +158,35 @@
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                  &
                    exp(-ci*abs(kk(j)*xx))
       
-           auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
+           auxc  = conjg(wfc_k) * psic * wx*wx*jacc
            ak(j) = sum(auxc)
-!          ak(j) = exp(ci*(0.5d0*kk(j)**2)*t_end) * ak(j)
-      
+
+           auxc  = conjg(wfc_k) * phic * wx*wx*jacc
+           bkwT(j) = sum(auxc)
+     
         end do
 
-        ak = exp(ci*(0.5d0*kk**2)*t_end) * ak
+        ak   = exp(ci*(0.5d0*kk**2)*t_end) * ak
+        bkwT = exp(ci*(0.5d0*kk**2)*t_end) * bkwT
 
-      
+
+        a0 = (0.d0, 0.d0)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, psi0, psic0)
+        auxc = conjg(psic0) * psic * wx*wx*jacc
+        a0 = sum(auxc)
+        a0 = exp(ci*eigval(1)*t_end)*a0
+
+        b0wT = (0.d0, 0.d0)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, phi0, phic0)
+        auxc = conjg(phic0) * phic * wx*wx*jacc
+        b0wT = sum(auxc)
+        b0wT = exp(ci*eigval(1)*t_end)*b0wT
+  
         ! --- probabilities ---
         p_ion = 0.d0
         call integr_over_range(krange, kk, ak, auxc_)
         p_ion = real(auxc_) / (2.d0*ppi)
 !       write(*,*) p_ion
-
-        a0 = (0.d0, 0.d0)
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0, wfc0)
-        auxc = conjg(wfc0) * wfc * wx*wx*jacc
-  
-        a0 = sum(auxc)
-        a0 = exp(ci*eigval(1)*t_end)*a0
       
         p0 = abs(a0)**2
       
