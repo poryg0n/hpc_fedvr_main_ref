@@ -178,7 +178,7 @@
 
         b0wT = (0.d0, 0.d0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, phi0, phic0)
-        auxc = conjg(phic0) * phic * wx*wx*jacc
+        auxc = conjg(psic0) * phic * wx*wx*jacc
         b0wT = sum(auxc)
         b0wT = exp(ci*eigval(1)*t_end)*b0wT
   
@@ -198,7 +198,10 @@
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
                            wf0_1, wf_1, wf0_2, wf_2,                 &
-                           omega, k_max, kk, a0, ak, b0w, bkw)
+                           omega, k_max, kk,                          &
+                           a0, b0wT,                                  &
+                           ak, bkwT,                                  &
+                           b0w, bkw)
       
         implicit none
         integer, intent(in) :: nmax, krange
@@ -208,6 +211,7 @@
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
         complex(8), intent(in) :: a0
+        complex(8), intent(in) :: b0wT
 
         character(255) :: workdir
 
@@ -217,6 +221,7 @@
         complex(8), intent(in) :: wf_1(nmax)
         complex(8), intent(in) :: wf_2(nmax)
         complex(8), intent(in) :: ak(krange)
+        complex(8), intent(in) :: bkwT(krange)
 
         complex(8), intent(out) :: b0w
         complex(8), intent(out) :: bkw(krange)
@@ -224,7 +229,7 @@
         ! locals
         integer :: j, k, l, ij
         integer :: p, n_cont
-        real(8) :: E0, Ek_, Ekp
+        real(8) :: E0, Ek_, Ekp_
         real(8) :: Ek(krange)
         real(8) :: aux1, aux2, dk, delta_kk
         real(8) :: auxr1(krange/2), auxr2(krange/2)
@@ -252,16 +257,19 @@
         complex(8) :: pk0_, p0k_, pkk_
         complex(8) :: auxc_1, auxc_2, auxc_3
         complex(8) :: pk0(krange), p0k(krange), pkk(krange)
-        complex(8) :: pkkp(krange), dkk(krange)
+        complex(8) :: pkkk(krange), dkk(krange)
 
-        integer :: unit_pk0, unit_pkk, unit_pkl, unit_pkl_
+        integer :: unit_pk0, unit_pkk, unit_pkl, unit_vec
+
         open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat",         &
                                                       status="replace")
         open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat",         &
                                                       status="replace")
         open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
                                                     status="replace")
-        open(newunit=unit_pkl_, file=trim(workdir)//"/pkl_.dat",       &
+!       open(newunit=unit_pkl_, file=trim(workdir)//"/pkl_.dat",       &
+!                                                   status="replace")
+        open(newunit=unit_vec, file=trim(workdir)//"/vec_01k.dat",     &
                                                     status="replace")
       
         p=0
@@ -295,6 +303,7 @@
 !          end if
 !       enddo
 
+        E0  = - 0.5d0 * kapp**2
 
         do j=1,krange
 !          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
@@ -310,14 +319,14 @@
            auxc_3 = 0.d0
  
            do l=1,krange
-              if (j == l) cycle
+!             if (j == l) cycle
 !             call build_wfc_k(xx, kk(l), kapp, mode_k, wfc_k_)
       
               wfc_k_ = exp(ci*kk(l)*xx) +                              &
                       (ci*kapp/(-abs(kk(l)) - ci*kapp)) *              &
                       exp(-ci*abs(kk(l)*xx))
      
-              Ekp = 0.5d0 * kk(l)**2 
+              Ekp_ = 0.5d0 * kk(l)**2 
 
               call differentiate(xx, wfc_k_, dwfc_k)
               pwfc_k = -ci * dwfc_k
@@ -327,7 +336,7 @@
 
               auxc = conjg(wfc_k) * xx * wfc_k_ * wx*wx*jacc
               dkk_ = sum(auxc)
-              dkk_ = -ci* ( Ek_ - Ekp ) * dkk_
+              dkk(l) = -ci* ( Ek_ - Ekp_ ) * dkk_
 
               ! *** analytical formula
               if(j.eq.l) then
@@ -336,13 +345,12 @@
                  delta_kk = 0.d0
               end if
 
-!             delta_kk = 0.d0
               denom  = ( kk(j)**2 - kk(l)**2 + ci*eta )
               factor = ( kk(l)*abs(kk(j)) / (abs(kk(j)) -ci*kapp)      &
                       -  kk(j)*abs(kk(l)) / (abs(kk(l)) +ci*kapp) )
 
 
-              pkk_ = 2.d0*ppi*kk(j) * delta_kk                         &
+              pkkk(l) = 2.d0*ppi*kk(j) * delta_kk                      &
                                    - 2.d0 * kapp * factor/denom
      
 
@@ -354,17 +362,17 @@
 
 
               auxc_1 = auxc_1 + pkk(l) * ak(l) * dk
-              auxc_2 = auxc_2 + dkk_   * ak(l) * dk
-              auxc_3 = auxc_3 + pkk_   * ak(l) * dk
+              auxc_2 = auxc_2 + dkk(l) * ak(l) * dk
+              auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk
 
-              write(unit_pkk, *) kk(j), kk(l), pkk(l), dkk_, pkk_ 
+              write(unit_pkk, *) kk(j), kk(l), pkk(l), dkk(l), pkkk(l) 
 !             write(unit_pkk, *) kk(j), kk(l),                        &
 !                        real(pkk(l)), imag(pkk(l)),                  &
 !                        real(dkk_), imag(dkk_),                      &
 !                        real(pkk_), imag(pkk_)
 
-              vec_2(l) = pkk(l) * ak(l) / ( Ek_ + omega - Ekp + ci*eta )
-              vec_2(l) = exp(ci*( Ek_+omega-Ekp ) * t_end ) * vec_2(l)
+              vec_2(l) = pkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
+              vec_2(l) = exp(ci*( Ek_+omega-Ekp_ ) * t_end ) * vec_2(l)
 
 !             if (j.ne.l) then  
 !                b_pv(j) = p(j,l) * ak(l) / (kk(j)**2 - kkp(l)**2) * dk
@@ -372,12 +380,12 @@
 
            enddo
 
-           write(unit_pkl,'(7E20.10)') kk(j),                         &
-                               real(auxc_1), imag(auxc_1),             &
-                               real(auxc_2), imag(auxc_2),             &
-                               real(auxc_3), imag(auxc_3)
+!          write(unit_pkl,'(7E20.10)') kk(j),                         &
+!                              real(auxc_1), imag(auxc_1),             &
+!                              real(auxc_2), imag(auxc_2),             &
+!                              real(auxc_3), imag(auxc_3)
 
-           write(unit_pkl_,'(7E20.10)') kk(j),                        &
+           write(unit_pkl,'(7E20.10)') kk(j),                        &
                         abs(real(auxc_1)), abs(imag(auxc_1)),          &
                         abs(real(auxc_2)), abs(imag(auxc_2)),          &
                         abs(real(auxc_3)), abs(imag(auxc_3))
@@ -393,7 +401,6 @@
            auxc = conjg(wfc0_1) * pwfc_k * wx*wx*jacc
            p0k(j) = sum(auxc)
 
-           E0  = - 0.5d0 * kapp**2
 !          E0  = eigval(1)
 
            auxc = conjg(wfc_k) * xx * wfc0_1 * wx*wx*jacc
@@ -417,24 +424,24 @@
 
         call integr_over_range(krange, kk, vec_1, vec_0)
 
-        auxc = conjg(wfc0_1) * wfc_2 * wx*wx*jacc
-        b0wT = sum(auxc)
-        b0wT = exp(ci*eigval(1)*t_end) * b0wT
+!       auxc = conjg(wfc0_1) * wfc_2 * wx*wx*jacc
+!       b0wT = sum(auxc)
+!       b0wT = exp(ci*eigval(1)*t_end) * b0wT
 
-        do j=1, krange
+!       do j=1, krange
 
-           wfc_k = exp(ci*kk(j)*xx) +                                  &
-                   (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                 &
-                   exp(-ci*abs(kk(j)*xx))
-       
-           auxc = conjg(wfc_k) * wfc_2 * wx*wx*jacc
-           bkwT(j) = sum(auxc)
+!          wfc_k = exp(ci*kk(j)*xx) +                                  &
+!                  (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                 &
+!                  exp(-ci*abs(kk(j)*xx))
+!      
+!          auxc = conjg(wfc_k) * wfc_2 * wx*wx*jacc
+!          bkwT(j) = sum(auxc)
 
-        enddo
+!       enddo
 
         Ek = 0.5d0 * kk**2 
 
-        bkwT = exp(ci*Ek*t_end) * bkwT
+!       bkwT = exp(ci*Ek*t_end) * bkwT
 
       
         vec_1 = pk0 * a0 / ( Ek + omega - E0 )
@@ -450,6 +457,7 @@
         close(unit_pk0)
         close(unit_pkk)
         close(unit_pkl)
+        close(unit_vec)
       
       end subroutine
 
