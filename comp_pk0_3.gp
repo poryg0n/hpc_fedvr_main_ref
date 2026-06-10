@@ -3,10 +3,12 @@
 
 datafile1 = ARG1
 datafile2 = ARG2
-outfile1  = ARG3
-outfile2  = ARG4
-label1    = ARG5
-label2    = ARG6
+datafile3 = ARG3
+outfile1  = ARG4
+outfile2  = ARG5
+label1    = ARG6
+label2    = ARG7
+label3    = ARG8
 
 
 set terminal pngcairo size 1000,700
@@ -31,14 +33,14 @@ set grid
 set key left top
 
 plot \
-datafile1 using 1:(-$4) with lines lw 2 lc 8 title label1, \
-datafile2 using 1:4 with lines lw 2 lc 6 title label2, \
-datafile1 using 1:5 with lines dt 2.5 lw 2 lc 4 title "analytic", \
+datafile1 using 1:(-$2) with lines lw 2 lc 8 title label1, \
+datafile2 using 1:2 with lines lw 2 lc 6 title label2, \
+datafile3 using 1:2 with lines lw 2 lc 2 title label3
 
 
 set output outfile2
 
 plot \
-datafile1 using 1:(-$2) with lines lw 2 lc 8 title label1, \
-datafile2 using 1:(-$3) with lines lw 2 lc 6 title label2, \
-datafile2 using 1:5 with lines dt 2 lw 2 lc 4 title "analytic", \
+datafile1 using 1:(-$4) with lines lw 2 lc 8 title label1, \
+datafile2 using 1:4 with lines lw 2 lc 6 title label2, \
+datafile3 using 1:4 with lines lw 2 lc 2 title label3

@@ -323,20 +323,20 @@
 
          ! --- propagation ---
 
-!        call process_src_ingredients ( nmax_, ns, np,              &
-!                                  jacc,                            &
-!                                  xs, xx, wx, map, Dref,     &
-!                                  dt0, tt,                            &
-!                                  eigval, eigvec, psi_in, svec,       &
-!                                  src_type, omeg, order)
+         call process_src_ingredients ( nmax_, ns, np,              &
+                                   jacc,                            &
+                                   xs, xx, wx, map, Dref,     &
+                                   dt0, tt,                            &
+                                   eigval, eigvec, psi_in, svec,       &
+                                   src_type, omeg, order)
 
-!        call build_source_quadrature ( nmax_, ns, np,             &
-!                                              xs, xx, map, Dref,     &
-!                                              dt0, tt,               &
-!                                              eigval, eigvec,        &
-!                                              svec,                  &
-!                                              src, omeg,            &
-!                                              order )
+         call build_source_quadrature ( nmax_, ns, np,             &
+                                               xs, xx, map, Dref,     &
+                                               dt0, tt,               &
+                                               eigval, eigvec,        &
+                                               svec,                  &
+                                               src, omeg,            &
+                                               order )
          
          call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,       &
                                             psi_in, psi_out, order)
@@ -347,7 +347,7 @@
          !--------------------------------------------
          ! Add source contribution
          !--------------------------------------------
-!        phi_out = phi_out - ci * src
+         phi_out = phi_out - ci * src
 
          norm_1 = sqrt(sum(abs(psi_out)**2))
          norm_2 = sqrt(sum(abs(phi_out)**2))

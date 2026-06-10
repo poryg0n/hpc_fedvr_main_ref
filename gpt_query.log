@@ -1,0 +1,57 @@
+we had that table before
+
+
+\begin{table}[h!]
+\centering
+%\caption{Dependence of the computed quantity $Q(\omega)$ on the FEDVR
+%discretization parameters. The effective box size is
+%$x_{\max}=N_pN_s(1+q)/2$, where $q=0$ or $1/2$.}
+%\label{tab:qw_convergence}
+\begin{tabular}{cccccc}
+\toprule
+$\rm N_p$ & $\rm N_s$ & $q$ & $x_{\max}$ & $b_0(\omega)$ & $Q(\omega)$ \\
+\midrule
+30 & 200 & $1/2$ & 9000  & 12.7406754 & $6.3649490\times10^{9}$ \\
+40 & 200 & $0$   & 4000  & 12.7400795 & $6.2368512\times10^{3}$ \\
+40 & 200 & $1/2$ & 12000 & 12.7412440 & $2.6370941\times10^{7}$ \\
+50 & 200 & $1/2$ & 15000 & 12.7976569 & $1.2622004\times10^{7}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+on the same model, i want atable that shows
+teh difference between those
+
+homogeneous, Np = 20
+ # b0(w):
+ 1.429723093272976E-005
+ # Q(w):
+ (101.528608644234,0.000000000000000E+000)
+
+homogeneous, Np = 30
+ # b0(w):
+  1.429699840829214E-005 
+ # Q(w):
+ (9.36575834493773,0.000000000000000E+000)
+
+
+inhomogeneous, Np=20 
+ # b0(w):
+ 12.7625624436980     
+ # Q(w):
+ (114.291932061672,0.000000000000000E+000)
+
+
+inhomogeneous, Np=30 
+ # b0(w):
+ 12.7625622811969      
+ # Q(w):
+ (22.1287648355229,0.000000000000000E+000)
+
+ inhomogeneous, Np=30 
+ # b0(w):
+ 12.7625622093491     
+ # Q(w):
+ (20.1218865904489,0.000000000000000E+000)

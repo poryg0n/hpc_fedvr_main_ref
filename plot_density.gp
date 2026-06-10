@@ -4,6 +4,7 @@
 
 datafile = ARG1
 outfile  = ARG2
+label1  = ARG3
 #mode     = int(ARG3)
 
 set format y "10^{%L}";
@@ -23,6 +24,9 @@ set size ratio  0.3182 1,1
 set xlabel 'x (a.u.)' font ', 15'
 set ylabel 'D(x,t)' font ', 15'
 set title  'Density Probability'
+
+
+set label label1 at graph .47,.3
 
 set grid
 

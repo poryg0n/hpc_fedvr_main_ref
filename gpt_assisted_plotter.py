@@ -88,7 +88,7 @@ def format_param(val, mode="float"):
 # ---- execution part ----
 
 output_dir = "data/exp/" 
-runs = find_runs(output_dir, keyword="10000")
+runs = find_runs(output_dir, keyword="20k")
 
 if len(sys.argv) > 1:
     prefix = sys.argv[1]

@@ -14,3 +14,8 @@ endif
 
      % bash -c 'source <install-dir>/<toolkit-version>/oneapi-vars.sh ; exec csh'
 is it different from what you werfre saying?
+
+
+
+
+bash -c 'source ~/intel/oneapi/setvars.sh ; exec tcsh'
