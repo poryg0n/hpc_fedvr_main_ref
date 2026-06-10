@@ -246,8 +246,8 @@
         complex(8) :: vec_2(krange)
         complex(8) :: vec_k(krange)
         complex(8) :: vec_0
-        complex(8) :: b0wT
-        complex(8) :: bkwT(krange)
+!       complex(8) :: b0wT
+!       complex(8) :: bkwT(krange)
         complex(8), parameter :: ci = (0.d0,1.d0)
 !       real(8), parameter :: ppi = 3.141592653589793d0
         real(8), parameter :: ppi = 4.d0*datan(1.d0)
