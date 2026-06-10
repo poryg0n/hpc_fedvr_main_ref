@@ -55,3 +55,42 @@ inhomogeneous, Np=30
  12.7625622093491     
  # Q(w):
  (20.1218865904489,0.000000000000000E+000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{table}[h!]
+\centering
+%\caption{Comparison between homogeneous and inhomogeneous calculations
+%for different FEDVR discretizations.}
+%\label{tab:hom_inhom}
+\begin{tabular}{cccc}
+\toprule
+Case & $\rm N_p$ & $b_0(\omega)$ & $Q(\omega)$ \\
+\midrule
+Homogeneous   & 20 & $1.4297231\times10^{-5}$ & $1.0152861\times10^{2}$ \\
+Homogeneous   & 30 & $1.4296998\times10^{-5}$ & $9.3657583$ \\
+\midrule
+Inhomogeneous & 20 & $12.7625624$ & $1.1429193\times10^{2}$ \\
+Inhomogeneous & 30 & $12.7625623$ & $2.2128765\times10^{1}$ \\
+Inhomogeneous & 40 & $12.7625622$ & $2.0121887\times10^{1}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
