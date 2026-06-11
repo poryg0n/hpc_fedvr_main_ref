@@ -420,9 +420,11 @@
         b0w = b0wT + vec_0
         bkw = bkwT + vec_1 +  vec_k
 
-        write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),  &
-                                real(vec_1(j)), imag(vec_1(j)),       &
+        do j=1,krange
+           write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),&
+                                real(vec_1(j)), imag(vec_1(j)),        &
                                 real(vec_k(j)), imag(vec_k(j))
+        enddo
 
 
         close(unit_pk0)
