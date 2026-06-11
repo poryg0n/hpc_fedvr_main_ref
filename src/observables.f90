@@ -404,8 +404,9 @@
            vec_1(j) = p0k(j) * ak(j) / ( E0+omega-Ek_ + ci*eta )
            vec_1(j) = exp( ci * ( E0+omega-Ek_ ) * t_end ) * vec_1(j)
 
-!          write(unit_vec,'(3E20.10)') kk(j), vec_1(j), vec_k(j)
-           write(unit_vec,*) kk(j), vec_1(j), vec_k(j)
+!          write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),&
+!                                  real(vec_1(j)), imag(vec_1(j)),     &
+!                                  real(vec_k(j)), imag(vec_k(j))
         enddo
 
         call integr_over_range(krange, kk, vec_1, vec_0)
@@ -419,6 +420,9 @@
         b0w = b0wT + vec_0
         bkw = bkwT + vec_1 +  vec_k
 
+        write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),  &
+                                real(vec_1(j)), imag(vec_1(j)),       &
+                                real(vec_k(j)), imag(vec_k(j))
 
 
         close(unit_pk0)
