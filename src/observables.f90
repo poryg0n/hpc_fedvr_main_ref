@@ -197,7 +197,7 @@
                            nmax, krange, t_end,              &
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
-                           wf0_1, wf_1, wf0_2, wf_2,                 &
+                           wf0_1, wf0_2, wf_1, wf_2,                 &
                            omega, k_max, kk,                          &
                            a0, b0wT,                                  &
                            ak, bkwT,                                  &
@@ -213,8 +213,6 @@
         complex(8), intent(in) :: a0
         complex(8), intent(in) :: b0wT
 
-        character(255) :: workdir
-
         real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: wf0_1(nmax)
         complex(8), intent(in) :: wf0_2(nmax)
@@ -226,6 +224,8 @@
         complex(8), intent(out) :: b0w
         complex(8), intent(out) :: bkw(krange)
       
+        character(255), intent(in) :: workdir
+
         ! locals
         integer :: j, k, l, ij
         integer :: p, n_cont
@@ -258,7 +258,7 @@
         complex(8) :: pk0(krange), p0k(krange), pkk(krange)
         complex(8) :: pkkk(krange), dkk(krange)
 
-        integer :: unit_pk0, unit_pkk, unit_pkl, unit_vec
+        integer :: unit_pk0, unit_pkk, unit_pkl, unit_vec, unit_b0kw
 
         open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat",         &
                                                       status="replace")
@@ -267,6 +267,8 @@
         open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
                                                     status="replace")
         open(newunit=unit_vec, file=trim(workdir)//"/vec_01k.dat",     &
+                                                    status="replace")
+        open(newunit=unit_b0kw, file=trim(workdir)//"/b0wk.dat",       &
                                                     status="replace")
       
         p=0
@@ -355,12 +357,14 @@
               auxc_2 = auxc_2 + dkk(l) * ak(l) * dk
               auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk
 
-              write(unit_pkk, *) kk(j), kk(l), pkk(l), dkk(l), pkkk(l) 
-!             write(unit_pkk, *) kk(j), kk(l),                        &
-!                        real(pkk(l)), imag(pkk(l)),                  &
-!                        real(dkk_), imag(dkk_),                      &
-!                        real(pkk_), imag(pkk_)
+              write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
+                                   real(pkk(l)), imag(pkk(l)),         &
+                                   real(dkk(l)), imag(dkk(l)),         &
+                                   real(pkkk(l)), imag(pkkk(l))
 
+
+!             vec_2(l) = pkkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
+!             vec_2(l) = dkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
               vec_2(l) = pkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
               vec_2(l) = exp(ci*( Ek_+omega-Ekp_ ) * t_end ) * vec_2(l)
 
@@ -373,7 +377,8 @@
                                real(auxc_3), imag(auxc_3)
 
 
-           call integr_over_range(krange, kk, vec_2, vec_k(j))
+!          call integr_over_range(krange, kk, vec_2, vec_k(j))
+           call composite_simpson_18c(krange, kk, vec_2, vec_k(j))
 
            auxc = conjg(wfc_k) * pwfc_0 * wx*wx*jacc
            pk0(j) = sum(auxc)
@@ -409,7 +414,8 @@
 !                                  real(vec_k(j)), imag(vec_k(j))
         enddo
 
-        call integr_over_range(krange, kk, vec_1, vec_0)
+        call composite_simpson_18c(krange, kk, vec_1, vec_0)
+
 
         Ek = 0.5d0 * kk**2 
 
@@ -424,6 +430,8 @@
            write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),&
                                 real(vec_1(j)), imag(vec_1(j)),        &
                                 real(vec_k(j)), imag(vec_k(j))
+           write(unit_b0kw,'(7E20.10)') kk(j), real(b0w), imag(b0w),   &
+                                real(bkw(j)), imag(bkw(j))
         enddo
 
 
@@ -431,6 +439,7 @@
         close(unit_pkk)
         close(unit_pkl)
         close(unit_vec)
+        close(unit_b0kw)
       
       end subroutine
 
@@ -493,32 +502,21 @@
       end subroutine
 
 
-!     subroutine compute_Qw(krange, dk, bkw, b0w, Qw)
       subroutine compute_Qw(krange, kk, bkw, b0w, Qw)
         implicit none
         integer, intent(in) :: krange
-!       real(8), intent(in) :: dk
         real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: b0w
         complex(8), intent(in) :: bkw(krange)
         complex(8), intent(out) :: Qw
 
-!       integer :: i
-        real(8) :: sum_k
+        complex(8) :: sum_kw
         complex(8) :: auxc_
 
-        sum_k = 0.d0
-
-!       call composite_simpson_18c(nt, kk, bkw, amp)
-!       do i = 1, krange
-!          sum_k = sum_k + abs(bkw(i))**2
-!       enddo
-
-!       sum_k = sum_k * dk / (2.d0 * ppi)
 
         call integr_over_range(krange, kk, bkw, auxc_)
-        sum_k = real(auxc_) / (2.d0*ppi)
-        Qw = abs(b0w)**2 + sum_k
+        sum_kw = auxc_ / (2.d0*ppi)
+        Qw = abs(b0w)**2 + sum_kw
 
       end subroutine
 
