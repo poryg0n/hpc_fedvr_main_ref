@@ -37,7 +37,7 @@ set log y
 plot datafile using 1:($2) with lines lw 2 lc 7 title "Int p_{0k'}a_{k'}", \
      datafile using 1:(abs($4)) with lines lw 2 lc 4 title "Re(C_{k{/Symbol w}}p_{k0}a_0)", \
      datafile using 1:(abs($5)) with lines lw 2 lc 6 title "Im(C_{k{/Symbol w}}p_{k0}a_0)", \
-     datafile using 1:($6) with lines lw 2 lc 8 title "Int p_{kk'}a_{k'}", \
+     datafile using 1:(abs($6)) with lines lw 2 lc 8 title "Int p_{kk'}a_{k'}", \
 
 
 #set output outfile2
