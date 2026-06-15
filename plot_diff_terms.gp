@@ -34,10 +34,12 @@ set key left top
 
 
 set log y
-plot datafile using 1:($2) with lines lw 2 lc 7 title "Int p_{0k'}a_{k'}", \
+plot datafile using 1:abs($2) with lines lw 2 lc 7 title "Re(Int p_{0k'}a_{k'})", \
+     datafile using 1:abs($3) with lines lw 2 lc 6 title "Im(Int p_{0k'}a_{k'})", \
      datafile using 1:(abs($4)) with lines lw 2 lc 4 title "Re(C_{k{/Symbol w}}p_{k0}a_0)", \
      datafile using 1:(abs($5)) with lines lw 2 lc 6 title "Im(C_{k{/Symbol w}}p_{k0}a_0)", \
-     datafile using 1:(abs($6)) with lines lw 2 lc 8 title "Int p_{kk'}a_{k'}", \
+     datafile using 1:(abs($6)) with lines lw 2 lc 8 title "Re(Int p_{kk'}a_{k'})", \
+     datafile using 1:(abs($7)) with lines lw 2 lc 3 title "Im(Int p_{kk'}a_{k'})", \
 
 
 #set output outfile2
