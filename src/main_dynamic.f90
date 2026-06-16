@@ -110,10 +110,6 @@
       call read_eigvec_bin(trim(struct_dir)//"/eigvec.bin", j, eigvec)
       if (i.ne.j) stop
       if (i.ne.nmax_) stop
-      call init_run(workdir, dyn_tag, extract_name(struct_dir))
-
-      open(newunit=log_unit, file=trim(workdir)//"log.txt",            &
-                                               status='replace')
 
 !     do i=1,10
 !        write(*,*) i, eigval(i)
@@ -211,6 +207,12 @@
       psi_inx = psi_in
       phi_inx = phi_in
 
+
+      call init_run(workdir, dyn_tag, extract_name(struct_dir))
+
+      open(newunit=log_unit, file=trim(workdir)//"log.txt",            &
+                                               status='replace')
+
       open(newunit=init_unit, file=trim(workdir)//"initial_conds.dat", &
                                                status='replace')
       do i=1,nmax_
@@ -298,7 +300,6 @@
 
       open(newunit=force_unit, file=trim(workdir)//"force.dat",       &
                                                   status='replace')
-
       call plot_force(force_unit, t_end, t_ini, dt0)
       close(force_unit)
 

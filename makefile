@@ -64,7 +64,6 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 
 # --- Compilation rule ---
 %.o: $(SRC)/%.f
-#	$(F77) -O2 -c $<
 	$(FC) $(FFLAGS) -c $<
 
 %.o: $(SRC)/%.f90
@@ -76,4 +75,3 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 .PHONY: clean
 clean:
 	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(DYNAMIC_EXE) $(EXPLOIT_EXE)
-

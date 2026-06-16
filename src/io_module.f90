@@ -8,11 +8,11 @@
       !=========================================
       subroutine write_problem_input(filename, struct_dir,       &
                                        nmax, snbr, nnbr,         &
-                                       xmin, xmax, jac, q)
+                                       xmin, xmax, jac, qq)
         implicit none
         character(*), intent(in) :: filename, struct_dir
         integer, intent(in) :: nmax, snbr, nnbr
-        real(8), intent(in) :: xmin, xmax, jac, q
+        real(8), intent(in) :: xmin, xmax, jac, qq
       
         integer :: unit
       
@@ -23,8 +23,10 @@
         write(unit,*) "nnbr       =", nnbr
         write(unit,*) "xmin       =", xmin
         write(unit,*) "xmax       =", xmax
+        write(unit,*) "q          =", qq
+        write(unit,*) 
         write(unit,*) "jac        =", jac
-        write(unit,*) "q          =", q
+        write(unit,*) 
         write(unit,*) "struct_dir =", struct_dir
       
         close(unit)
@@ -37,13 +39,13 @@
       !=========================================
       subroutine write_problem_bin(filename, workdir,                 &
                                   nmax, snbr, nnbr,                   &
-                                  xmin, xmax, jac,                    &
-                                  q, xx, wx)
+                                  xmin, xmax, jac, qq,                &
+                                  xx, wx)
 
         implicit none
         character(*), intent(in) :: filename, workdir
         integer, intent(in) :: nmax, snbr, nnbr
-        real(8), intent(in) :: xmin, xmax, jac, q
+        real(8), intent(in) :: xmin, xmax, jac, qq
         real(8), intent(in) :: xx(:), wx(:)
       
         integer :: unit
@@ -53,8 +55,7 @@
       
         write(unit) 1              ! version
         write(unit) nmax, snbr, nnbr
-        write(unit) xmin, xmax, jac
-        write(unit) q
+        write(unit) xmin, xmax, jac, qq
         write(unit) xx
         write(unit) wx
         write(unit) workdir
@@ -69,7 +70,8 @@
       !=========================================
       subroutine read_problem_bin(filename, struct_dir,         &
                                      nmax, snbr, nnbr,          &
-                                     xmin, xmax, jac, qq, xx, wx)
+                                     xmin, xmax, jac, qq,       &
+                                     xx, wx)
         implicit none
         character(*), intent(in) :: filename
         character(*), intent(out) :: struct_dir
@@ -84,8 +86,7 @@
       
         read(unit) version
         read(unit) nmax, snbr, nnbr
-        read(unit) xmin, xmax, jac
-        read(unit) qq
+        read(unit) xmin, xmax, jac, qq
       
         allocate(xx(nmax), wx(nmax))
       
@@ -125,8 +126,11 @@
         write(unit,*) "noc       =", noc
         write(unit,*) "ntau      =", ntau
         write(unit,*) "src_type  =", src_type
+        write(unit,*) 
         write(unit,*) "omg       =", omg
+        write(unit,*) 
         write(unit,*) "order     =", order
+        write(unit,*) 
         write(unit,*) "struct    =", trim(struct_dir)
         write(unit,*) "dyn_dir   =", trim(dyn_dir)
       
@@ -208,8 +212,11 @@
         read(unit) nsteps
         read(unit) dt0
         read(unit) src_type
+
         read(unit) omg
+
         read(unit) order
+
         read(unit) struct_dir
         read(unit) dyn_dir
 
@@ -328,12 +335,12 @@
 
 
       subroutine write_wavefunction_input(filename, t, omg, jac,       &
-                                              w, x, eigvec, wf)
+                                              wx, xx, eigvec, wf)
         implicit none
       
         character(len=*), intent(in) :: filename
         real(8), intent(in) :: t, omg, jac
-        real(8), intent(in) :: w(:), x(:)
+        real(8), intent(in) :: wx(:), xx(:)
         real(8), intent(in) :: eigvec(:,:)
         complex(8), intent(in) :: wf(:)
       
@@ -353,9 +360,9 @@
         wfc = matmul(eigvec, wf)
       
         do i = 1, n
-           wfc(i) = wfc(i) / ( w(i) * dsqrt(jac) )
+           wfc(i) = wfc(i) / ( wx(i) * dsqrt(jac) )
 !          write(unit,*) x(i), real(wfc(i)), aimag(wfc(i))
-           write(unit,'(3E20.10)') x(i), real(wfc(i)), aimag(wfc(i))
+           write(unit,'(3E20.10)') xx(i), real(wfc(i)), aimag(wfc(i))
         end do
       
 !       write(unit,*) ""  ! separator between snapshots
@@ -588,7 +595,9 @@
                  write(unit,'(3E20.10)') kk(i), -20.d0, log10(pkwT)
               end if
            else
-              write(unit,'(3E20.10)') kk(i), pk, pkwT
+              write(unit,'(3E20.10)') kk(i), pk, pkwT,                &
+                                           real(ak), imag(ak),        &
+                                           real(bkwT), imag(bkwT)
            end if
         end do
       

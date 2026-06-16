@@ -10,8 +10,8 @@ set terminal pngcairo size 1000,700
 set output outfile1
 
 set xlabel 'k (a.u.)' font ', 15' enhanced
-set ylabel 'P(k)' font ', 15' enhanced
-set title 'Photoelectron Momentum Distribution (PEMD)' font ",16" enhanced
+set ylabel 'C_{k{/Symbol w}} p_{k0}a_0' font ', 15' enhanced
+set title 'Non integral term in b_{k{/Symbol w}}' font ",16" enhanced
 
 set format y "10^{%L}";
 
@@ -32,14 +32,12 @@ set key left top
 #    plot datafile using 1:($2) with lines lw 2 lc 7 title 'C_{k{/Symbol w}}p_{k0}a_0'
 #}
 
-
+#
 set log y
-plot datafile using 1:abs($2) with lines lw 2 lc 7 title "Re(Int p_{0k'}a_{k'})", \
-     datafile using 1:abs($3) with lines lw 2 lc 6 title "Im(Int p_{0k'}a_{k'})", \
-     datafile using 1:(abs($4)) with lines lw 2 lc 4 title "Re(C_{k{/Symbol w}}p_{k0}a_0)", \
-     datafile using 1:(abs($5)) with lines lw 2 lc 6 title "Im(C_{k{/Symbol w}}p_{k0}a_0)", \
-     datafile using 1:(abs($6)) with lines lw 2 lc 8 title "Re(Int p_{kk'}a_{k'})", \
-     datafile using 1:(abs($7)) with lines lw 2 lc 3 title "Im(Int p_{kk'}a_{k'})", \
+plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re(Int p_{0k'}a_{k'})", \
+     datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 6 title "Im(Int p_{0k'}a_{k'})", \
+     datafile."/vec_01k.dat" using 1:(abs($6)) with lines lw 2 lc 8 title "Re(Int p_{kk'}a_{k'})", \
+     datafile."/vec_01k.dat" using 1:(abs($7)) with lines lw 2 lc 3 title "Im(Int p_{kk'}a_{k'})", \
 
 
 #set output outfile2
@@ -52,3 +50,11 @@ plot datafile using 1:abs($2) with lines lw 2 lc 7 title "Re(Int p_{0k'}a_{k'})"
 #} else {
 #    plot datafile using 1:3 with lines lw 2 title '|b_{kw}(T)|^2'
 #}
+
+unset log y
+
+unset format y 
+set output outfile2
+plot datafile."/vec_01k.dat" using 1:($4)  lc 4 title "Re(C_{k{/Symbol w}}p_{k0}a_0)", \
+     datafile."/vec_01k.dat" using 1:($5)  lc 6 title "Im(C_{k{/Symbol w}}p_{k0}a_0)", \
+     datafile."/pk0.dat" using 1:($3) with lines lw 2 lc 8 title "p_{k0}", \

@@ -91,7 +91,7 @@
 
       struct_tag = "struct/"
       call cpu_time(start)
-      call set_grid_params(np, ns, xc_in, xmin_, xmax_)
+      call set_grid_params(np, ns, xc_in, xmin_, xmax_, qq)
 !     call init_run(workdir, "E0.5_dt0.01")
       call init_run(workdir, struct_tag)
 

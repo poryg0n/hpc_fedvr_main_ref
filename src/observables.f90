@@ -114,6 +114,8 @@
         integer :: j, k, ij
         integer :: p, n_cont
         real(8) :: aux1, aux2, dk
+        real(8) :: E0
+        real(8) :: Ek(krange)
         real(8) :: auxr1(krange/2), auxr2(krange/2)
         complex(8) :: auxc_
         complex(8) :: auxc(nmax), wfc_k(nmax)
@@ -165,22 +167,24 @@
            bkwT(j) = sum(auxc)
      
         end do
+        Ek  = 0.5d0 * kk**2
+        E0  = - 0.5d0 * kapp**2
 
-        ak   = exp(ci*(0.5d0*kk**2)*t_end) * ak
-        bkwT = exp(ci*(0.5d0*kk**2)*t_end) * bkwT
+        ak   = exp(ci*Ek*t_end) * ak
+        bkwT = exp(ci*Ek*t_end) * bkwT
 
 
         a0 = (0.d0, 0.d0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, psi0, psic0)
         auxc = conjg(psic0) * psic * wx*wx*jacc
         a0 = sum(auxc)
-        a0 = exp(ci*eigval(1)*t_end)*a0
+        a0 = exp(ci*E0*t_end)*a0
 
         b0wT = (0.d0, 0.d0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, phi0, phic0)
         auxc = conjg(psic0) * phic * wx*wx*jacc
         b0wT = sum(auxc)
-        b0wT = exp(ci*eigval(1)*t_end)*b0wT
+        b0wT = exp(ci*E0*t_end)*b0wT
   
         ! --- probabilities ---
         p_ion = 0.d0

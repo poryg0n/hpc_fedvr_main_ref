@@ -41,7 +41,8 @@ unset format y
 
 if (logscale == 1) {
     set log y
-    plot datafile using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2'
+    plot datafile.'\pemd.dat' using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2', \
+         datafile.'\pemd.dat' using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2'
 } else {
     plot datafile using 1:3 with lines lw 2 title '|b_{kw}(T)|^2'
 }
