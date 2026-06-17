@@ -55,6 +55,6 @@ unset log y
 
 unset format y 
 set output outfile2
-plot datafile."/vec_01k.dat" using 1:($4)  lc 4 title "Re(C_{k{/Symbol w}}p_{k0}a_0)", \
-     datafile."/vec_01k.dat" using 1:($5)  lc 6 title "Im(C_{k{/Symbol w}}p_{k0}a_0)", \
+plot datafile."/vec_01k.dat" using 1:($4)  lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
+     datafile."/vec_01k.dat" using 1:($5)  lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafile."/pk0.dat" using 1:($3) with lines lw 2 lc 8 title "p_{k0}", \
