@@ -1,5 +1,5 @@
 # Usage:
-# gnuplot -c plot_pemd.gp datafile output1 output2 logscale
+# gnuplot -c plot_pemd.gp datafile output1 output2 output3 logscale
 
 datafile = ARG1
 outfile1  = ARG2
@@ -46,3 +46,15 @@ if (logscale == 1) {
 } else {
     plot datafile using 1:3 with lines lw 2 title '|b_{kw}(T)|^2'
 }
+
+
+set output outfile3
+set ylabel 'Amplitudes' font ', 15' enhanced
+unset yrange
+unset ytics
+unset format y
+
+    plot datafile.'\pemd.dat' using 1:($4) with lines lw 2 lc 8 title 'Re{a_k}', \
+         datafile.'\pemd.dat' using 1:($5) with lines lw 2 lc 7 title 'Im{a_k}', \
+         datafile.'\pemd.dat' using 1:($6) with lines lw 2 lc 6 title 'Re{b_{kw}(T)}'
+         datafile.'\pemd.dat' using 1:($7) with lines lw 2 lc 6 title 'Im{b_{kw}(T)}'
