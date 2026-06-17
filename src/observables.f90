@@ -250,6 +250,7 @@
         complex(8) :: vec_k(krange)
         complex(8) :: vec_0
                           
+        complex(8) :: vec_sum
                                   
         complex(8), parameter :: ci = (0.d0,1.d0)
 !       real(8), parameter :: ppi = 3.141592653589793d0
@@ -437,6 +438,9 @@
            write(unit_b0kw,'(7E20.10)') kk(j), real(b0w), imag(b0w),   &
                                 real(bkw(j)), imag(bkw(j))
         enddo
+
+        vec_sum = sum(vec_1)
+        write(*,*) "The sum for vec_1 is ", vec_sum
 
 
         close(unit_pk0)
