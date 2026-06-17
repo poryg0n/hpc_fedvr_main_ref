@@ -28,7 +28,6 @@ set size ratio  0.3182 1,1
 
 set xlabel 'x (a.u.)' font ', 15'
 set ylabel '|{/Symbol y}(x,t)|^2' font ', 15'
-set xlabel 'x (a.u.)'
 set title  'Density Probability'
 
 set grid

@@ -33,11 +33,13 @@ set key left top
 #}
 
 #
+set ylabel '{/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk' font ', 15' enhanced
+
 set log y
-plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re(Int p_{0k'}a_{k'})", \
-     datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 6 title "Im(Int p_{0k'}a_{k'})", \
-     datafile."/vec_01k.dat" using 1:(abs($6)) with lines lw 2 lc 8 title "Re(Int p_{kk'}a_{k'})", \
-     datafile."/vec_01k.dat" using 1:(abs($7)) with lines lw 2 lc 3 title "Im(Int p_{kk'}a_{k'})", \
+plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
+     datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 2 title "Im({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
+     datafile."/vec_01k.dat" using 1:(abs($6)) with lines lw 2 lc 8 title "Re({/Symbol \362} C^{/Symbol w}_{kk'} p_{kk'}a_{k'}dk')", \
+     datafile."/vec_01k.dat" using 1:(abs($7)) with lines lw 2 lc 3 title "Im({/Symbol \362} C^{/Symbol w}_{kk'} p_{kk'}a_{k'}dk')", \
 
 
 #set output outfile2
