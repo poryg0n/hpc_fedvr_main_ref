@@ -56,6 +56,7 @@ plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/
 unset log y
 
 unset format y 
+set yrange [1.e-6 : 1.e1]
 set output outfile2
 plot datafile."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafile."/vec_01k.dat" using 1:($5)  pt 5 lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \
