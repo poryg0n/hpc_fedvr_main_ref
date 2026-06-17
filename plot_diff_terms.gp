@@ -10,7 +10,7 @@ set terminal pngcairo size 1000,700
 set output outfile1
 
 set xlabel 'k (a.u.)' font ', 15' enhanced
-set ylabel 'C_{k{/Symbol w}} p_{k0}a_0' font ', 15' enhanced
+set ylabel 'C^{/Symbol w}_{k0} p_{k0}a_0' font ', 15' enhanced
 set title 'Non integral term in b_{k{/Symbol w}}' font ",16" enhanced
 
 set format y "10^{%L}";
