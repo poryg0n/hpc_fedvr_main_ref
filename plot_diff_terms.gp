@@ -36,6 +36,7 @@ set key left top
 set ylabel '{/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk' font ', 15' enhanced
 
 set log y
+set yrange [1.e-6 : 1.e1]
 plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
      datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 2 title "Im({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
      datafile."/vec_01k.dat" using 1:(abs($6)) with lines lw 2 lc 8 title "Re({/Symbol \362} C^{/Symbol w}_{kk'} p_{kk'}a_{k'}dk')", \
@@ -56,7 +57,7 @@ plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/
 unset log y
 
 unset format y 
-set yrange [1.e-6 : 1.e1]
+unset yrange
 set output outfile2
 plot datafile."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafile."/vec_01k.dat" using 1:($5)  pt 5 lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \
