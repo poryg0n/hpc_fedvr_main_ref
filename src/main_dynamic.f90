@@ -335,7 +335,7 @@
 
       ready_to_warp_up = .false.
 
-      !$omp parallel num_threads(2)
+      !$omp parallel num_threads(3)
 
 
 !     do while ((i.le.(2*nt)))
@@ -373,7 +373,7 @@
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
                                             psi_in, psi_out, order)
 
-!        elseif (tid == 2) then
+         elseif (tid == 2) then
 !           write(*,*) "phi treatment loop", tid
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,    &
                                             phi_in, phi_out, order)
