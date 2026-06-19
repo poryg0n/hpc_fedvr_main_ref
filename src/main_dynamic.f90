@@ -390,7 +390,7 @@
          !--------------------------------------------
          ! Add source contribution
          !--------------------------------------------
-         phi_out = phi_out - ci * src
+!        phi_out = phi_out - ci * src
 
          norm_1 = sqrt(sum(abs(psi_out)**2))
          norm_2 = sqrt(sum(abs(phi_out)**2))
