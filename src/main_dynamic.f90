@@ -25,7 +25,8 @@
                     err1, err2,                                       &
                     rowsum,                                    &
                     kappa_w,                               &
-                    jacc, xx1, xx2
+                    src_time, split_time,                             &
+                    jacc, xx1, xx2, norm_ref, eps
 
       complex(8) :: cnum, a0, nrg_, xt_, pt_
 
@@ -82,6 +83,10 @@
                         dyn_tag
 
 
+      logical :: ready_to_warp_up = .false.
+      integer :: tid
+
+
 
       include 'param_dynamic'
 
@@ -89,6 +94,8 @@
       integer :: obs_unit
       integer :: init_unit
       integer :: force_unit
+
+
       
       dyn_tag = "dyn/"
       log_unit = 20
@@ -96,6 +103,7 @@
 
       call cpu_time(start)
       qho = 0 
+      eps = 1.e-6
       call get_command_argument(1, struct_dir)
 !     write(*,*) struct_dir
       call read_problem_bin(trim(struct_dir)//"/problem.bin",        &
@@ -207,6 +215,9 @@
       psi_inx = psi_in
       phi_inx = phi_in
 
+      norm_ref = sqrt(sum(abs(phi_in)**2))
+
+
 
       call init_run(workdir, dyn_tag, extract_name(struct_dir))
 
@@ -317,34 +328,65 @@
 !     pause
 
 
+      i=1
+
+      src_time = 0.d0
+      split_time = 0.d0
+
+      ready_to_warp_up = .false.
+
+      !$omp parallel num_threads(2)
 
 
+!     do while ((i.le.(2*nt)))
+      do i=1,nt
 
-      do i = 1, nt
+         tid = omp_get_thread_num()
 
          ! --- propagation ---
+!        call cpu_time(start)
 
-         call process_src_ingredients ( nmax_, ns, np,              &
-                                   jacc,                            &
-                                   xs, xx, wx, map, Dref,     &
-                                   dt0, tt,                            &
-                                   eigval, eigvec, psi_in, svec,       &
-                                   src_type, omeg, order)
+!        if (omp_get_thread_num() == 0) then
+         if (tid == 0) then
+!           write(*,*) "process loop", tid
 
-         call build_source_quadrature ( nmax_, ns, np,             &
-                                               xs, xx, map, Dref,     &
-                                               dt0, tt,               &
-                                               eigval, eigvec,        &
-                                               svec,                  &
-                                               src, omeg,            &
-                                               order )
-         
-         call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,       &
+
+            call process_src_ingredients ( nmax_, ns, np,              &
+                                      jacc,                            &
+                                      xs, xx, wx, map, Dref,     &
+                                      dt0, tt,                         &
+                                      eigval, eigvec, psi_in, svec,    &
+                                      src_type, omeg, order)
+   
+            call build_source_quadrature ( nmax_, ns, np,             &
+                                                  xs, xx, map, Dref,  &
+                                                  dt0, tt,            &
+                                                  eigval, eigvec,     &
+                                                  svec,               &
+                                                  src, omeg,          &
+                                                  order )
+
+         elseif (tid == 1) then
+!           write(*,*) "psi treatment loop", tid
+
+!           call cpu_time(lap)
+            call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
                                             psi_in, psi_out, order)
-         call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,       &
+
+!        elseif (tid == 2) then
+!           write(*,*) "phi treatment loop", tid
+            call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,    &
                                             phi_in, phi_out, order)
 
+!        call cpu_time(finish)
+         endif
 
+         !$omp barrier
+
+         !$omp single
+
+
+!        write(*,*) "who treats this part?", tid
          !--------------------------------------------
          ! Add source contribution
          !--------------------------------------------
@@ -352,7 +394,9 @@
 
          norm_1 = sqrt(sum(abs(psi_out)**2))
          norm_2 = sqrt(sum(abs(phi_out)**2))
-         write(obs_unit,*) tt, norm_1, norm_2
+
+         write(obs_unit,'(4E20.10)') tt, norm_1, norm_2, norm_ref
+         write(*,'(4E20.10)') tt, norm_1, norm_2, norm_ref
 
          tt = tt + dt0
 
@@ -399,8 +443,8 @@
 
          end if
 
-         call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
-                 eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
+!        call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
+!                eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
 
 
 !        write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
@@ -412,9 +456,30 @@
 
          psi_in = psi_out
          phi_in = phi_out
+
+!        i = i+1
+!        write(*,*) "i = ", i
 !        psi_inx = psi_ex
 !        phi_inx = phi_ex
-      enddo
+
+!        if (i.ge.nt) then
+!           if (abs(norm_2-norm_ref).lt.eps)  ready_to_warp_up = .true.
+!        end if
+
+
+
+
+!        enddo
+        !$omp end single
+        !$omp barrier
+!       if (ready_to_warp_up) exit
+      end do
+
+
+      !$omp end parallel
+
+
+
 
       call write_observables_bin(trim(workdir)//"dyn_obs.bin", &
                 nobs, time_, norm_t1, norm_t2,                 &

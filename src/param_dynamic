@@ -5,7 +5,7 @@
       logical, parameter :: do_conv_test = .false.
 !     logical, parameter :: do_conv_test = .true.
 
-      integer, parameter :: nsteps = 20d3
+      integer, parameter :: nsteps = 10d3
       integer, parameter :: noc_ = 5
       integer, parameter :: ntau_ = 5
       integer, parameter :: order_ = 2
@@ -23,5 +23,5 @@
       real(8), parameter :: pfai_ = 0.0d0
 
       real(8), parameter :: vkpa = 1.d0
-      real(8), parameter :: omega_ = .5d0
+      real(8), parameter :: omega_ = 1.d0
       real(8), parameter :: alpha= 1.d0/137

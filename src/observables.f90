@@ -167,6 +167,7 @@
            bkwT(j) = sum(auxc)
      
         end do
+
         Ek  = 0.5d0 * kk**2
         E0  = - 0.5d0 * kapp**2
 
