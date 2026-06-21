@@ -595,9 +595,10 @@
                  write(unit,'(3E20.10)') kk(i), -20.d0, log10(pkwT)
               end if
            else
-              write(unit,'(3E20.10)') kk(i), pk, pkwT,                &
-                                           real(ak), imag(ak),        &
-                                           real(bkwT), imag(bkwT)
+        !     write(unit,'(7E20.10)') kk(i), pk, pkwT,                &
+        !                                  real(ak), imag(ak),        &
+        !                                  real(bkwT), imag(bkwT)
+              write(unit,'(3E20.10)') kk(i), pk, pkwT
            end if
         end do
       

@@ -23,5 +23,5 @@
       real(8), parameter :: pfai_ = 0.0d0
 
       real(8), parameter :: vkpa = 1.d0
-      real(8), parameter :: omega_ = 1.d0
+      real(8), parameter :: omega_ = 1.13d0
       real(8), parameter :: alpha= 1.d0/137

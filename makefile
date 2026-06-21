@@ -31,13 +31,13 @@ CORE_OBJS = \
        structure_parameters.o \
        dynamic_parameters.o \
        exploit_parameters.o \
+       space_time_ops.o \
        math_util.o \
        util.o \
        fedvr.o \
        fedvr_topology.o \
        fedvr_conf_struct.o \
        fedvr_derivative_ops.o \
-       space_time_ops.o \
        global_assembly.o \
        propagation.o \
        observables.o \

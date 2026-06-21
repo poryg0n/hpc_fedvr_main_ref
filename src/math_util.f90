@@ -1,5 +1,6 @@
       module math_util
       use iso_fortran_env, only : dp => real64
+      use space_time_ops
       implicit none
       private
       
@@ -9,7 +10,7 @@
       public :: composite_simpson_uniform
       public :: composite_simpson_18
       public :: composite_simpson_18c
-      public :: integr_over_range
+      public :: integr_over_krange
       public :: varkap
       public :: sgn
       
@@ -189,20 +190,21 @@
       
       integer, intent(in) :: nmax
       integer, intent(in) :: method
+      real(8), intent(in) :: jac
       
-      complex*16, intent(in)  :: psi_in(nmax)
-      complex*16, intent(out) :: psi_out(nmax)
+      real(8), intent(in) :: xx(nmax)
+      real(8), intent(in) :: wx(nmax)
+      real(8), intent(in) :: eigvec(nmax,nmax)
+
+      complex(8), intent(in)  :: psi_in(nmax)
+      complex(8), intent(out) :: psi_out(nmax)
       
-      real*8, intent(in) :: eigvec(nmax,nmax)
-      real*8, intent(in) :: xx(nmax)
-      real*8, intent(in) :: wx(nmax)
-      real*8, intent(in) :: jac
-      
-      complex*16 :: psi_x(nmax)
-      complex*16 :: dpsi_x(nmax)
+      complex(8) :: psi_x(nmax)
+      complex(8) :: dpsi_x(nmax)
+      complex(8) :: ppsi_x(nmax)
       
       integer :: n
-      complex*16, parameter :: ci=(0d0,1d0)
+      complex(8), parameter :: ci = ( 0.d0, 1.d0 )
       
       select case(method)
       
@@ -212,14 +214,14 @@
       !-----------------------------------------
       case(0)
       
-         psi_x = matmul(eigvec,psi_in)
-         psi_x = psi_x / wx / dsqrt(jac)
+         call eigen_to_dvr(nmax, jac, wx, eigvec, psi_in, psi_x)
       
-         call differentiate(xx,psi_x,dpsi_x)
+         call differentiate(xx, psi_x, dpsi_x)
       
-         dpsi_x = -ci*dpsi_x
+         ppsi_x = -ci*dpsi_x
       
-         psi_out = matmul(transpose(eigvec),dpsi_x)
+         call dvr_to_eigen(nmax, jac, wx, eigvec, ppsi_x, psi_out)
+
       
       !-----------------------------------------
       ! METHOD 2
@@ -233,15 +235,16 @@
       
             if(n>1) then
                psi_out(n) = psi_out(n)                                &
-                       + ci/sqrt(2d0) * sqrt(dble(n-1)) * psi_in(n-1)
+                       + ci/sqrt(2.d0) * sqrt(dble(n-1)) * psi_in(n-1)
             endif
       
             if(n<nmax) then
                psi_out(n) = psi_out(n)                                &
-                       - ci/sqrt(2d0) * sqrt(dble(n)) * psi_in(n+1)
+                       - ci/sqrt(2.d0) * sqrt(dble(n)) * psi_in(n+1)
             endif
       
          enddo
+
       
       end select
       
@@ -317,14 +320,14 @@
       subroutine composite_simpson_18c(ndim, xx, df, res, ff)
       implicit none
       integer :: i, ndim, nn, nm, even
-      real*8 :: hh
-      complex*16 :: res, res1
-      real*8, dimension(*) :: xx
-      complex*16, dimension(*) :: df
+      real(8) :: hh
+      complex(8) :: res, res1
+      real(8), dimension(ndim) :: xx
+      complex(8), dimension(ndim) :: df
 
-      real*8, dimension(4) :: xxl
-      complex*16, dimension(4) :: dfl
-      complex*16, optional, dimension(*) :: ff
+      real(8), dimension(4) :: xxl
+      complex(8), dimension(4) :: dfl
+      complex(8), optional, dimension(ndim) :: ff
 
       nn=ndim-1
       if (mod(nn,2).eq.0) then
@@ -369,10 +372,10 @@
       subroutine composite_simpson_18(ndim, xx, df, res, ff)
       implicit none
       integer :: i, ndim, nn, nm, even
-      real*8 :: hh, res, res1
-      real*8, dimension(*) :: xx, df
-      real*8, dimension(4) :: xxl, dfl
-      real*8, optional, dimension(*) :: ff
+      real(8) :: hh, res, res1
+      real(8), dimension(*) :: xx, df
+      real(8), dimension(4) :: xxl, dfl
+      real(8), optional, dimension(*) :: ff
 
 
       nn=ndim-1
@@ -415,34 +418,36 @@
       end
 
 
-      subroutine integr_over_range(krange, kk, vec_k, res)
+      subroutine integr_over_krange(ksteps, kk, vec_k, res)
          implicit none
-         integer, intent(in) :: krange
-         real(8), intent(in) :: kk(krange)
-         complex(8), intent(in) :: vec_k(krange)
+         integer, intent(in) :: ksteps
+         real(8), intent(in) :: kk(ksteps+1)
+         complex(8), intent(in) :: vec_k(ksteps+1)
          complex(8), intent(out) :: res
 
          integer :: n_cont, j
-         real(8) :: res1, res2
-         real(8) :: auxr(krange/2)
-         real(8) :: auxc(krange/2)
+         complex(8) :: res1, res2
 
-         n_cont = krange/2
+         real(8) :: auxr(ksteps/2+1)
+         complex(8) :: auxc(ksteps/2+1)
 
-        do j=1,n_cont
-           auxr(j) = kk(j)
-           auxc(j) = abs(vec_k(j))**2
-        enddo
-        call composite_simpson_18(n_cont, auxr, auxc, res1)
+         n_cont = ksteps/2
 
-        do j=1,n_cont
-           auxr(j) = kk(j+n_cont)
-           auxc(j) = abs(vec_k(j+n_cont))**2
-        enddo
-        call composite_simpson_18(n_cont, auxr, auxc, res2)
+         do j=1,n_cont+1
+            auxr(j) = kk(j)
+            auxc(j) = vec_k(j)
+         enddo
+         call composite_simpson_18c(n_cont+1, auxr, auxc, res1)
 
-        res = res1 + res2
+         do j=1,n_cont+1
+            auxr(j) = kk(j+n_cont)
+            auxc(j) = vec_k(j+n_cont)
+         enddo
+         call composite_simpson_18c(n_cont+1, auxr, auxc, res2)
+
+         res = res1 + res2
 
       end subroutine
+
 
       end module

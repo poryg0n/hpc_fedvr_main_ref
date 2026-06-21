@@ -312,7 +312,10 @@
             tau = t+0.5d0 * (k-1)*dt
             delta = t+dt-tau
             aux0(:,k) = svec(:,k)
- 
+
+            ! 1 -  at t = t,         therefore -> 1.0dt step 
+            ! 2 -  at t = t+0.5dt,   therefore -> 0.5dt step 
+            ! 3 -  at t = t+dt,      therefore -> 0.0dt step 
             !  Transport
             call split_operator(nmax, delta, tau, xx,                &
                            eigval, eigvec, aux0(:,k), svec(:,k), order)
@@ -347,6 +350,9 @@
 
             if (src_type.gt.1) then  
               !  Transport  (if the function is not constant, i.e  src_type/=1 ) 
+              ! 1 -  transport from t -> t,       therefore tau -> 0.0dt step 
+              ! 2 -  transport from t -> 0.5dt,   therefore tau -> 0.5dt step 
+              ! 3 -  transport from t -> t+0.5dt, therefore tau -> 1.0dt step 
               call split_operator(nmax, tau, t, xx,                   &
                              eigval, eigvec, svec0, svec(:,k), order)
 
@@ -355,7 +361,7 @@
                   ! -i \partial_x \psi(x,t)
                   aux = svec(:,k)
                   call apply_momentum_operator(nmax, eigvec, xx, wx,  &
-                             jac, aux, svec(:,k), 2)
+                             jac, aux, svec(:,k), 0)
           
                end if
              end if
@@ -366,7 +372,7 @@
 
 
       subroutine apply_stuff_to_arg(nmax, xx, dt, t, jac, wx,          &
-                      eigval, eigvec, aux, svec0, src_type, omega, order)
+                    eigval, eigvec, aux, svec0, src_type, omega, order)
         implicit none
         integer, intent(in) :: nmax, order, src_type
         real(8), intent(in) :: t, dt, omega, jac
@@ -381,7 +387,7 @@
         svec0 = 1.d0 * aux
 
         ! *** might replace that by a function g(t) later
-!       ! svec = g(t)\psi(t)
+!       ! svec = g(t) * psi(t)
 !                 call apply_momentum_operator(nmax, eigvec, xx, wx,  &
 !                            jac, aux, svec0, 2)
           

@@ -1,5 +1,5 @@
 # Usage:
-# gnuplot -c plot_pemd.gp datafile output1 output2 logscale
+# gnuplot -c plot_diff__.gp datafile output1 output2 logscale
 
 datafile = ARG1
 outfile1  = ARG2
@@ -24,21 +24,11 @@ set key left top
 #set xtics -1.0, .5, 1.0
 
 
-#if (logscale == 1) {
-#    set log y
-## plot the non integral constant term
-#    plot datafile using 1:($2) with lines lw 2 lc 7 title 'C_{k{/Symbol w}}p_{k0}a_0'
-#} else {
-#    plot datafile using 1:($2) with lines lw 2 lc 7 title 'C_{/Symbol w}_{k0}p_{k0}a_0'
-#}
-
-#
 set ylabel '{/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk' font ', 15' enhanced
 
 set log y
-set yrange [1.e-6 : 1.e1]
 plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
-     datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 2 title "Im({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
+     datafile."/vec_01k.dat" using 1:(abs($3)) with lines lw 2 lc 6 title "Im({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
      datafile."/vec_01k.dat" using 1:(abs($6)) with lines lw 2 lc 8 title "Re({/Symbol \362} C^{/Symbol w}_{kk'} p_{kk'}a_{k'}dk')", \
      datafile."/vec_01k.dat" using 1:(abs($7)) with lines lw 2 lc 3 title "Im({/Symbol \362} C^{/Symbol w}_{kk'} p_{kk'}a_{k'}dk')", \
 
@@ -57,7 +47,6 @@ plot datafile."/vec_01k.dat" using 1:(abs($2)) with lines lw 2 lc 7 title "Re({/
 unset log y
 
 unset format y 
-unset yrange
 set output outfile2
 plot datafile."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafile."/vec_01k.dat" using 1:($5)  pt 5 lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \

@@ -32,6 +32,3 @@
          end subroutine
 
       end module
-
-
-
