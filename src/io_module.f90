@@ -39,7 +39,7 @@
       !=========================================
       subroutine write_problem_bin(filename, workdir,                 &
                                   nmax, snbr, nnbr,                   &
-                                  xmin, xmax, jac, qq,                &
+                                  xmin, xmax, qq, jac,                &
                                   xx, wx)
 
         implicit none
@@ -55,7 +55,7 @@
       
         write(unit) 1              ! version
         write(unit) nmax, snbr, nnbr
-        write(unit) xmin, xmax, jac, qq
+        write(unit) xmin, xmax, qq, jac 
         write(unit) xx
         write(unit) wx
         write(unit) workdir
@@ -70,7 +70,7 @@
       !=========================================
       subroutine read_problem_bin(filename, struct_dir,         &
                                      nmax, snbr, nnbr,          &
-                                     xmin, xmax, jac, qq,       &
+                                     xmin, xmax, qq, jac,       &
                                      xx, wx)
         implicit none
         character(*), intent(in) :: filename
@@ -86,7 +86,7 @@
       
         read(unit) version
         read(unit) nmax, snbr, nnbr
-        read(unit) xmin, xmax, jac, qq
+        read(unit) xmin, xmax, qq, jac
       
         allocate(xx(nmax), wx(nmax))
       

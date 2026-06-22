@@ -114,7 +114,7 @@
         real(8) :: aux1, aux2, dk
         real(8) :: E0
         complex(8) :: auxc_
-        real(8), allocatable :: Ek(:), auxr1(:), auxr2(:)
+        real(8), allocatable :: Ek(:)
         complex(8) :: auxc(nmax), wfc_k(nmax)
         complex(8) :: psic0(nmax), phic0(nmax)
         complex(8) :: psic(nmax), phic(nmax)

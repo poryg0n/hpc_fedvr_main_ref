@@ -181,9 +181,6 @@
 
 
 
-
-
-
       subroutine midpoint_quadrature( nmax, lnbr, nnbr,               &
                                                   xs, xx, map, Dref,  &
                                                   dt, t,              &
@@ -389,7 +386,7 @@
         ! *** might replace that by a function g(t) later
 !       ! svec = g(t) * psi(t)
 !                 call apply_momentum_operator(nmax, eigvec, xx, wx,  &
-!                            jac, aux, svec0, 2)
+!                            jac, aux, svec0, 0)
           
       
       end subroutine apply_stuff_to_arg

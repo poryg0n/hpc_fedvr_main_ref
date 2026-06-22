@@ -95,8 +95,6 @@
       integer :: init_unit
       integer :: force_unit
 
-
-      
       dyn_tag = "dyn/"
       log_unit = 20
       obs_unit = 40
@@ -105,7 +103,6 @@
       qho = 0 
       eps = 1.e-6
       call get_command_argument(1, struct_dir)
-!     write(*,*) struct_dir
       call read_problem_bin(trim(struct_dir)//"/problem.bin",        &
                              struct_dir_, nmax_, ns, np,             &
                              xx1, xx2, jacc, qq, xx, wx)
