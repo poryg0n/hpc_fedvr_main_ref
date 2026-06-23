@@ -236,14 +236,13 @@
          complex(8) :: srck(nmax,3)
          real(8) :: tau, tt
 
-         integer    :: k
+         integer :: k
       
 
          do k=1,3
             tau = 0.5d0*(k-1)*dt
             tt= t + tau
 
-!           srck(:,k) = exp(ci * ( omega + eigval) * tt)  * svec(:,k)
             srck(:,k) = exp(ci * ( omega ) * tt)  * svec(:,k)
 
          enddo
@@ -261,11 +260,11 @@
                                          dt, t,                  &
                                         eigval, eigvec,         &
                                         psi_in, svec,           &
-                                        src_type, omega, order )
+                                        src_type, order )
 
       implicit none
       integer, intent(in) :: nmax, lnbr, nnbr, order, src_type
-      real(8), intent(in) :: dt, t, omega, jac
+      real(8), intent(in) :: dt, t, jac
       real(8), intent(in) :: xs(:), xx(:), wx(:)
       integer, intent(in) :: map(:,:)
       real(8), intent(in) :: Dref(:,:)
@@ -276,8 +275,9 @@
 
       integer :: k
       real(8) :: dt2, tau, delta
-      complex(8) :: svec0(nmax), aux(nmax)
-      complex(8) :: aux0(nmax,3)
+      complex(8) :: svec0(nmax)
+      complex(8) :: aux0(nmax)
+      complex(8) :: auxc(nmax)
       complex(8) :: psi_inx(nmax)
       complex(8) :: dpsi_x(nmax)
 
@@ -285,17 +285,17 @@
      
       select case(src_type)
          case(1)
-            aux = 0.d0
-            aux(1) = (1.d0, 0.d0)
+            auxc = 0.d0
+            auxc(1) = (1.d0, 0.d0)
 
          case default
-            aux = psi_in
+            auxc = psi_in
       end select
 
 
      ! --- apply whatever function of time to the argument if there is ---
      call apply_stuff_to_arg(nmax, xx, dt, t,      &
-              jac, wx, eigval, eigvec, aux, svec0, src_type, omega, order)
+              jac, wx, eigval, eigvec, auxc, svec0, src_type, order)
 
       !-----------------------------------------
       ! build Simpson nodes F(t), F(t+dt/2), F(t+dt)
@@ -308,15 +308,16 @@
          do k = 1,3
             tau = t+0.5d0 * (k-1)*dt
             delta = t+dt-tau
-            aux0(:,k) = svec(:,k)
+            aux0 = svec(:,k)
 
             ! 1 -  at t = t,         therefore -> 1.0dt step 
             ! 2 -  at t = t+0.5dt,   therefore -> 0.5dt step 
             ! 3 -  at t = t+dt,      therefore -> 0.0dt step 
             !  Transport
             call split_operator(nmax, delta, tau, xx,                &
-                           eigval, eigvec, aux0(:,k), svec(:,k), order)
- 
+                           eigval, eigvec, aux0, auxc, order)
+
+            svec(:,k) = auxc
          enddo
       
 
@@ -338,7 +339,8 @@
         real(8) :: tau, tt, dt2
 
         complex(8) :: dpsi_x(nmax), psi_inx(nmax)
-        complex(8) :: aux(nmax)
+        complex(8) :: aux_in(nmax)
+        complex(8) :: aux_out(nmax)
       
         do k = 1,3
            tau = 0.5d0 * (k-1)*dt
@@ -351,17 +353,18 @@
               ! 2 -  transport from t -> 0.5dt,   therefore tau -> 0.5dt step 
               ! 3 -  transport from t -> t+0.5dt, therefore tau -> 1.0dt step 
               call split_operator(nmax, tau, t, xx,                   &
-                             eigval, eigvec, svec0, svec(:,k), order)
+                             eigval, eigvec, svec0, aux_out, order)
 
 
                if (src_type.eq.3) then  
                   ! -i \partial_x \psi(x,t)
-                  aux = svec(:,k)
+                  aux_in = aux_out
                   call apply_momentum_operator(nmax, eigvec, xx, wx,  &
-                             jac, aux, svec(:,k), 0)
-          
+                             jac, aux_in, aux_out, 0)
                end if
-             end if
+
+               svec(:,k) = aux_out
+            end if
         enddo
 
       
@@ -369,24 +372,25 @@
 
 
       subroutine apply_stuff_to_arg(nmax, xx, dt, t, jac, wx,          &
-                    eigval, eigvec, aux, svec0, src_type, omega, order)
+                    eigval, eigvec, svec0, svec, src_type, order)
         implicit none
         integer, intent(in) :: nmax, order, src_type
-        real(8), intent(in) :: t, dt, omega, jac
+!       real(8), intent(in) :: t, dt, omega, jac
+        real(8), intent(in) :: t, dt, jac
         real(8), intent(in) :: xx(nmax), wx(nmax), eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
-        complex(8), intent(in) :: aux(nmax)
-        complex(8), intent(out) :: svec0(nmax)
+        complex(8), intent(in) :: svec0(nmax)
+        complex(8), intent(out) :: svec(nmax)
 
         integer :: k
         real(8) :: tau, tt, dt2
 
-        svec0 = 1.d0 * aux
+        svec = 1.d0 * svec0
 
         ! *** might replace that by a function g(t) later
 !       ! svec = g(t) * psi(t)
 !                 call apply_momentum_operator(nmax, eigvec, xx, wx,  &
-!                            jac, aux, svec0, 0)
+!                            jac, svec0, svec, 0)
           
       
       end subroutine apply_stuff_to_arg

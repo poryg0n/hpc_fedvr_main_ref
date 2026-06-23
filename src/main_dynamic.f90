@@ -26,17 +26,17 @@
                     rowsum,                                    &
                     kappa_w,                               &
                     src_time, split_time,                             &
-                    jacc, xx1, xx2, norm_ref, eps
+                    jacc, xx1, xx2, eps, norm_ref
 
       complex(8) :: cnum, a0, nrg_, xt_, pt_
 
 
       real(8), allocatable, dimension(:) :: xs, xx, wx,    &
                                    vec_matup, eigval,                 &
-                                   kk, time_       
-
-      real(8), allocatable, dimension(:) :: time_t, norm_t1, norm_t2,  &
-                                            p0_t, pexc_t, pion_t
+                                   kk, time_, time_t,                 &
+                                   norm_t1, norm_t2,                  &
+                                   norm_ref1, norm_ref2,       &
+                                   p0_t, pexc_t, pion_t
 
   
       complex(8), allocatable, dimension(:) :: wf0, wfc0,            &
@@ -212,7 +212,20 @@
       psi_inx = psi_in
       phi_inx = phi_in
 
-      norm_ref = sqrt(sum(abs(phi_in)**2))
+      allocate(norm_ref1(2),norm_ref2(2))
+
+      norm_ref2(1) = sqrt(sum(abs(wfc0    * wx * dsqrt(jacc))**2))
+      norm_ref2(2) = sqrt(sum(abs(phi_inc * wx * dsqrt(jacc))**2))
+
+      norm_ref1(1) = sqrt(sum(abs(psi_in)**2))
+      norm_ref1(2) = sqrt(sum(abs(phi_in)**2))
+
+
+
+      write(*,*)
+      write(*,*) norm_ref2(1), norm_ref1(1)
+      write(*,*) norm_ref2(2), norm_ref1(2)
+      pause
 
 
 
@@ -353,7 +366,7 @@
                                       xs, xx, wx, map, Dref,     &
                                       dt0, tt,                         &
                                       eigval, eigvec, psi_in, svec,    &
-                                      src_type, omeg, order)
+                                      src_type, order)
    
             call build_source_quadrature ( nmax_, ns, np,             &
                                                   xs, xx, map, Dref,  &
@@ -392,8 +405,12 @@
          norm_1 = sqrt(sum(abs(psi_out)**2))
          norm_2 = sqrt(sum(abs(phi_out)**2))
 
-         write(obs_unit,'(4E20.10)') tt, norm_1, norm_2, norm_ref
-         write(*,'(4E20.10)') tt, norm_1, norm_2, norm_ref
+
+         norm_ref=norm_2-norm_ref1(2)
+!        norm_ref=norm_2-1.d0
+
+         write(obs_unit,'(4ES20.10)') tt, norm_1, norm_2, norm_ref  !2(2)
+         write(*,'(4ES20.10)')        tt, norm_1, norm_2, norm_ref  !2(2)
 
          tt = tt + dt0
 
@@ -454,22 +471,9 @@
          psi_in = psi_out
          phi_in = phi_out
 
-!        i = i+1
-!        write(*,*) "i = ", i
-!        psi_inx = psi_ex
-!        phi_inx = phi_ex
 
-!        if (i.ge.nt) then
-!           if (abs(norm_2-norm_ref).lt.eps)  ready_to_warp_up = .true.
-!        end if
-
-
-
-
-!        enddo
         !$omp end single
         !$omp barrier
-!       if (ready_to_warp_up) exit
       end do
 
 
