@@ -225,7 +225,7 @@
       write(*,*)
       write(*,*) norm_ref2(1), norm_ref1(1)
       write(*,*) norm_ref2(2), norm_ref1(2)
-      pause
+!     pause
 
 
 

@@ -345,7 +345,7 @@
                                  map, Dref,                 &
                                  dt, t,                             &
                                  eigval, eigvec, psi_in, svec,         &
-                                 src_type, omega, order)
+                                 src_type, order)
 
          call build_source_quadrature ( nmax, lnbr, nnbr,             &
                                                xs, xx, map, Dref,     &
