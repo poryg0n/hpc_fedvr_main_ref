@@ -90,7 +90,8 @@
                            xx, wx, jacc,                               &
                            eigvec, eigval,                             &
                            psi0, phi0, psi, phi,                       &
-                           k_max, kk, p_ion, p0, a0, ak,               &
+                           k_max, kk, p_ion, p0,                       &
+                           a0, ak,                                     &
                            b0wT, bkwT)
       
         implicit none
@@ -270,12 +271,12 @@
 
 
         ksteps_=krange-1
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_1, wfc0_1)
 
         call apply_momentum_operator(nmax, eigvec, xx, wx,        &
                           jacc, wf0_1, auxc, 0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, auxc, pwfc_0)
      
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_1, wfc0_1)
 
         E0  = - 0.5d0 * kapp**2
 

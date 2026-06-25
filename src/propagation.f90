@@ -204,7 +204,6 @@
          dt2  = 0.5d0 * dt
          tmid = t + dt2
 
-!        src_mid = exp(ci * ( omega + eigval ) * tmid) * svec(:,2)
          src_mid = exp(ci * ( omega ) * tmid) * svec(:,2)
          !--------------------------------------------
          ! 3) midpoint quadrature

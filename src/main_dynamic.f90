@@ -449,8 +449,8 @@
                pexc_t(kobs)  = pexc
                pion_t(kobs)  = pion
                nrg_t(kobs)   = real(nrg_)
-               x_t(kobs)   = real(xt_)
-               p_t(kobs)   = real(pt_)
+               x_t(kobs)     = real(xt_)
+               p_t(kobs)     = real(pt_)
             
             end if
 

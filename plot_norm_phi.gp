@@ -29,3 +29,4 @@ set key left top
 #set log y
 plot datafile."/norm.dat" using 1:($2) with lines lw 2 lc 6 title "|{/Symbol y}(x,t)|", \
      datafile."/norm.dat" using 1:($3) with lines lw 2 lc 8 title "|{/Symbol f}_{/Symbol w}(x,t)|", \
+     datafile."/norm.dat" using 1:($4) with lines lw 2 lc 8 title "|{/Symbol f}_{/Symbol w}(x,t)|-|{/Symbol f}_{/Symbol w}(0,t)|", \
