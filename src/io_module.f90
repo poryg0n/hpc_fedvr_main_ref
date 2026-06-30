@@ -374,7 +374,7 @@
 
 
       subroutine write_wavefunction_bin(filename, nmax,               &
-                                                psi, phi, omg, t)
+                                                t, omg, psi, phi)
         implicit none
       
         character(*), intent(in) :: filename
@@ -399,7 +399,8 @@
       end subroutine
 
 
-      subroutine read_wavefunction_bin(filename, nmax, psi, phi, omg, t)
+      subroutine read_wavefunction_bin(filename, nmax, t, omg,        &
+                                                      psi, phi)
         implicit none
       
         character(*), intent(in) :: filename

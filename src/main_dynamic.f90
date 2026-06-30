@@ -182,8 +182,6 @@
 
        end if
 
-!      call eigen_to_dvr(nmax_, jacc, wx, eigvec, psi0, wfc0)
-!      call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
 
        do i=1, nmax_
           wfc0(i) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
@@ -225,8 +223,6 @@
       write(*,*)
       write(*,*) norm_ref2(1), norm_ref1(1)
       write(*,*) norm_ref2(2), norm_ref1(2)
-!     pause
-
 
 
       call init_run(workdir, dyn_tag, extract_name(struct_dir))
@@ -237,21 +233,9 @@
       open(newunit=init_unit, file=trim(workdir)//"initial_conds.dat", &
                                                status='replace')
       do i=1,nmax_
-         write(init_unit,*) i, xx(i),                                  &
+         write(init_unit,'(E20.10,*(1X,(ES20.10)))') xx(i),            &
                          real(wfc0(i)), imag(phi_inc(i)), omeg
       enddo
-
-!      write(*,*) "Check the initial condition"
-
-!      write(log_unit,'(a,i0,a,i0,a)')                                 &
-!         '     # t        Re[psi(1)]        Im[psi(1)]      ||psi||'//&
-!       'Re[phi(', j, ')]        Im[phi(', j, ')]        ||phi||'
-
-!      write(log_unit,'(f10.4,1x,6e20.10)') tt,                        &
-!        real(psi_in(1)), aimag(psi_in(1)), sqrt(sum(abs(psi_in)**2)), &
-!          real(phi_in(j)), aimag(phi_in(j)), sqrt(sum(abs(phi_in)**2))
-
-
 
 !    pause
 
@@ -281,7 +265,7 @@
 
       write(*,*) "Saving the initial conditions"
       call write_wavefunction_bin(trim(workdir)//'initial_state.bin',  &
-                                     nmax_, psi_in, phi_in, omeg, t_ini)
+                                   nmax_, t_ini, omeg ,psi_in, phi_in)
       write(*,*) "initial conditions - saved"
 
 
@@ -345,139 +329,118 @@
 
       ready_to_warp_up = .false.
 
-      !$omp parallel num_threads(3)
 
 
-!     do while ((i.le.(2*nt)))
+      !$omp parallel private(tid) default(shared) num_threads(3)
       do i=1,nt
 
          tid = omp_get_thread_num()
+!        write(*,*) i, tid
+!        write(*,*) 
 
-         ! --- propagation ---
-!        call cpu_time(start)
+         if (tid.eq.0) then
+            call process_src_ingredients ( nmax_, ns, np,         &
+                               jacc,                              &
+                               xs, xx, wx, map, Dref,             &
+                               dt0, tt,                           &
+                               eigval, eigvec, psi_in, svec,      &
+                               src_type, order)
 
-!        if (omp_get_thread_num() == 0) then
-         if (tid == 0) then
-!           write(*,*) "process loop", tid
+            call build_source_quadrature (   nmax_, ns, np,       &
+                                     xs, xx, map, Dref,     &
+                                         dt0, tt,               &
+                                         eigval, eigvec,        &
+                                         svec,                  &
+                                         src, omeg,    &
+                                         order )
 
+         end if
+         !$omp barrier
 
-            call process_src_ingredients ( nmax_, ns, np,              &
-                                      jacc,                            &
-                                      xs, xx, wx, map, Dref,     &
-                                      dt0, tt,                         &
-                                      eigval, eigvec, psi_in, svec,    &
-                                      src_type, order)
-   
-            call build_source_quadrature ( nmax_, ns, np,             &
-                                                  xs, xx, map, Dref,  &
-                                                  dt0, tt,            &
-                                                  eigval, eigvec,     &
-                                                  svec,               &
-                                                  src, omeg,          &
-                                                  order )
-
-         elseif (tid == 1) then
-!           write(*,*) "psi treatment loop", tid
-
-!           call cpu_time(lap)
+         if (tid.eq.1) then
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
-                                            psi_in, psi_out, order)
+                                         psi_in, psi_out, order)
 
-         elseif (tid == 2) then
-!           write(*,*) "phi treatment loop", tid
+            norm_1 = sqrt(sum(abs(psi_out)**2))
+            psi_in = psi_out
+
+         else if (tid.eq.2) then
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,    &
-                                            phi_in, phi_out, order)
+                                         phi_in, phi_out, order)
 
-!        call cpu_time(finish)
-         endif
+            phi_out = phi_out - ci * src
+            norm_2 = sqrt(sum(abs(phi_out)**2))
+            phi_in = phi_out
+         end if
 
          !$omp barrier
 
-         !$omp single
+
+!        !$omp single
+         if (tid.eq.0) then
+
+            write(obs_unit,'(4ES20.10)') tt, norm_1, norm_2
+
+            tt = tt + dt0
 
 
-!        write(*,*) "who treats this part?", tid
-         !--------------------------------------------
-         ! Add source contribution
-         !--------------------------------------------
-         phi_out = phi_out - ci * src
+            ! --- observables ---
+            if (do_time_obs) then
 
-         norm_1 = sqrt(sum(abs(psi_out)**2))
-         norm_2 = sqrt(sum(abs(phi_out)**2))
+               if (mod(i, obs_stride) == 0) then
+
+                  kobs = kobs + 1
+               
+                  call compute_dyn_observables(nmax_,                     &
+                                               psi_out, phi_out,          &
+                                               xx, wx, jacc,              &
+                                               eigval, eigvec,            &
+                                               norm_1, norm_2,            &
+                                               p0, pexc, pion,      &
+                                               nrg_, xt_, pt_)
+               
+                  call append_dyn_obs_bin(trim(workdir)//"dyn_back.bin",  &
+                                      tt, norm_1, norm_2,           &
+                                      p0, pexc, pion,                     &
+                                      nrg_, xt_, pt_ )
+
+                  write(log_unit,*) kobs, nobs, tt,                       &
+                                           norm_1, norm_2,                &
+                                           p0, pexc, pion,                &
+                                           nrg_, xt_, pt_
+
+                  ! --- STORE ---
+                  time_(kobs)   = tt
+                  norm_t1(kobs) = norm_1
+                  norm_t2(kobs) = norm_2
+                  p0_t(kobs)    = p0
+                  pexc_t(kobs)  = pexc
+                  pion_t(kobs)  = pion
+                  nrg_t(kobs)   = real(nrg_)
+                  x_t(kobs)     = real(xt_)
+                  p_t(kobs)     = real(pt_)
+               
+               end if
 
 
-         norm_ref=norm_2-norm_ref1(2)
-!        norm_ref=norm_2-1.d0
+            end if
 
-         write(obs_unit,'(4ES20.10)') tt, norm_1, norm_2, norm_ref  !2(2)
-         write(*,'(4ES20.10)')        tt, norm_1, norm_2, norm_ref  !2(2)
-
-         tt = tt + dt0
+!           call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
+!                   eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
 
 
-         ! --- observables ---
-         if (do_time_obs) then
-
-            if (mod(i, obs_stride) == 0) then
-
-               kobs = kobs + 1
-            
-               call compute_dyn_observables(nmax_,                     &
-                                            psi_out, phi_out,          &
-                                            xx, wx, jacc,              &
-                                            eigval, eigvec,            &
-                                            norm_1, norm_2,            &
-                                            p0, pexc, pion,      &
-                                            nrg_, xt_, pt_)
-            
-               call append_dyn_obs_bin(trim(workdir)//"dyn_back.bin",  &
-                                   tt, norm_1, norm_2,           &
-                                   p0, pexc, pion,                     &
-                                   nrg_, xt_, pt_ )
-
-!              write(log_unit,'(f12.6,1x,7e20.10)') kobs, nobs,        &
-               write(log_unit,*) kobs, nobs, tt,                       &
-                                        norm_1, norm_2,                &
-                                        p0, pexc, pion,                &
-                                        nrg_, xt_, pt_
-
-               ! --- STORE ---
-               time_(kobs)   = tt
-               norm_t1(kobs) = norm_1
-               norm_t2(kobs) = norm_2
-               p0_t(kobs)    = p0
-               pexc_t(kobs)  = pexc
-               pion_t(kobs)  = pion
-               nrg_t(kobs)   = real(nrg_)
-               x_t(kobs)     = real(xt_)
-               p_t(kobs)     = real(pt_)
-            
+!           write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
+            if (mod(i,100).eq.0) then
+               call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
+                                        nmax_, tt, omeg, psi_out, phi_out)
             end if
 
 
          end if
-
-!        call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
-!                eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
-
-
-!        write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
-         if (mod(i,100).eq.0) then
-            call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                     nmax_, psi_out, phi_out, omeg, tt)
-         end if
-
-
-         psi_in = psi_out
-         phi_in = phi_out
-
-
-        !$omp end single
-        !$omp barrier
+!        !$omp end single
       end do
+      !$omp end parallel 
 
-
-      !$omp end parallel
 
 
 
@@ -487,7 +450,7 @@
                 nrg_t, x_t, p_t)
 
       call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                nmax_, psi_out, phi_out, omeg, tt)
+                                nmax_, tt, omeg, psi_out, phi_out)
 
       close(obs_unit)
       write(log_unit,*) workdir
