@@ -103,7 +103,7 @@
       qho = 0 
       eps = 1.e-6
       call get_command_argument(1, struct_dir)
-      call read_problem_bin(trim(struct_dir)//"/problem.bin",        &
+      call read_structure_bin(trim(struct_dir)//"/structure.bin",        &
                              struct_dir_, nmax_, ns, np,             &
                              xx1, xx2, jacc, qq, xx, wx)
 
@@ -149,8 +149,7 @@
        allocate(psi_exact(nmax_))
        allocate(psi_ex(nmax_), phi_ex(nmax_))
  
-       allocate(src_mid(nmax_), src(nmax_))
-       allocate(src_x(nmax_))
+       allocate(src(nmax_))
 
 ! --- initial condition ---
 !      wfc0 = eigvec(:,1)
@@ -190,7 +189,7 @@
        call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi0)
        call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
 
-       tt = t_ini                ! start time
+       tt = t_ini                   ! start time
        psi_in = psi0                ! initial wavefunction
        phi_in = phi0                ! initial wavefunction
 
@@ -201,16 +200,14 @@
 !     write(*,*)
       do i=1, 10
          write(*,'(2E20.10)') psi0(i), phi0(i)
-      enddo
+      enddo`
 
 !     write(*,*) "src_type is ", src_type
 !     pause
-
-
       psi_inx = psi_in
       phi_inx = phi_in
 
-      allocate(norm_ref1(2),norm_ref2(2))
+      allocate(norm_ref1(2), norm_ref2(2))
 
       norm_ref2(1) = sqrt(sum(abs(wfc0    * wx * dsqrt(jacc))**2))
       norm_ref2(2) = sqrt(sum(abs(phi_inc * wx * dsqrt(jacc))**2))
@@ -250,7 +247,7 @@
                        omeg, order)
 
 
-      call write_problem_input(trim(workdir)//"param_structure.txt",   &
+      call write_structure_input(trim(workdir)//"param_structure.txt",   &
                                    struct_dir, nmax_, ns, np,          &
                                    xx1, xx2, jacc, qq)
 
@@ -322,13 +319,8 @@
 !     pause
 
 
-      i=1
-
       src_time = 0.d0
       split_time = 0.d0
-
-      ready_to_warp_up = .false.
-
 
 
       !$omp parallel private(tid) default(shared) num_threads(3)
@@ -431,8 +423,8 @@
 
 !           write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
             if (mod(i,100).eq.0) then
-               call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                        nmax_, tt, omeg, psi_out, phi_out)
+               call write_wavefunction_bin(trim(workdir)//'wf_back.bin', &
+                                      nmax_, tt, omeg, psi_out, phi_out)
             end if
 
 

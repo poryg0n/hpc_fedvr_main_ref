@@ -4,11 +4,11 @@
 
 
       !=========================================
-      ! Write problem (human-readable)
+      ! Write structure (human-readable)
       !=========================================
-      subroutine write_problem_input(filename, struct_dir,       &
+      subroutine write_structure_input(filename, struct_dir,       &
                                        nmax, snbr, nnbr,         &
-                                       xmin, xmax, jac, qq)
+                                       xmin, xmax, qq, jac)
         implicit none
         character(*), intent(in) :: filename, struct_dir
         integer, intent(in) :: nmax, snbr, nnbr
@@ -35,9 +35,9 @@
 
       
       !=========================================
-      ! Write problem (binary)
+      ! Write structure (binary)
       !=========================================
-      subroutine write_problem_bin(filename, workdir,                 &
+      subroutine write_structure_bin(filename, workdir,                 &
                                   nmax, snbr, nnbr,                   &
                                   xmin, xmax, qq, jac,                &
                                   xx, wx)
@@ -66,9 +66,9 @@
 
       
       !=========================================
-      ! Read problem (binary)
+      ! Read structure (binary)
       !=========================================
-      subroutine read_problem_bin(filename, struct_dir,         &
+      subroutine read_structure_bin(filename, struct_dir,         &
                                      nmax, snbr, nnbr,          &
                                      xmin, xmax, qq, jac,       &
                                      xx, wx)
@@ -373,15 +373,15 @@
       end subroutine
 
 
-      subroutine write_wavefunction_bin(filename, nmax,               &
-                                                t, omg, psi, phi)
+      subroutine write_wavefun_bin(filename, nch, nmax,           &
+                                                t, omega, wf)
         implicit none
       
         character(*), intent(in) :: filename
         integer, intent(in) :: nmax
         real(8), intent(in) :: t
-        real(8), intent(in) :: omg
-        complex(8), intent(in) :: psi(:), phi(:)
+        real(8), intent(in) :: omega(nch)
+        complex(8), intent(in) :: wf(nmax,nch)
       
         integer :: unit
       
@@ -390,9 +390,8 @@
       
         write(unit) nmax
         write(unit) t
-        write(unit) omg
-        write(unit) psi
-        write(unit) phi
+        write(unit) omega
+        write(unit) wf
       
         close(unit)
       
@@ -428,24 +427,25 @@
       end subroutine
 
 
-      subroutine append_dyn_obs_bin(filename, t,                       &
-                             norm_1, norm_2,                           &
-                             p0, pexc, pion,                           &
-                             energy, dipole, momentum)
+      subroutine append_dyn_obs_bin(filename,                        &
+                             t, norm_1,                             &
+                             p0_t, pexc_t, pion_t,                  &
+                             nrg_t, x_t,p_t)
       
         implicit none
         character(*), intent(in) :: filename
-        real(8), intent(in) :: t, norm_1, norm_2
-        real(8), intent(in) :: p0, pexc, pion
-        complex(8), intent(in) :: energy, dipole, momentum
+        real(8), intent(in) :: t, norm_1
+        real(8), intent(in) :: p0_t, pexc_t, pion_t
+        complex(8), intent(in) :: nrg_t, x_t, p_t
       
         integer :: unit
       
         open(newunit=unit, file=filename, form='unformatted', &
              status='unknown', position='append')
       
-        write(unit) t, norm_1, norm_2,                      &
-                       p0, pexc, pion, energy, dipole, momentum
+        write(unit) t, norm_1
+        write(unit) p0_t, pexc_t, pion_t
+        write(unit) nrg_t, x_t, p_t
       
         close(unit)
       
@@ -453,15 +453,15 @@
 
 
       subroutine write_observables_bin(filename, nobs, time,      & 
-                                      norm_1, norm_2,          &
+                                      norm_t,                     &
                                       p0, pexc, pion,          &
                                       nrg, dip, mom)
         implicit none
         character(*), intent(in) :: filename
         integer, intent(in) :: nobs
-        real(8), intent(in) :: time(:), norm_1(:), norm_2(:)
-        real(8), intent(in) :: p0(:), pexc(:), pion(:)
-        complex(8), intent(in) :: nrg(:), dip(:), mom(:)
+        real(8), intent(in) :: time(:), norm_t(:)
+        real(8), intent(in) :: p0_t(:), pexc_t(:), pion_t(:)
+        complex(8), intent(in) :: nrg_t(:), x_t(:), p_t(:)
       
         integer :: unit
       
@@ -470,14 +470,13 @@
       
         write(unit) nobs
         write(unit) time
-        write(unit) norm_1
-        write(unit) norm_2
-        write(unit) p0
-        write(unit) pexc
-        write(unit) pion
-        write(unit) nrg
-        write(unit) dip
-        write(unit) mom
+        write(unit) norm_t
+        write(unit) p0_t
+        write(unit) pexc_t
+        write(unit) pion_t
+        write(unit) nrg_t
+        write(unit) x_t
+        write(unit) p_t
       
         close(unit)
       end subroutine

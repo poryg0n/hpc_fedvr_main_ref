@@ -1,6 +1,15 @@
       module util
+       use iso_c_binding
       implicit none
+       interface
+           function getpid() bind(C, name="getpid") result(pid)
+               import :: c_int
+               integer(c_int) :: pid
+           end function getpid
+       end interface
       contains
+
+
        subroutine dump_wavefunction(fname, nmax, eigvec, t, inv_jac,  &
                            wx, xx, psi)
        implicit none
@@ -59,26 +68,21 @@
        
          call date_and_time(values=values)
        
-         write(timestamp,'(i4.4,i2.2,i2.2,"_",i2.2,i2.2,i2.2,"_",i3.3)') &
+         write(timestamp,'(i4.4,i2.2,i2.2,"_",i2.2,i2.2,i2.2)') &
               values(1), values(2), values(3), &
-              values(5), values(6), values(7), values(8)
+              values(5), values(6), values(7)
        
-!        pid = getpid()
+         pid = getpid()
        
          if (present(tag)) then
             fulltag = trim(tag)//"_"
          else
             fulltag = ""
          end if
-
-
-!        write(workdir,'(a,a,"_",a,a,"_",i0,"/")') &
-!           trim(data_dir), trim(mode), trim(fulltag),               &
-!                                            trim(timestamp), pid
        
-         write(workdir,'(a,a,"_",a,a,"/")') &
-            trim(data_dir), trim(mode), trim(fulltag),               &
-                                             trim(timestamp)
+         write(workdir,'(a,a,"_",a,a,"_",i0,"/")') &
+              trim(data_dir), trim(mode), trim(fulltag),               &
+                                             trim(timestamp), pid
        
          cmd = "mkdir -p " // trim(workdir)
          call execute_command_line(cmd)
