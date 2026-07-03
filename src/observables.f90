@@ -352,15 +352,15 @@
 
         integer :: unit_pk0, unit_pkk, unit_pkl, unit_vec, unit_b0kw
 
-!       open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat",         &
-!                                                     status="replace")
-!       open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat",         &
-!                                                     status="replace")
-!       open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
-!                                                   status="replace")
-!       open(newunit=unit_vec, file=trim(workdir)//"/vec_01k.dat",     &
-!                                                   status="replace")
-!     
+        open(newunit=unit_pk0, file=trim(workdir)//"/pk0.dat",         &
+                                                      status="replace")
+        open(newunit=unit_pkk, file=trim(workdir)//"/pkk.dat",         &
+                                                      status="replace")
+        open(newunit=unit_pkl, file=trim(workdir)//"/pkl.dat",         &
+                                                    status="replace")
+        open(newunit=unit_vec, file=trim(workdir)//"/vec_01k.dat",     &
+                                                    status="replace")
+      
 
 
         ksteps_=krange-1
@@ -393,9 +393,9 @@
        
            Ek_  = 0.5d0 * kk(j)**2 
 
-!          auxc_1 = 0.d0
-!          auxc_2 = 0.d0
-!          auxc_3 = 0.d0
+           auxc_1 = 0.d0
+           auxc_2 = 0.d0
+           auxc_3 = 0.d0
  
            do l=1,krange
 !             if (j == l) cycle
@@ -434,14 +434,14 @@
                                    - 2.d0 * kapp * factor/denom
      
 
-!             auxc_1 = auxc_1 + pkk(l) * ak(l) * dk0
-!             auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
-!             auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
+              auxc_1 = auxc_1 + pkk(l) * ak(l) * dk0
+              auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
+              auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
 
-!             write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
-!                                  real(pkk(l)), imag(pkk(l)),         &
-!                                  real(dkk(l)), imag(dkk(l)),         &
-!                                  real(pkkk(l)), imag(pkkk(l))
+              write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
+                                   real(pkk(l)), imag(pkk(l)),         &
+                                   real(dkk(l)), imag(dkk(l)),         &
+                                   real(pkkk(l)), imag(pkkk(l))
 
 
               vec_2(l) = pkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
@@ -450,11 +450,11 @@
 
            enddo
 
-!          write(*,*) j
-!          write(unit_pkl,'(7E20.10)') kk(j),                         &
-!                              real(auxc_1), imag(auxc_1),             &
-!                              real(auxc_2), imag(auxc_2),             &
-!                              real(auxc_3), imag(auxc_3)
+           write(*,*) j
+           write(unit_pkl,'(7E20.10)') kk(j),                         &
+                               real(auxc_1), imag(auxc_1),             &
+                               real(auxc_2), imag(auxc_2),             &
+                               real(auxc_3), imag(auxc_3)
 
 
            call integr_over_krange(ksteps_, kk, vec_2, vec_k(j))
@@ -482,9 +482,9 @@
            p0k_ = pk0_
 
      
-!          write(unit_pk0,'(5E20.10)') kk(j),                         &
-!                                    real(pk0(j)), real(p0k(j)),      & 
-!                                    real(dk0_), real(pk0_)
+           write(unit_pk0,'(5E20.10)') kk(j),                         &
+                                     real(pk0(j)), real(p0k(j)),      & 
+                                     real(dk0_), real(pk0_)
 
            vec_1(j) = p0k(j) * ak(j) / ( E0+omega-Ek_ + ci*eta )
            vec_1(j) = exp( ci * ( E0+omega-Ek_ ) * t_end ) * vec_1(j)
@@ -503,22 +503,22 @@
         vec_1 = pk0 * a0 / ( Ek+omega-E0 )
         vec_1 = exp(ci * ( Ek+omega-E0 ) * t_end ) * vec_1
 
-!       do j=1,krange
-!          write(unit_vec,'(2E20.10,*(1X,ES20.10))') omega, kk(j),     &
-!                               real(vec_0), imag(vec_0),              &
-!                               real(vec_1(j)), imag(vec_1(j)),        &
-!                               real(vec_k(j)), imag(vec_k(j))
-!       enddo
+        do j=1,krange
+           write(unit_vec,'(2E20.10,*(1X,ES20.10))') omega, kk(j),     &
+                                real(vec_0), imag(vec_0),              &
+                                real(vec_1(j)), imag(vec_1(j)),        &
+                                real(vec_k(j)), imag(vec_k(j))
+        enddo
 
         vec_sum = sum(vec_1)
 !       write(*,*) "The sum for vec_1 is ", vec_sum
 
 
-!       close(unit_pk0)
-!       close(unit_pkk)
-!       close(unit_pkl)
-!       close(unit_vec)
-!     
+        close(unit_pk0)
+        close(unit_pkk)
+        close(unit_pkl)
+        close(unit_vec)
+      
       end subroutine
 
 
