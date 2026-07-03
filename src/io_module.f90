@@ -193,7 +193,8 @@
 
 
 
-      subroutine read_dynamic_bin(filename, dyn_dir, struct_dir,      &
+      subroutine read_dynamic_bin(filename,                           &
+                                 dyn_dir, struct_dir,      &
                                  f0, omega0, pfai,                     &
                                  t_end, t_ini, nsteps, dt0,           &
                                  noc, ntau, src_type,                 &
@@ -358,7 +359,7 @@
 
 
       subroutine write_wavefun_input(filename, nch, k, t, jac,  &
-                                            omega, wx, xx, eigvec, wf)
+                                           wx, xx, eigvec, omega, wf)
         implicit none
 
         character(len=*), intent(in) :: filename

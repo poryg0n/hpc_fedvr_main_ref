@@ -85,31 +85,26 @@
       end subroutine
 
 
-      subroutine compute_pemd_zrp(nmax, krange, t_end,            &
+      subroutine compute_pemd_zrp(nch, nmax, krange, t_end,            &
                            xx, wx, jacc,                               &
                            eigvec, eigval,                             &
-!                          psi0, phi0, psi, phi,                       &
                            wf0, wf,                       &
                            k_max, kk, p_ion, p0,                       &
-!                          a0, ak,                                     &
-!                          b0wT, bkwT)
                            a0, ak)
       
         implicit none
-        integer, intent(in) :: nmax, krange
+        integer, intent(in) :: nmax, nch, krange
         real(8), intent(in) :: jacc
         real(8), intent(in) :: xx(nmax), wx(nmax)
         real(8), intent(in) :: eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
         complex(8), intent(in) :: wf0(nmax)
-        complex(8), intent(in) :: wf(nmax)
+        complex(8), intent(in) :: wf(nmax,nch)
 
         real(8), intent(out) :: p_ion, p0
-!       complex(8), intent(out) :: a0, b0wT(nch)
         complex(8), intent(out) :: a0
         real(8), allocatable, intent(out) :: kk(:)
-!       complex(8), allocatable, intent(out) :: ak(:), bkwT(:,:)
         complex(8), allocatable, intent(out) :: ak(:)
       
         ! locals
@@ -129,7 +124,7 @@
 
       
 
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf, wfc)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf(:,1), wfc)
 !       call eigen_to_dvr(nmax, 1, jacc, wx, eigvec, phi, phic)
 
         ksteps_  = krange -1
@@ -378,17 +373,17 @@
 
         E0  = - 0.5d0 * kapp**2
 
-        !$omp parallel default(shared)                                    &
-        !$omp private( j, l,                                              &
-        !$omp          Ek_, Ekp_,                                         &
-        !$omp          delta_kk, denom, factor,                           &
-        !$omp          dk0_, pk0_,                                        &
-        !$omp          wfc_k, wfc_k_,                                     &
-        !$omp          dwfc_k, pwfc_k,                                    &
-        !$omp          pkk, dkk, pkkk, vec_2,                             &
-        !$omp          auxc )
-        
-        !$omp do schedule(static)
+!       !$omp parallel default(shared)                                    &
+!       !$omp private( j, l,                                              &
+!       !$omp          Ek_, Ekp_,                                         &
+!       !$omp          delta_kk, denom, factor,                           &
+!       !$omp          dk0_, pk0_,                                        &
+!       !$omp          wfc_k, wfc_k_,                                     &
+!       !$omp          dwfc_k, pwfc_k,                                    &
+!       !$omp          pkk, dkk, pkkk, vec_2,                             &
+!       !$omp          auxc )
+!       
+!       !$omp do schedule(static)
         do j=1,krange
 !          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
       
@@ -495,8 +490,8 @@
            vec_1(j) = exp( ci * ( E0+omega-Ek_ ) * t_end ) * vec_1(j)
 
         enddo
-        !$omp end do
-        !$omp end parallel
+!       !$omp end do
+!       !$omp end parallel
 
         call integr_over_krange(ksteps_, kk, vec_1, vec_0)
         vec_0 = vec_0 / (2.d0*ppi)

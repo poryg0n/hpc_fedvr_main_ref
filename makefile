@@ -46,8 +46,8 @@ CORE_OBJS = \
 
 # --- Executables ---
 STRUCTURE_EXE = structure
-DYNAMIC_EXE  = dynamic
-EXPLOIT_EXE  = exploit
+C_DYN_EXE     = c_dyn
+EXPLOIT_EXE   = exploit
 
 all: $(STRUCTURE_EXE)
 
@@ -74,4 +74,4 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 
 .PHONY: clean
 clean:
-	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(DYNAMIC_EXE) $(EXPLOIT_EXE)
+	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(C_DYN_EXE) $(EXPLOIT_EXE)
