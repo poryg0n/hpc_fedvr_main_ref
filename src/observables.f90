@@ -378,6 +378,17 @@
 
         E0  = - 0.5d0 * kapp**2
 
+        !$omp parallel default(shared)                                    &
+        !$omp private( j, l,                                              &
+        !$omp          Ek_, Ekp_,                                         &
+        !$omp          delta_kk, denom, factor,                           &
+        !$omp          dk0_, pk0_,                                        &
+        !$omp          wfc_k, wfc_k_,                                     &
+        !$omp          dwfc_k, pwfc_k,                                    &
+        !$omp          pkk, dkk, pkkk, vec_2,                             &
+        !$omp          auxc )
+        
+        !$omp do schedule(static)
         do j=1,krange
 !          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
       
@@ -387,9 +398,9 @@
        
            Ek_  = 0.5d0 * kk(j)**2 
 
-           auxc_1 = 0.d0
-           auxc_2 = 0.d0
-           auxc_3 = 0.d0
+!          auxc_1 = 0.d0
+!          auxc_2 = 0.d0
+!          auxc_3 = 0.d0
  
            do l=1,krange
 !             if (j == l) cycle
@@ -409,8 +420,8 @@
               pkk(l) = sum(auxc)
 
               auxc = conjg(wfc_k) * xx * wfc_k_ * wx*wx*jacc
-              dkk_ = sum(auxc)
-              dkk(l) = -ci* ( Ek_ - Ekp_ ) * dkk_
+              dkk(l) = sum(auxc)
+              dkk(l) = -ci* ( Ek_ - Ekp_ ) * dkk(l)
 
               ! *** analytical formula
               if(j.eq.l) then
@@ -428,9 +439,9 @@
                                    - 2.d0 * kapp * factor/denom
      
 
-              auxc_1 = auxc_1 + pkk(l) * ak(l) * dk0
-              auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
-              auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
+!             auxc_1 = auxc_1 + pkk(l) * ak(l) * dk0
+!             auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
+!             auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
 
 !             write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
 !                                  real(pkk(l)), imag(pkk(l)),         &
@@ -484,6 +495,8 @@
            vec_1(j) = exp( ci * ( E0+omega-Ek_ ) * t_end ) * vec_1(j)
 
         enddo
+        !$omp end do
+        !$omp end parallel
 
         call integr_over_krange(ksteps_, kk, vec_1, vec_0)
         vec_0 = vec_0 / (2.d0*ppi)

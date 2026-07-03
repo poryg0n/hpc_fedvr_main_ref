@@ -6,13 +6,13 @@
       use util
       use propagation
       use observables
-      use conv_tests
+!     use conv_tests
       use io_module
       implicit none
       integer :: np, ns, nmax_, nobs, kobs, qho,                      &
                   lwork, info, store_val,                        &
                   i, j, k, ij, p, q, r, s, m, n,                      &
-                  jn, ijk, ios
+                  jn, ijk, ios, nch__, run_h
 !                 nmax, nmax_, krange, ios, nt, order, src_type
 
       real(8) ::    step, eft, duration,                           &
@@ -20,13 +20,12 @@
                     abstol,  qq,                                      &
                     tt, tp, tc, tmid,                     &
                     fmid,                                             &
-                    norm_1, norm_2,                                   &
                     p0, pexc, pion,                             &
                     err1, err2,                                       &
                     rowsum,                                    &
-                    kappa_w,                               &
-                    src_time, split_time,                             &
-                    jacc, xx1, xx2, eps, norm_ref
+                    kappa_w,                                    &
+                    jacc, xx1, xx2, eps,                              &
+                    norm_1
 
       complex(8) :: cnum, a0, nrg_, xt_, pt_
 
@@ -34,34 +33,17 @@
       real(8), allocatable, dimension(:) :: xs, xx, wx,    &
                                    vec_matup, eigval,                 &
                                    kk, time_, time_t,                 &
-                                   norm_t1, norm_t2,                  &
-                                   norm_ref1, norm_ref2,       &
-                                   p0_t, pexc_t, pion_t
+                                   norm_,                &
+                                   p0_t, pexc_t, pion_t,       &
+                                   norm_ref, norm_refc, omega
 
   
-      complex(8), allocatable, dimension(:) :: wf0, wfc0,            &
-                                               dwf0, dwfc0,           &
-                                               wf, wfc, wfc_,         &
-                                               psi_exact,             &
-                                               psi0, psi, psi_x,      &
-                                               psi_in, psi_out,       &
-                                               phi_in, phi_out,       &
-                                               phi_inc,       &
-                                               psi_inx, psi_outx,     &
-                                               phi_inx, phi_outx,     &
-                                               src_out, src_mid,      &
-                                               src, src_x,            &
-                                               dwfc, dwfc2, dwfc3,    & 
-                                               init1, init2,          &
-                                               phi0, phic0,           &
-                                               psi_test, phi_test,    &
-                                               psi_ex, phi_ex,        &
-                                               phi, phic,             &
-                                               auxc, auxck1, auxck2,  &
-                                               rr_, ak, cprob2,       &
+      complex(8), allocatable, dimension(:) :: wf1, wfc1,             &
+                                               dwfc1,                 &
+                                               wfc0_1, wf1_0,         &
                                                auxc1, auxc2,          &
                                                auxc3, auxc4,          &
-                                               pk0, b0w_1, b0w_2,     &
+                                               src,                   &
                                                d_t, dd_t, d_w, dd_w,  &
                                                nrg_t, x_t, p_t
 
@@ -70,6 +52,7 @@
       real(8), allocatable, dimension(:,:) :: lu, id, inv,            &
                                        pkk, bkw_1, bkw_2,             &
                                        Dref, Dglobal,                 &
+                                       norm_t,                      &
                                        eigvec, basis
 
       real(8), allocatable, dimension(:,:,:) :: Dloc_all          
@@ -77,18 +60,20 @@
       complex(8), allocatable, dimension(:,:) :: in_states,           &
                                                  out_states,          &
                                                  svec,                &
+                                                 wf, wfc,             &
+                                                 wf0, wfc0,           &
+                                                 wfc_in, wf_in,         &
+                                                 wf_out,                &
                                                  cwf
 
       character(255) :: workdir, struct_dir, struct_dir_,             &
                         dyn_tag
 
-
-      logical :: ready_to_warp_up = .false.
       integer :: tid
 
 
-
       include 'param_dynamic'
+      include 'param_exploit'
 
       integer :: log_unit
       integer :: obs_unit
@@ -98,14 +83,16 @@
       dyn_tag = "dyn/"
       log_unit = 20
       obs_unit = 40
+      nch__=2
+      run_h=0
 
       call cpu_time(start)
       qho = 0 
       eps = 1.e-6
       call get_command_argument(1, struct_dir)
-      call read_structure_bin(trim(struct_dir)//"/structure.bin",        &
+      call read_structure_bin(trim(struct_dir)//"/structure.bin",    &
                              struct_dir_, nmax_, ns, np,             &
-                             xx1, xx2, jacc, qq, xx, wx)
+                             xx1, xx2, qq, jacc, xx, wx)
 
 !     if (trim(struct_dir) /= trim(struct_dir_)) then
 !        stop "Structure mismatch between dynamic and structure run"
@@ -127,7 +114,9 @@
 
        call set_force_params(f0_, omega_0, pfai_)  
        call init_time_grid(noc_, ntau_, nsteps)
-       call init_src(src_type_, omega_)
+       call init_src(src_type_, nch__,                          &
+                                w_max, w_min, dw, run_h)
+
        call set_resolution_order(order_)
        call set_other_dyn_params(do_time_obs_, obs_stride_)
 
@@ -136,90 +125,61 @@
 !      allocate(fvec(nt))
        tc = 0.d0
  
-
-       allocate( auxc(nmax_), svec(nmax_,3) )
- 
-       allocate(psi0(nmax_), phi0(nmax_))
-       allocate(wfc0(nmax_), wf0(nmax_))
-       allocate(psi_in(nmax_), psi_out(nmax_))
-       allocate(psi_inx(nmax_), psi_outx(nmax_))
-       allocate(phi_in(nmax_), phi_out(nmax_))
-       allocate(phi_inx(nmax_), phi_outx(nmax_))
-       allocate(phi_inc(nmax_))
-       allocate(psi_exact(nmax_))
-       allocate(psi_ex(nmax_), phi_ex(nmax_))
- 
-       allocate(src(nmax_))
+       allocate(wf_in(nmax_,nch__))
+       allocate(wfc0(nmax_,nch__), wf0(nmax_,nch__))
+       allocate(wfc(nmax_,nch__), wf(nmax_,nch__))
+       allocate(omega(nch__))
 
 ! --- initial condition ---
-!      wfc0 = eigvec(:,1)
-!      wfc0 = eigvec(:,1)/wx/dsqrt(jacc)
-!      psi0 = matmul(transpose(eigvec),wfc0)
-
-!      wfc0 =  kapp**(.5d0) * exp(-kapp*abs(xx))
-!      wf0 = wfc0 * wx * dsqrt(jacc)
-!      wf0 = matmul(transpose(eigvec),wf0)
-
-       
-       
-       j=1
-       psi0    = (0.d0,0.d0)
-       psi0(1) = (1.d0,0.d0)
-       wf0 = psi0
-
 
        if (src_type.eq.3) then
           j = 2
 !         call apply_momentum_operator(nmax_, eigvec, xx, wx,  &
 !                 jacc, psi_in, phi_in, qho)
 
-          kappa_w = varkap(kapp, omeg)
-          do i=1, nmax_
-             phi_inc(i) = (-ci*kapp**(3.d0/2)/omeg) * sgn(xx(i)) *    &
-              (  exp(-kapp*abs(xx(i)))  -  exp(-kappa_w*abs(xx(i))) ) 
+          omega(1)=0.d0
+          do k=2,nch__
+             omega(k) = omeg
+             kappa_w = varkap(kapp, omega(k))
+             do i=1, nmax_
+                wfc0(i,k) = (-ci*kapp**(3.d0/2)/omega(k)) * sgn(xx(i)) *  &
+                 (  exp(-kapp*abs(xx(i)))  -  exp(-kappa_w*abs(xx(i))) )
+             enddo
           enddo
 
        end if
 
 
+
        do i=1, nmax_
-          wfc0(i) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
+          wfc0(i,1) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
        enddo
 
-       call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0, psi0)
-       call dvr_to_eigen(nmax_, jacc, wx, eigvec, phi_inc, phi0)
-
-       tt = t_ini                   ! start time
-       psi_in = psi0                ! initial wavefunction
-       phi_in = phi0                ! initial wavefunction
-
-
-!     do i=nmax_/2-5, nmax_/2+5
-!        write(*,*) xx(i), eigvec(i,1), wfc0(i)
-!     enddo
-!     write(*,*)
-      do i=1, 10
-         write(*,'(2E20.10)') psi0(i), phi0(i)
-      enddo`
-
-!     write(*,*) "src_type is ", src_type
-!     pause
-      psi_inx = psi_in
-      phi_inx = phi_in
-
-      allocate(norm_ref1(2), norm_ref2(2))
-
-      norm_ref2(1) = sqrt(sum(abs(wfc0    * wx * dsqrt(jacc))**2))
-      norm_ref2(2) = sqrt(sum(abs(phi_inc * wx * dsqrt(jacc))**2))
-
-      norm_ref1(1) = sqrt(sum(abs(psi_in)**2))
-      norm_ref1(2) = sqrt(sum(abs(phi_in)**2))
+!      call dvr_to_eigen(nmax_, 1, jacc, wx, eigvec, wf1_0, wf_in)
+       do k=1, nch__
+          call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0(:,k), wf0(:,k))
+       enddo
 
 
 
-      write(*,*)
-      write(*,*) norm_ref2(1), norm_ref1(1)
-      write(*,*) norm_ref2(2), norm_ref1(2)
+       tt = t_ini                ! start time
+       wf_in = wf0          ! initial condition
+
+
+!!     do i=nmax_/2-5, nmax_/2+5
+!!        write(*,'(E20.10,*(1X,ES20.10))') xx(i), eigvec(i,1), wf1_0(i)
+!!     enddo
+!!     write(*,*)
+
+
+      allocate(norm_refc(nch__))
+      allocate(norm_ref(nch__))
+
+      do k=1, nch__
+         norm_refc(k) = sqrt(sum(abs(wfc0(:,k) * wx * dsqrt(jacc))**2))
+         norm_ref(k) = sqrt(sum(abs(wf0(:,k))))
+      enddo
+
 
 
       call init_run(workdir, dyn_tag, extract_name(struct_dir))
@@ -229,40 +189,47 @@
 
       open(newunit=init_unit, file=trim(workdir)//"initial_conds.dat", &
                                                status='replace')
+
       do i=1,nmax_
-         write(init_unit,'(E20.10,*(1X,(ES20.10)))') xx(i),            &
-                         real(wfc0(i)), imag(phi_inc(i)), omeg
+         write(init_unit,'(E20.10,*(1X,ES20.10))') xx(i),              &
+                                     real(wfc0(i,1)), imag(wfc0(i,2))
       enddo
 
-!    pause
 
+      write(*,*) "Write structure"
+      call write_structure_bin(trim(workdir)//"structure.bin",       &
+                                    workdir, nmax_, ns, np,   &
+                                    xx1, xx2, qq, jacc, xx, wx)
 
 
       write(*,*) "Saving the dynamic parameters"
       call write_dynamic_bin(trim(workdir)//"dynamic.bin",             &
                        workdir, struct_dir_,                           &
-                       f0, omega0, pfai,                                &
-                       t_end, t_ini, nt, dt0,                          &
-                       noc, ntau, src_type,                            &
-                       omeg, order)
-
-
-      call write_structure_input(trim(workdir)//"param_structure.txt",   &
-                                   struct_dir, nmax_, ns, np,          &
-                                   xx1, xx2, jacc, qq)
-
-      call write_dynamic_input(trim(workdir)//"param_dynamic.txt",     &
-                       workdir, struct_dir_,                           &
                        f0, omega0, pfai,                               &
                        t_end, t_ini, nt, dt0,                          &
                        noc, ntau, src_type,                            &
-                       omeg, order)
+                       nch__, omg_max, omg_min,                        &
+                       wstep, omega, run_h,                            &
+                       order)
 
 
+       call write_structure_input(trim(workdir)//"param_structure.txt", &
+                                    struct_dir, nmax_, ns, np,          &
+                                    xx1, xx2, qq, jacc)
+ 
+       call write_dynamic_input(trim(workdir)//"param_dynamic.txt",     &
+                        workdir, struct_dir_,                           &
+                        f0, omega0, pfai,                               &
+                        t_end, t_ini, nt, dt0,                          &
+                        noc, ntau, src_type,                            &
+                        nch, omg_max, omg_min,                  &
+                        wstep, run_h,                           &
+                        order)
+ 
 
       write(*,*) "Saving the initial conditions"
-      call write_wavefunction_bin(trim(workdir)//'initial_state.bin',  &
-                                   nmax_, t_ini, omeg ,psi_in, phi_in)
+      call write_wavefun_bin(trim(workdir)//'initial_state.bin', 0,    &
+                                     nch, nmax_, t_ini, omega, wf0)
       write(*,*) "initial conditions - saved"
 
 
@@ -274,7 +241,14 @@
       write(*,*) "N           = ", nmax_
       write(*,*) "xmax        = ", xx2 
       write(*,*) "xmin        = ", xx1
+      write(*,*) "q           = ", qq
+      write(*,*) "xrange      = ", xx2-xx1
+      write(*,*) 
 
+
+      run = 0
+      omg_start = 0.d0
+      omg_end   = 0.d0
       call print_dynamic_parameters()
 
       write(*,*) "struct_dir  = ", trim(struct_dir)
@@ -289,7 +263,7 @@
                                               map, Dref,               &
                                               nt/4, omega0,            &
                                               eigval, eigvec,          &
-                                              psi0, phi0,              &
+                                              wf0(:,1), wf0(:,2),      &
                                               src_type, omeg, order)
 
          write(*,*) "richardson test done"
@@ -300,149 +274,151 @@
       write(*,*) "Starting propagation"
       write(*,*) "nt =", nt
 
-      open(newunit=force_unit, file=trim(workdir)//"force.dat",       &
-                                                  status='replace')
-      call plot_force(force_unit, t_end, t_ini, dt0)
-      close(force_unit)
+       open(newunit=force_unit, file=trim(workdir)//"force.dat",       &
+                                                   status='replace')
+       call plot_force(force_unit, t_end, t_ini, dt0)
+       close(force_unit)
+ 
+       open(newunit=obs_unit, file=trim(workdir)//"norm.dat",           &
+                                                       status='replace')
+       nobs = nt / obs_stride
+       if (mod(nt, obs_stride) /= 0) nobs = nobs + 1
+ 
+       allocate(time_(nobs), norm_(nch__))
+       allocate(norm_t(nobs,nch__))
+       allocate(p0_t(nobs), pexc_t(nobs), pion_t(nobs))
+       allocate(nrg_t(nobs), x_t(nobs), p_t(nobs))
+ 
+       kobs = 0
+       write(*,*) "nobs = ", nobs
 
-      open(newunit=obs_unit, file=trim(workdir)//"norm.dat",           &
-                                                      status='replace')
-      nobs = nt / obs_stride
-      if (mod(nt, obs_stride) /= 0) nobs = nobs + 1
-
-      allocate(time_(nobs), norm_t1(nobs), norm_t2(nobs))
-      allocate(p0_t(nobs), pexc_t(nobs), pion_t(nobs))
-      allocate(nrg_t(nobs), x_t(nobs), p_t(nobs))
-
-      kobs = 0
-      write(*,*) "nobs = ", nobs
-!     pause
+!      allocate( auxc(nmax_), svec(nmax_,3) )
+       allocate( svec(nmax_,3) )
+       allocate(src(nmax_))
 
 
-      src_time = 0.d0
-      split_time = 0.d0
+!      call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
+!                              nch__, nmax_, tt, omega, wf_in)
 
-
-      !$omp parallel private(tid) default(shared) num_threads(3)
+      !$omp parallel private(k) default(shared)
       do i=1,nt
 
-         tid = omp_get_thread_num()
-!        write(*,*) i, tid
-!        write(*,*) 
 
-         if (tid.eq.0) then
-            call process_src_ingredients ( nmax_, ns, np,         &
-                               jacc,                              &
-                               xs, xx, wx, map, Dref,             &
-                               dt0, tt,                           &
-                               eigval, eigvec, psi_in, svec,      &
-                               src_type, order)
+         !$omp single
+         do k=1,nch__
+            norm_(k) = sqrt(sum(abs(wf_in(:,k))**2))
+         enddo
 
-            call build_source_quadrature (   nmax_, ns, np,       &
-                                     xs, xx, map, Dref,     &
-                                         dt0, tt,               &
-                                         eigval, eigvec,        &
-                                         svec,                  &
-                                         src, omeg,    &
-                                         order )
+         call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
+                                 nch__, nmax_, tt, omega, wf_in)
 
-         end if
-         !$omp barrier
+         write(obs_unit,'(ES20.10,*(1X,E20.10))') tt,  norm_(:)
 
-         if (tid.eq.1) then
+         call process_src_ingredients ( nmax_, ns, np,         &
+                            jacc,                              &
+                            xs, xx, wx, map, Dref,             &
+                            dt0, tt,                           &
+                            eigval, eigvec, wf_in(:,1), svec,  &
+                            src_type, order)
+
+         call build_source_quadrature (   nmax_, ns, np,       &
+                                        xs, xx, map, Dref,     &
+                                      dt0, tt,               &
+                                      eigval, eigvec,        &
+                                      svec,                  &
+                                      src, omega(2),    &
+                                      order )
+
+         !$omp end single
+!        !$omp barrier
+
+         !$omp do
+         do k=1, nch__
+
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
-                                         psi_in, psi_out, order)
-
-            norm_1 = sqrt(sum(abs(psi_out)**2))
-            psi_in = psi_out
-
-         else if (tid.eq.2) then
-            call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,    &
-                                         phi_in, phi_out, order)
-
-            phi_out = phi_out - ci * src
-            norm_2 = sqrt(sum(abs(phi_out)**2))
-            phi_in = phi_out
-         end if
+                                         wf_in(:,k), wf(:,k), order)
+         enddo
+         !$omp end do
 
          !$omp barrier
 
+         !$omp single
+         wf(:,2) = wf(:,2) - ci * src
+         wf_in = wf
+         tt = tt + dt0
 
-!        !$omp single
-         if (tid.eq.0) then
+         ! --- observables ---
+         if (do_time_obs) then
 
-            write(obs_unit,'(4ES20.10)') tt, norm_1, norm_2
+            if (mod(i, obs_stride) == 0) then
 
-            tt = tt + dt0
+               kobs = kobs + 1
+
+               call compute_dyn_observables(nmax_,                     &
+                                            xx, wx, jacc,              &
+                                            eigval, eigvec,            &
+                                            norm_1,            &
+                                            p0, pexc, pion,      &
+                                            nrg_, xt_, pt_,      &
+                                            wf(:,1))
+
+             call append_dyn_obs_bin(trim(workdir)//"dyn_back.bin",  &
+                                 nch__, tt, norm_,                   &
+                                 p0, pexc, pion,                     &
+                                 nrg_, xt_, pt_ )
+
+             write(log_unit,*) kobs, nobs, tt,                       &
+                                      norm_(nch__),                  &
+                                      p0, pexc, pion,                &
+                                      nrg_, xt_, pt_
 
 
-            ! --- observables ---
-            if (do_time_obs) then
 
-               if (mod(i, obs_stride) == 0) then
-
-                  kobs = kobs + 1
-               
-                  call compute_dyn_observables(nmax_,                     &
-                                               psi_out, phi_out,          &
-                                               xx, wx, jacc,              &
-                                               eigval, eigvec,            &
-                                               norm_1, norm_2,            &
-                                               p0, pexc, pion,      &
-                                               nrg_, xt_, pt_)
-               
-                  call append_dyn_obs_bin(trim(workdir)//"dyn_back.bin",  &
-                                      tt, norm_1, norm_2,           &
-                                      p0, pexc, pion,                     &
-                                      nrg_, xt_, pt_ )
-
-                  write(log_unit,*) kobs, nobs, tt,                       &
-                                           norm_1, norm_2,                &
-                                           p0, pexc, pion,                &
-                                           nrg_, xt_, pt_
-
-                  ! --- STORE ---
-                  time_(kobs)   = tt
-                  norm_t1(kobs) = norm_1
-                  norm_t2(kobs) = norm_2
-                  p0_t(kobs)    = p0
-                  pexc_t(kobs)  = pexc
-                  pion_t(kobs)  = pion
-                  nrg_t(kobs)   = real(nrg_)
-                  x_t(kobs)     = real(xt_)
-                  p_t(kobs)     = real(pt_)
-               
-               end if
-
+               ! --- STORE ---
+               time_(kobs)   = tt
+               norm_t(kobs,:) = norm_
+               p0_t(kobs)    = p0
+               pexc_t(kobs)  = pexc
+               pion_t(kobs)  = pion
+               nrg_t(kobs)   = real(nrg_)
+               x_t(kobs)     = real(xt_)
+               p_t(kobs)     = real(pt_)
 
             end if
 
-!           call exact_closed_duhamel(nmax_, tt, t_ini,                   & 
+!           call exact_closed_duhamel(nmax_, tt, t_ini,                   &
 !                   eigval, psi0, phi0, psi_ex, phi_ex, src_type, omeg)
 
 
 !           write(*,*) nt, i, tt, phi_out(j), phi_ex(j)
             if (mod(i,100).eq.0) then
-               call write_wavefunction_bin(trim(workdir)//'wf_back.bin', &
-                                      nmax_, tt, omeg, psi_out, phi_out)
+               call write_wavefun_bin(trim(workdir)//'wf_back.bin', 0, &
+                                      nch__, nmax_, tt, omega, wf)
             end if
 
-
          end if
-!        !$omp end single
+         !$omp end single
       end do
-      !$omp end parallel 
+      !$omp end parallel
 
+      ! *** save the last bit
+       do k=1,nch__
+          norm_(k) = sqrt(sum(abs(wf_in(:,k))**2))
+       enddo
 
+       call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
+                               nch__, nmax_, tt, omega, wf_in)
+
+       write(obs_unit,'(ES20.10,*(1X,E20.10))') tt,  norm_(:)
 
 
       call write_observables_bin(trim(workdir)//"dyn_obs.bin", &
-                nobs, time_, norm_t1, norm_t2,                 &
+                nch__, nobs, time_, norm_t,                 &
                 p0_t, pexc_t, pion_t,                          &
                 nrg_t, x_t, p_t)
 
-      call write_wavefunction_bin(trim(workdir)//'wavfun.bin',   &
-                                nmax_, tt, omeg, psi_out, phi_out)
+      call write_wavefun_bin(trim(workdir)//'wavfun_psi.bin', 0,   &
+                                nch__, nmax_, tt, omega, wf)
 
       close(obs_unit)
       write(log_unit,*) workdir
