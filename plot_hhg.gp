@@ -46,7 +46,7 @@ set ytics 1.e-13, 1.e-2, 1.e-3
 #         datafile using 1:4 with lines lw 2 title 'Eq.(1)'
 #}
 
-    plot datafile using 1:2 with lines lw 2 title 'Eq.(104)', \
-         datafile using 1:3 with lines lw 2 title 'Eq.(80)', \
-         datafile using 1:4 with lines lw 2 title 'Eq.(1)', \
-#        datafile using 1:5 with lines lw 2 title 'IBP'
+    plot datafile.'/hhg.dat' using 1:2 with lines lw 2 title 'Eq.(104)', \
+         datafile.'/hhg.dat' using 1:3 with lines lw 2 title 'Eq.(80)', \
+         datafile.'/hhg.dat' using 1:4 with lines lw 2 title 'Eq.(1)', \
+#        datafile.'/hhg.dat' using 1:5 with lines lw 2 title 'IBP'

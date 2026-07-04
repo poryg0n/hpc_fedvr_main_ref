@@ -607,15 +607,13 @@
       
       end subroutine
 
-      subroutine write_density_prob(filename, n, nch, jacc,          &
-                                              xx, wx, rho)
+      subroutine write_density_prob(filename, nch, n, xx, rho)
       
         implicit none
         character(*), intent(in) :: filename
         integer, intent(in) :: n, nch
-        real(8), intent(in) :: jacc
-        real(8), intent(in) :: xx(n), wx(n)
-        complex(8), intent(in) :: rho(n, nch)
+        real(8), intent(in) :: xx(n)
+        real(8), intent(in) :: rho(n, nch)
       
         integer :: i, unit
       
@@ -666,12 +664,12 @@
       end subroutine
 
 
-      subroutine write_pemd(filename, nch, n, kk, ak, bkwT, logscale)
+      subroutine write_pemd(filename, nch, krange, kk, ak, bkwT, logscale)
         implicit none
-        integer, intent(in) :: n, nch
-        real(8), intent(in) :: kk(n)
-        complex(8), intent(in) :: ak(n)
-        complex(8), intent(in) :: bkwT(n,nch)
+        integer, intent(in) :: krange, nch
+        real(8), intent(in) :: kk(krange)
+        complex(8), intent(in) :: ak(krange)
+        complex(8), intent(in) :: bkwT(krange,nch)
         logical, intent(in) :: logscale
         character(len=*), intent(in) :: filename
       
@@ -681,7 +679,7 @@
       
         open(newunit=unit, file=filename, status='replace')
       
-        do i = 1, n
+        do i = 1, krange
            pk = abs(ak(i))**2
            pkwT(:) = abs(bkwT(i,:))**2
       

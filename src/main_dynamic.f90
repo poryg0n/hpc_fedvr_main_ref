@@ -330,7 +330,7 @@
                                       order )
 
          !$omp end single
-!        !$omp barrier
+         !$omp barrier
 
          !$omp do
          do k=1, nch__
@@ -406,10 +406,10 @@
           norm_(k) = sqrt(sum(abs(wf_in(:,k))**2))
        enddo
 
-       call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
-                               nch__, nmax_, tt, omega, wf_in)
+!      call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
+!                              nch__, nmax_, tt, omega, wf_in)
 
-       write(obs_unit,'(ES20.10,*(1X,E20.10))') tt,  norm_(:)
+!      write(obs_unit,'(ES20.10,*(1X,E20.10))') tt,  norm_(:)
 
 
       call write_observables_bin(trim(workdir)//"dyn_obs.bin", &

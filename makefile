@@ -56,7 +56,7 @@ $(STRUCTURE_EXE): $(CORE_OBJS) main_structure.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 # --- Future ---
-$(DYNAMIC_EXE): $(CORE_OBJS) main_dynamic.o
+$(C_DYN_EXE): $(CORE_OBJS) main_dynamic.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
