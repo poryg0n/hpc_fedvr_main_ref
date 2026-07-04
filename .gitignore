@@ -2,6 +2,7 @@
 main
 structure
 dynamic
+c_dyn
 exploit
 
 # fortran binaries
