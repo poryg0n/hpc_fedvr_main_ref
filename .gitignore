@@ -1,8 +1,7 @@
 #exec
-main
-structure
-dynamic
-c_dyn
+struct
+qdyn
+cdyn
 exploit
 
 # fortran binaries
