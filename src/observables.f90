@@ -125,13 +125,11 @@
       
 
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf(:,1), wfc)
-!       call eigen_to_dvr(nmax, 1, jacc, wx, eigvec, phi, phic)
 
         ksteps_  = krange -1
 
         allocate(kk(krange))
         allocate(ak(krange))
-!       allocate(bkwT(krange,nch))
 
         kk = 0.d0
         do j=1,krange
@@ -143,7 +141,6 @@
       
            end if
 
-!          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
       
            wfc_k = exp(ci*kk(j)*xx) +                                 &
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                &
@@ -152,20 +149,13 @@
            auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
            ak(j) = sum(auxc)
 
-!          do k=1,nch
-!             auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
-!             bkwT(j) = sum(auxc)
-!          enddo
-     
         end do
 
         Ek  = 0.5d0 * kk**2
         E0  = - 0.5d0 * kapp**2
 
         ak   = exp(ci*Ek*t_end) * ak
-!       bkwT = exp(ci*Ek*t_end) * bkwT
 
-!       call eigen_to_dvr(nmax, 1, jacc, wx, eigvec, psi0, psic0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0, wfc0)
 
         a0 = (0.d0, 0.d0)
@@ -173,10 +163,6 @@
         a0 = sum(auxc)
         a0 = exp(ci*E0*t_end)*a0
 
-!       b0wT = (0.d0, 0.d0)
-!       auxc = conjg(psic0) * phic * wx*wx*jacc
-!       b0wT = sum(auxc)
-!       b0wT = exp(ci*E0*t_end)*b0wT
   
         ! --- probabilities ---
         p_ion = 0.d0
@@ -210,7 +196,6 @@
 
         complex(8), allocatable, intent(out) :: b0wT(:)
         complex(8), allocatable, intent(out) :: bkwT(:,:)
-!       complex(8), allocatable, intent(out) :: ak(:)
       
         ! locals
         integer :: j, k, w, ij
@@ -233,7 +218,6 @@
         do w=1,nch
            call eigen_to_dvr(nmax, jacc, wx, eigvec, wf(:,w), wfc(:,w))
         enddo
-!       call eigen_to_dvr(nmax, 1, jacc, wx, eigvec, phi, phic)
 
         ksteps_  = krange -1
 
@@ -242,21 +226,10 @@
 
         do j=1,krange
       
-!          if (j.le.(ksteps_/2)) then
-!             ij = krange-(j-1)
-!             kk(j)  = -k_max + (j-1)*dk0
-!             kk(ij) = -kk(j)
-!     
-!          end if
-
-!          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
-      
            wfc_k = exp(ci*kk(j)*xx) +                                 &
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                &
                    exp(-ci*abs(kk(j)*xx))
       
-!          auxc  = conjg(wfc_k) * wfc(:,1) * wx*wx*jacc
-!          ak(j) = sum(auxc)
 
            do w=1,nch
               auxc  = conjg(wfc_k) * wfc(:,w) * wx*wx*jacc
@@ -268,17 +241,12 @@
         Ek  = 0.5d0 * kk**2
         E0  = - 0.5d0 * kapp**2
 
-!       ak   = exp(ci*Ek*t_end) * ak
         do w=1,nch
            bkwT(:,w) = exp(ci*Ek*t_end) * bkwT(:,w)
         enddo
 
         call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_0, wfc0_0)
 
-!       a0 = (0.d0, 0.d0)
-!       auxc = conjg(wfc0(:,1)) * wfc(:,1) * wx*wx*jacc
-!       a0 = sum(auxc)
-!       a0 = exp(ci*E0*t_end)*a0
 
         allocate(b0wT(nch))
         b0wT = (0.d0, 0.d0)
