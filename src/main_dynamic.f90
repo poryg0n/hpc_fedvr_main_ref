@@ -80,7 +80,7 @@
       integer :: init_unit
       integer :: force_unit
 
-      dyn_tag = "dyn/"
+      dyn_tag = "cdyn/"
       log_unit = 20
       obs_unit = 40
       nch__=2
