@@ -46,7 +46,7 @@ CORE_OBJS = \
 
 # --- Executables ---
 STRUCTURE_EXE = structure
-C_DYN_EXE     = c_dyn
+C_DYN_EXE     = cdyn
 EXPLOIT_EXE   = exploit
 
 all: $(STRUCTURE_EXE)
