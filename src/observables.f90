@@ -340,17 +340,6 @@
 
         E0  = - 0.5d0 * kapp**2
 
-!       !$omp parallel default(shared)                                    &
-!       !$omp private( j, l,                                              &
-!       !$omp          Ek_, Ekp_,                                         &
-!       !$omp          delta_kk, denom, factor,                           &
-!       !$omp          dk0_, pk0_,                                        &
-!       !$omp          wfc_k, wfc_k_,                                     &
-!       !$omp          dwfc_k, pwfc_k,                                    &
-!       !$omp          pkk, dkk, pkkk, vec_2,                             &
-!       !$omp          auxc )
-!       
-!       !$omp do schedule(static)
         do j=1,krange
 !          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
       
@@ -365,6 +354,7 @@
            auxc_3 = 0.d0
  
            do l=1,krange
+!             if (l.eq.j) cycle
       
               Ekp_ = 0.5d0 * kk(l)**2
 
@@ -415,7 +405,7 @@
 
            enddo
 
-           write(*,*) j
+!          write(*,*) j
            write(unit_pkl,'(7E20.10)') kk(j),                         &
                                real(auxc_1), imag(auxc_1),             &
                                real(auxc_2), imag(auxc_2),             &
@@ -455,8 +445,6 @@
            vec_1(j) = exp( ci * ( E0+omega-Ek_ ) * t_end ) * vec_1(j)
 
         enddo
-!       !$omp end do
-!       !$omp end parallel
 
         call integr_over_krange(ksteps_, kk, vec_1, vec_0)
         vec_0 = vec_0 / (2.d0*ppi)
