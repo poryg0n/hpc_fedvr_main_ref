@@ -59,6 +59,7 @@
       complex(8), allocatable, dimension(:,:) :: svec,                &
                                                  src,                   &
                                                  wf0, wfc0,           &
+                                                 pwf0,                &
                                                  wf_in, wfc,          &
                                                  wf
 
@@ -122,7 +123,7 @@
        tc = 0.d0
  
        allocate(wf_in(nmax_,nch__))
-       allocate(wfc0(nmax_,nch__), wf0(nmax_,nch__))
+       allocate(wfc0(nmax_,nch__), pwf0(nmax_,nch__), wf0(nmax_,nch__))
        allocate(wfc(nmax_,nch__), wf(nmax_,nch__))
        allocate(omega(nch__))
 
@@ -130,8 +131,6 @@
 
        if (src_type.eq.3) then
           j = 2
-!         call apply_momentum_operator(nmax_, eigvec, xx, wx,  &
-!                 jacc, psi_in, phi_in, qho)
 
           omega(1)=0.d0
           do k=2,nch__
@@ -146,7 +145,6 @@
        end if
 
 
-
        do i=1, nmax_
           wfc0(i,1) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
        enddo
@@ -155,6 +153,9 @@
        do k=1, nch__
           call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0(:,k), wf0(:,k))
        enddo
+
+        call apply_momentum_operator(nmax, eigvec, xx, wx,        &
+                          jacc, wf0(:,1), pwf0, 0)
 
 
 
@@ -172,9 +173,11 @@
       allocate(norm_ref(nch__))
       allocate(norm_deriv(nch__))
 
+
       do k=1, nch__
          norm_refc(k) = sqrt(sum(abs(wfc0(:,k) * wx * dsqrt(jacc))**2))
          norm_ref(k) = sqrt(sum(abs(wf0(:,k))))
+         norm_deriv(k) = sqrt(sum(abs(pwf0(:,k))))
       enddo
 
 
@@ -290,8 +293,8 @@
        kobs = 0
        write(*,*) "nobs = ", nobs
 
-!      allocate( auxc(nmax_), svec(nmax_,3) )
-       allocate( svec(nmax_,3) )
+       allocate(auxc(nmax_))
+       allocate(svec(nmax_,3))
        allocate(src(nmax_,nch__))
 
 
