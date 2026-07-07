@@ -42,8 +42,7 @@
       complex(8), allocatable, dimension(:) :: wf1, wfc1,             &
                                                dwfc1,                 &
                                                wfc0_1, wf1_0,         &
-                                               auxc1, auxc2,          &
-                                               auxc3, auxc4,          &
+                                               auxc, auxc1,          &
                                                d_t, dd_t, d_w, dd_w,  &
                                                nrg_t, x_t, p_t
 
@@ -154,7 +153,7 @@
           call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0(:,k), wf0(:,k))
        enddo
 
-        call apply_momentum_operator(nmax, eigvec, xx, wx,        &
+        call apply_momentum_operator(nmax_, eigvec, xx, wx,        &
                           jacc, wf0(:,1), pwf0, 0)
 
 
