@@ -149,7 +149,9 @@
            auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
            ak(j) = sum(auxc)
 
+           write(*,'(I8,*(1X,ES20.10))') j, kk(j), ak(j)
         end do
+!       pause
 
         Ek  = 0.5d0 * kk**2
         E0  = - 0.5d0 * kapp**2
@@ -277,7 +279,7 @@
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
         real(8), intent(in) :: omega
-        real(8), intent(in) :: kk(:)
+        real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: a0
         complex(8), intent(in) :: wf0_0(nmax)
 
@@ -297,10 +299,9 @@
         real(8) :: aux1, aux2, dk, delta_kk
         complex(8) :: factor, denom
         complex(8) :: wfc_k(nmax), wfc_k_(nmax)
-        complex(8) :: dwfc_0(nmax), dwfc_k(nmax)
+        complex(8) :: dwfc_k(nmax)
         complex(8) :: pwfc_0(nmax), pwfc_k(nmax)
-        complex(8) :: wfc0_1(nmax), wfc0_2(nmax)
-        complex(8) :: wfc_1(nmax), wfc_2(nmax)
+        complex(8) :: wfc0_0(nmax)
         complex(8) :: auxc(nmax)
         complex(8) :: vec_2(krange)
                           
@@ -336,7 +337,7 @@
                           jacc, wf0_0, auxc, 0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, auxc, pwfc_0)
      
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_0, wfc0_1)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_0, wfc0_0)
 
         E0  = - 0.5d0 * kapp**2
 
@@ -423,11 +424,11 @@
            pwfc_k = -ci*dwfc_k
 
 
-           auxc = conjg(wfc0_1) * pwfc_k * wx*wx*jacc
+           auxc = conjg(wfc0_0) * pwfc_k * wx*wx*jacc
            p0k(j) = sum(auxc)
 
 
-           auxc = conjg(wfc_k) * xx * wfc0_1 * wx*wx*jacc
+           auxc = conjg(wfc_k) * xx * wfc0_0 * wx*wx*jacc
            dk0_ = sum(auxc)
            dk0_ = -ci* ( Ek_ - E0 ) * dk0_
 
@@ -457,7 +458,7 @@
         vec_1 = exp(ci * ( Ek+omega-E0 ) * t_end ) * vec_1
 
         do j=1,krange
-           write(unit_vec,'(2E20.10,*(1X,ES20.10))') kk(j),     &
+           write(unit_vec,'(1E20.10,*(1X,ES20.10))') kk(j),     &
                                 real(vec_0), imag(vec_0),              &
                                 real(vec_1(j)), imag(vec_1(j)),        &
                                 real(vec_k(j)), imag(vec_k(j)), omega

@@ -34,8 +34,9 @@
                                    vec_matup, eigval,                 &
                                    kk, time_, time_t,                 &
                                    norm_,                &
-                                   p0_t, pexc_t, pion_t,       &
-                                   norm_ref, norm_refc, omega
+                                   p0_t, pexc_t, pion_t,              &
+                                   norm_ref, norm_deriv,              &
+                                   norm_refc, omega
 
   
       complex(8), allocatable, dimension(:) :: wf1, wfc1,             &
@@ -43,28 +44,23 @@
                                                wfc0_1, wf1_0,         &
                                                auxc1, auxc2,          &
                                                auxc3, auxc4,          &
-                                               src,                   &
                                                d_t, dd_t, d_w, dd_w,  &
                                                nrg_t, x_t, p_t
 
       integer, allocatable, dimension(:,:) :: map
 
       real(8), allocatable, dimension(:,:) :: lu, id, inv,            &
-                                       pkk, bkw_1, bkw_2,             &
                                        Dref, Dglobal,                 &
                                        norm_t,                      &
                                        eigvec, basis
 
       real(8), allocatable, dimension(:,:,:) :: Dloc_all          
 
-      complex(8), allocatable, dimension(:,:) :: in_states,           &
-                                                 out_states,          &
-                                                 svec,                &
-                                                 wf, wfc,             &
+      complex(8), allocatable, dimension(:,:) :: svec,                &
+                                                 src,                   &
                                                  wf0, wfc0,           &
-                                                 wfc_in, wf_in,         &
-                                                 wf_out,                &
-                                                 cwf
+                                                 wf_in, wfc,          &
+                                                 wf
 
       character(255) :: workdir, struct_dir, struct_dir_,             &
                         dyn_tag
@@ -174,6 +170,7 @@
 
       allocate(norm_refc(nch__))
       allocate(norm_ref(nch__))
+      allocate(norm_deriv(nch__))
 
       do k=1, nch__
          norm_refc(k) = sqrt(sum(abs(wfc0(:,k) * wx * dsqrt(jacc))**2))
@@ -248,6 +245,7 @@
 
       run = 0
       omg_start = 0.d0
+!     omg_end   = omg_min
       omg_end   = 0.d0
       call print_dynamic_parameters()
 
@@ -294,7 +292,7 @@
 
 !      allocate( auxc(nmax_), svec(nmax_,3) )
        allocate( svec(nmax_,3) )
-       allocate(src(nmax_))
+       allocate(src(nmax_,nch__))
 
 
 !      call write_wavefun_bin(trim(workdir)//'wf_psi_pipe.bin', 1,   &
@@ -321,29 +319,32 @@
                             eigval, eigvec, wf_in(:,1), svec,  &
                             src_type, order)
 
-         call build_source_quadrature (   nmax_, ns, np,       &
-                                        xs, xx, map, Dref,     &
-                                      dt0, tt,               &
-                                      eigval, eigvec,        &
-                                      svec,                  &
-                                      src, omega(2),    &
-                                      order )
-
          !$omp end single
          !$omp barrier
 
          !$omp do
          do k=1, nch__
 
+            call build_source_quadrature (   nmax_, ns, np,       &
+                                           xs, xx, map, Dref,     &
+                                         dt0, tt,               &
+                                         eigval, eigvec,        &
+                                         svec,                  &
+                                         src(:,k), omega(k),    &
+                                         order )
+
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
                                          wf_in(:,k), wf(:,k), order)
+
+            if (k.eq.2) then
+               wf(:,k) = wf(:,k) - ci * src(:,k)
+            end if 
          enddo
          !$omp end do
 
          !$omp barrier
 
          !$omp single
-         wf(:,2) = wf(:,2) - ci * src
          wf_in = wf
          tt = tt + dt0
 

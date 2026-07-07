@@ -678,6 +678,8 @@
         real(8) :: pkwT(nch)
       
         open(newunit=unit, file=filename, status='replace')
+        write(*,*) nch
+        pause
       
         do i = 1, krange
            pk = abs(ak(i))**2
@@ -730,42 +732,6 @@
         end do
       
         close(unit)
-      end subroutine
-
-      subroutine write_bkw_b0w(filename, nch, omega, krange, kk, &
-                                                      b0w, bkw)
-      
-        implicit none
-        character(*), intent(in) :: filename
-        integer, intent(in) :: krange, nch
-        real(8), intent(in) :: kk(krange)
-        real(8), intent(in) :: omega(nch)
-        complex(8), intent(in) :: bkw(krange, nch)
-        complex(8), intent(in) :: b0w(nch)
-!       complex(8), intent(in) :: Qw(nch)
-      
-        integer :: i, unit
-      
-        open(newunit=unit, file=filename, status='replace')
-
-!       *** To rewrite ****      
-!       write(unit,*) '# k, Re[b_k], Im[b_k], |b_k|^2'
-!    
-!       do i = 1, krange
-!          write(unit,*) kk(i), real(bkw(i,j)), aimag(bkw(i,j)),       &
-!                                                     abs(bkw(i,j))**2
-!       enddo
-!     
-!       write(unit,*)
-!       write(unit,*) '# b0(w):'
-!       write(unit,*) real(b0w(j)), aimag(b0w(j)), abs(b0w(j))**2
-!     
-!       write(unit,*)
-!       write(unit,*) '# Q(w):'
-!       write(unit,*) Qw(j)
-      
-        close(unit)
-      
       end subroutine
 
 
