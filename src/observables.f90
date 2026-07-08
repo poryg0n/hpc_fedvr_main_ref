@@ -149,7 +149,7 @@
            auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
            ak(j) = sum(auxc)
 
-           write(*,'(I8,*(1X,ES20.10))') j, kk(j), ak(j)
+!          write(*,'(I8,*(1X,ES20.10))') j, kk(j), ak(j)
         end do
 !       pause
 
