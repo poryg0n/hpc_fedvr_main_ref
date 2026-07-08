@@ -678,8 +678,8 @@
         real(8) :: pkwT(nch)
       
         open(newunit=unit, file=filename, status='replace')
-        write(*,*) nch
-        pause
+!       write(*,*) nch
+!       pause
       
         do i = 1, krange
            pk = abs(ak(i))**2
