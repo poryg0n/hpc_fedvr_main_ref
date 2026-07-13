@@ -20,23 +20,11 @@
         integer, public :: ntau
 
         integer, public :: src_type
-        integer, public :: run
-        integer, public :: need
-        integer, public :: nch
-        real(8), public :: omg_max
-        real(8), public :: omg_min
-
-        real(8), public :: omg_start
-        real(8), public :: omg_end
-
-        real(8), public :: dw
-        real(8), public :: wrange
-
         integer, public :: order
+        real(8), public :: omeg
 
         logical, public :: do_time_obs
         integer, public :: obs_stride
-        integer, public :: nthreads
 
       
       contains
@@ -60,31 +48,14 @@
         end subroutine
 
 
-        subroutine init_src(src_type_, nch_,                          &
-                                omg_1, omg_0, dw_, run_)
+        subroutine init_src(src_type_, omega)
   
            integer, intent(in) :: src_type_
-           integer, intent(in) :: run_
-           integer, intent(in) :: nch_
-           real(8), intent(in) :: omg_1, omg_0
-           real(8), intent(in) :: dw_
-           integer :: need 
-
+           real(8), intent(in) :: omega
   
-           src_type = src_type_
-           nch = nch_
-           omg_min = omg_0
-           omg_max = omg_1
-           dw = dw_
-           run = run_
-
-           omg_start = omg_min + (run-1) * dw * nch  
-           omg_end = omg_min + (run) * dw * nch  
-
-           wrange = (omg_max-omg_min)
+           src_type =  src_type_
+           omeg = omega
   
-           need = ceiling(wrange/(dw*(nch-1)))
-
         end subroutine
 
 
@@ -96,16 +67,13 @@
   
         end subroutine
 
-        subroutine set_other_dyn_params(do_time_obs_, obs_stride_,     &
-                                                             n_threads)
+        subroutine set_other_dyn_params(do_time_obs_, obs_stride_)
   
            logical, intent(in) :: do_time_obs_
            integer, intent(in) :: obs_stride_
-           integer, optional, intent(in) :: n_threads
      
            do_time_obs  =  do_time_obs_
            obs_stride   =  obs_stride_
-           nthreads     = n_threads
   
         end subroutine
 
@@ -172,17 +140,9 @@
            print*, "ntau        :", ntau
            print*, "             "
            print*, "source_type :", src_type
-           print*, "             "
-           print*, "nchan         = ", nch
-           print*, "omg_max       = ", omg_max
-           print*, "omg_min       = ", omg_min
-           print*, "             "
-           print*, "omg_start     = ", omg_start
-           print*, "omg_end       = ", omg_end
-           print*, "             "
-           print*, "run           = ", run
-           print*, "             "
-           print*, "order         = ", order
+
+           print*, "omeg_       = ", omeg
+           print*, "order       = ", order
   
         end subroutine
 

@@ -478,7 +478,7 @@
 
 
 
-      subroutine compute_hhg_ip(nt, time, wsteps, x_t, omg,          &
+      subroutine compute_hhg_ip(nt, time, x_t, wsteps, omg,          &
                                                hhg_1, hhg_2)
       
         implicit none
@@ -494,7 +494,6 @@
         complex(8), parameter :: ci = (0.d0, 1.d0)
         integer :: nw, i, it
         real :: w
-
 
         nw = wsteps+1
         allocate(omg(nw), hhg_1(nw), hhg_2(nw))

@@ -23,7 +23,6 @@
                     p0, pexc, pion,                             &
                     err1, err2,                                       &
                     rowsum,                                    &
-                    omega_k,                                    &
                     kappa_w,                                    &
                     jacc, xx1, xx2, eps,                              &
                     norm_1
@@ -87,7 +86,7 @@
       qho = 0 
       eps = 1.e-6
       call get_command_argument(1, struct_dir)
-      call read_struct_bin(trim(struct_dir)//"/struct.bin",    &
+      call read_structure_bin(trim(struct_dir)//"/structure.bin",    &
                              struct_dir_, nmax_, ns, np,             &
                              xx1, xx2, qq, jacc, xx, wx)
 
@@ -112,7 +111,7 @@
        call set_force_params(f0_, omega_0, pfai_)  
        call init_time_grid(noc_, ntau_, nsteps)
        call init_src(src_type_, nch__,                          &
-                                w_max, w_min, dw_, run_h)
+                                w_max, w_min, dw, run_h)
 
        call set_resolution_order(order_)
        call set_other_dyn_params(do_time_obs_, obs_stride_, n_threads)
@@ -132,11 +131,9 @@
        if (src_type.eq.3) then
           j = 2
 
+          omega(1)=0.d0
           do k=2,nch__
-
-             omega_k = omg_min + (k-2)* dw_
-             omega(k) = omega_k
-
+             omega(k) = omeg
              kappa_w = varkap(kapp, omega(k))
              do i=1, nmax_
                 wfc0(i,k) = (-ci*kapp**(3.d0/2)/omega(k)) * sgn(xx(i)) *  &
@@ -147,7 +144,6 @@
        end if
 
 
-       omega(1)=0.d0
        do i=1, nmax_
           wfc0(i,1) = kapp**(1.d0/2) * exp(-kapp*abs(xx(i)))
        enddo
@@ -156,16 +152,6 @@
        do k=1, nch__
           call dvr_to_eigen(nmax_, jacc, wx, eigvec, wfc0(:,k), wf0(:,k))
        enddo
-
-      do i=nmax_/2-5, nmax_/2+5
-         write(*,*) xx(i), real(wfc0(i,1)), imag(wfc0(i,2))
-      enddo
-      write(*,*)
-      do i=1, 10
-         write(*,'(2E20.10)') real(wf0(i,1)), imag(wf0(i,2))
-      enddo
-
-
 
         call apply_momentum_operator(nmax_, eigvec, xx, wx,        &
                           jacc, wf0(:,1), pwf0, 0)
@@ -210,7 +196,7 @@
 
 
       write(*,*) "Write structure"
-      call write_struct_bin(trim(workdir)//"struct.bin",       &
+      call write_structure_bin(trim(workdir)//"structure.bin",       &
                                     workdir, nmax_, ns, np,   &
                                     xx1, xx2, qq, jacc, xx, wx)
 
@@ -222,11 +208,11 @@
                        t_end, t_ini, nt, dt0,                          &
                        noc, ntau, src_type,                            &
                        nch__, omg_max, omg_min,              &
-                       dw_, omega, run_h,                        &
+                       wstep, omega, run_h,                            &
                        order)
 
 
-       call write_struct_input(trim(workdir)//"param_structure.txt", &
+       call write_structure_input(trim(workdir)//"param_structure.txt", &
                                     struct_dir, nmax_, ns, np,          &
                                     xx1, xx2, qq, jacc)
  
@@ -236,7 +222,7 @@
                         t_end, t_ini, nt, dt0,                          &
                         noc, ntau, src_type,                            &
                         nch, omg_max, omg_min,                  &
-                        dw_, run_h,                           &
+                        wstep, run_h,                           &
                         order)
  
 
@@ -283,6 +269,8 @@
          write(*,*) "richardson test done"
       end if
 
+
+
       write(*,*) "Starting propagation"
       write(*,*) "nt =", nt
 
@@ -313,13 +301,13 @@
        write(*,'(a,i0)') "Available CPUs     : ", omp_get_num_procs()
        
 
+
 !     call omp_set_num_threads(nthreads)
 
      !$omp parallel if(parallel) default(shared)
      !$omp single
       write(*,'(a,i0)') "Threads in region  : ", omp_get_num_threads()
      !$omp end single
-
       do i=1,nt
 
 
@@ -341,7 +329,7 @@
                             src_type, order)
 
          !$omp end single
-         !$omp barrier
+!        !$omp barrier
 
          !$omp do private(k) 
          do k=1, nch__
@@ -357,14 +345,10 @@
             call split_operator(nmax_, dt0, tt, xx, eigval, eigvec,   &
                                          wf_in(:,k), wf(:,k), order)
 
-            if (k.gt.1) then
-               wf(:,k) = wf(:,k) - ci * src(:,k) 
-            end if
-
          enddo
          !$omp end do
 
-         !$omp barrier
+!        !$omp barrier
 
          !$omp single
          wf_in = wf

@@ -46,7 +46,7 @@ CORE_OBJS = \
 
 # --- Executables ---
 STRUCTURE_EXE = structure
-C_DYN_EXE     = cdyn
+CDYN_EXE     = cdyn
 EXPLOIT_EXE   = exploit
 
 all: $(STRUCTURE_EXE)
@@ -56,7 +56,7 @@ $(STRUCTURE_EXE): $(CORE_OBJS) main_structure.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 # --- Future ---
-$(C_DYN_EXE): $(CORE_OBJS) main_dynamic.o
+$(CDYN_EXE): $(CORE_OBJS) main_dynamic.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
@@ -74,4 +74,4 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 
 .PHONY: clean
 clean:
-	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(C_DYN_EXE) $(EXPLOIT_EXE)
+	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(CDYN_EXE)  $(EXPLOIT_EXE)

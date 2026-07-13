@@ -10,66 +10,68 @@
       contains
 
 
-      subroutine compute_dens_probab(nch, n, jacc, wx, eigvec, wf, rho)
+      subroutine compute_dens_probab(n, jacc, wx, eigvec, wf, rho)
 
         implicit none
-        integer, intent(in) :: n, nch
+        integer, intent(in) :: n
         real(8), intent(in) :: jacc
         real(8), intent(in) :: wx(n)
         real(8), intent(in) :: eigvec(n,n)
-        complex(8), intent(in) :: wf(n, nch)
-        real(8), allocatable, intent(out) :: rho(:,:)
+        complex(8), intent(in) :: wf(n)
+        complex(8), allocatable, intent(out) :: rho(:)
 !       real(8), intent(out) :: norm
 
-        complex(8) :: wfc(n,nch)
-        integer :: k
+        complex(8) :: wfc(n)
+        integer :: i
 
-        allocate(rho(n,nch))
-!       call eigen_to_dvr(n, 1, jacc, wx, eigvec, wf, wfc)
-        do k=1,nch
-           call eigen_to_dvr(n, jacc, wx, eigvec, wf(:,k), wfc(:,k))
-           rho(:,k) = conjg(wfc(:,k))* wfc(:,k) * wx*wx*jacc
-        enddo
+        allocate(rho(n))
+        call eigen_to_dvr(n, jacc, wx, eigvec, wf, wfc)
+        rho = conjg(wfc)* wfc * wx*wx*jacc
 
       end subroutine
 
       
 
-      subroutine compute_dyn_observables(nmax,                 &
+      subroutine compute_dyn_observables(nmax,                     &
                                         xx, wx, jac,               &
                                         eigval, eigvec,            &
-                                        norm,                  &
+                                        norm_1,                    &
                                         p0, pexc, pion,            &
-                                        energy, dipole, momentum, &
-                                        wf)
+                                        dipole, momentum, energy,  &
+                                        psi)
       
         implicit none
         integer, intent(in) :: nmax
-        real(8), intent(in) :: jac
+        complex(8), intent(in) :: psi(nmax)
         real(8), intent(in) :: eigval(nmax), eigvec(nmax,nmax)
-        real(8), intent(in) :: xx(nmax), wx(nmax)
-        complex(8), intent(in) :: wf(nmax)
+        real(8), intent(in) :: xx(nmax), wx(nmax), jac
       
-        real(8), intent(out) :: norm
+        real(8), intent(out) :: norm_1
         real(8), intent(out) :: p0, pexc, pion
         complex(8), intent(out) :: energy, dipole, momentum
       
-        complex(8) :: psi_x(nmax), p_psi(nmax), psi(nmax)
+        complex(8) :: psi_x(nmax), p_psi(nmax)
+!       complex(8) :: phi_x(nmax), p_phi(nmax)
         integer :: i
       
 
-        psi = wf
         ! --- transform to DVR ---
-!       call eigen_to_dvr(nmax, 1, jac, wx, eigvec, psi, psi_x)
+!       psi_x = matmul(eigvec, psi)
+!       phi_x = matmul(eigvec, phi)
+!       psi_x = psi_x/wx/dsqrt(jac)
+!       phi_x = phi_x/wx/dsqrt(jac)
         call eigen_to_dvr(nmax, jac, wx, eigvec, psi, psi_x)
+!       call eigen_to_dvr(nmax, jac, wx, eigvec, phi, phi_x)
+
         
         ! --- norm ---
-        norm = sum(abs(psi_x)**2 * (wx**2) * jac)
+        norm_1 = sum(abs(psi_x)**2 * (wx**2) * jac)
+!       norm_2 = sum(abs(phi_x)**2 * (wx**2) * jac)
         
         ! --- populations ---
         p0   = abs(psi(1))**2
         pexc = sum(abs(psi(2:nmax))**2)
-        pion = 1.d0 - p0
+        pion = 1.d0 - norm_1
         
         ! --- dipole ---
         dipole = sum(conjg(psi_x) * xx * psi_x * (wx**2) * jac)
@@ -85,27 +87,28 @@
       end subroutine
 
 
-      subroutine compute_pemd_zrp(nch, nmax, krange, t_end,            &
+      subroutine compute_pemd_zrp(nmax, krange, t_end,                 &
                            xx, wx, jacc,                               &
                            eigvec, eigval,                             &
-                           wf0, wf,                       &
+                           psi0, phi0, psi, phi,                       &
                            k_max, kk, p_ion, p0,                       &
-                           a0, ak)
+                           a0, ak,                                     &
+                           b0wT, bkwT)
       
         implicit none
-        integer, intent(in) :: nmax, nch, krange
+        integer, intent(in) :: nmax, krange
         real(8), intent(in) :: jacc
         real(8), intent(in) :: xx(nmax), wx(nmax)
         real(8), intent(in) :: eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
-        complex(8), intent(in) :: wf0(nmax)
-        complex(8), intent(in) :: wf(nmax,nch)
+        complex(8), intent(in) :: psi0(nmax), phi0(nmax)
+        complex(8), intent(in) :: psi(nmax), phi(nmax)
 
         real(8), intent(out) :: p_ion, p0
-        complex(8), intent(out) :: a0
+        complex(8), intent(out) :: a0, b0wT
         real(8), allocatable, intent(out) :: kk(:)
-        complex(8), allocatable, intent(out) :: ak(:)
+        complex(8), allocatable, intent(out) :: ak(:), bkwT(:)
       
         ! locals
         integer :: j, k, ij
@@ -115,8 +118,8 @@
         complex(8) :: auxc_
         real(8), allocatable :: Ek(:)
         complex(8) :: auxc(nmax), wfc_k(nmax)
-        complex(8) :: wfc0(nmax)
-        complex(8) :: wfc(nmax)
+        complex(8) :: psic0(nmax), phic0(nmax)
+        complex(8) :: psic(nmax), phic(nmax)
 
         complex(8), parameter :: ci = (0.d0,1.d0)
 !       real(8), parameter :: ppi = 3.141592653589793d0
@@ -124,12 +127,14 @@
 
       
 
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf(:,1), wfc)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, psi, psic)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, phi, phic)
 
         ksteps_  = krange -1
 
         allocate(kk(krange))
         allocate(ak(krange))
+        allocate(bkwT(krange))
 
         kk = 0.d0
         do j=1,krange
@@ -141,30 +146,37 @@
       
            end if
 
+!          call build_wfc_k(xx, kk(j), kapp, mode_k, wfc_k)
       
            wfc_k = exp(ci*kk(j)*xx) +                                 &
                    (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                &
                    exp(-ci*abs(kk(j)*xx))
       
-           auxc  = conjg(wfc_k) * wfc * wx*wx*jacc
+           auxc  = conjg(wfc_k) * psic * wx*wx*jacc
            ak(j) = sum(auxc)
 
-!          write(*,'(I8,*(1X,ES20.10))') j, kk(j), ak(j)
+           auxc  = conjg(wfc_k) * phic * wx*wx*jacc
+           bkwT(j) = sum(auxc)
+     
         end do
-!       pause
 
         Ek  = 0.5d0 * kk**2
         E0  = - 0.5d0 * kapp**2
 
         ak   = exp(ci*Ek*t_end) * ak
+        bkwT = exp(ci*Ek*t_end) * bkwT
 
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0, wfc0)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, psi0, psic0)
 
         a0 = (0.d0, 0.d0)
-        auxc = conjg(wfc0) * wfc* wx*wx*jacc
+        auxc = conjg(psic0) * psic * wx*wx*jacc
         a0 = sum(auxc)
         a0 = exp(ci*E0*t_end)*a0
 
+        b0wT = (0.d0, 0.d0)
+        auxc = conjg(psic0) * phic * wx*wx*jacc
+        b0wT = sum(auxc)
+        b0wT = exp(ci*E0*t_end)*b0wT
   
         ! --- probabilities ---
         p_ion = 0.d0
@@ -177,119 +189,38 @@
       end subroutine
 
 
-
-      subroutine compute_nchan_pemd_zrp(nch, nmax, krange, t_end,      &
-                           xx, wx, jacc,                               &
-                           eigvec, eigval,                             &
-                           wf0_0, wf,                       &
-                           k_max, kk,                       &
-                           b0wT, bkwT)
-      
-        implicit none
-        integer, intent(in) :: nmax, nch, krange
-        real(8), intent(in) :: jacc
-        real(8), intent(in) :: xx(nmax), wx(nmax)
-        real(8), intent(in) :: eigval(nmax)
-        real(8), intent(in) :: eigvec(nmax,nmax)
-        real(8), intent(in) :: t_end, k_max
-        real(8), intent(in) :: kk(:)
-        complex(8), intent(in) :: wf0_0(nmax)
-        complex(8), intent(in) :: wf(nmax, nch)
-
-        complex(8), allocatable, intent(out) :: b0wT(:)
-        complex(8), allocatable, intent(out) :: bkwT(:,:)
-      
-        ! locals
-        integer :: j, k, w, ij
-        integer :: p, n_cont, ksteps_
-        real(8) :: aux1, aux2, dk
-        real(8) :: E0
-        complex(8) :: auxc_
-        real(8), allocatable :: Ek(:)
-        complex(8) :: auxc(nmax), wfc_k(nmax)
-        complex(8) :: wfc0_0(nmax)
-        complex(8) :: wfc(nmax,nch)
-
-        complex(8), parameter :: ci = (0.d0,1.d0)
-!       real(8), parameter :: ppi = 3.141592653589793d0
-        real(8), parameter :: ppi = 4.d0*datan(1.d0)
-
-
-      
-
-        do w=1,nch
-           call eigen_to_dvr(nmax, jacc, wx, eigvec, wf(:,w), wfc(:,w))
-        enddo
-
-        ksteps_  = krange -1
-
-        allocate(bkwT(krange,nch))
-        bkwT = (0.d0,0.d0)
-
-        do j=1,krange
-      
-           wfc_k = exp(ci*kk(j)*xx) +                                 &
-                   (ci*kapp/(-abs(kk(j)) - ci*kapp)) *                &
-                   exp(-ci*abs(kk(j)*xx))
-      
-
-           do w=1,nch
-              auxc  = conjg(wfc_k) * wfc(:,w) * wx*wx*jacc
-              bkwT(j, w) = sum(auxc)
-           enddo
-     
-        end do
-
-        Ek  = 0.5d0 * kk**2
-        E0  = - 0.5d0 * kapp**2
-
-        do w=1,nch
-           bkwT(:,w) = exp(ci*Ek*t_end) * bkwT(:,w)
-        enddo
-
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_0, wfc0_0)
-
-
-        allocate(b0wT(nch))
-        b0wT = (0.d0, 0.d0)
-        do w=1,nch
-           auxc = conjg(wfc0_0) * wfc(:,w) * wx*wx*jacc
-           b0wT(w) = sum(auxc)
-           b0wT(w) = exp(ci*E0*t_end)*b0wT(w)
-        enddo
-  
-      
-      end subroutine
-
-
-      subroutine compute_phi_static_elems(workdir,                  &
+      subroutine compute_phi_elems(workdir,                  &
                            nmax, krange, t_end,              &
                            xx, wx, jacc,                             &
                            eigvec, eigval,                   &
-                           wf0_0,                            &
+                           wf0_1, wf0_2, wf_1, wf_2,                 &
                            omega, k_max, kk,                          &
-                           a0, ak,                                   &
-                           vec_0, vec_1, vec_k)
+                           a0, b0wT,                                  &
+                           ak, bkwT,                                  &
+                           b0w, bkw)
       
         implicit none
         integer, intent(in) :: nmax, krange
-        real(8), intent(in) :: jacc
+        real(8), intent(in) :: jacc, omega
         real(8), intent(in) :: xx(nmax), wx(nmax)
         real(8), intent(in) :: eigval(nmax)
         real(8), intent(in) :: eigvec(nmax,nmax)
         real(8), intent(in) :: t_end, k_max
-        real(8), intent(in) :: omega
-        real(8), intent(in) :: kk(krange)
         complex(8), intent(in) :: a0
-        complex(8), intent(in) :: wf0_0(nmax)
+        complex(8), intent(in) :: b0wT
 
+        real(8), intent(in) :: kk(krange)
+        complex(8), intent(in) :: wf0_1(nmax)
+        complex(8), intent(in) :: wf0_2(nmax)
+        complex(8), intent(in) :: wf_1(nmax)
+        complex(8), intent(in) :: wf_2(nmax)
         complex(8), intent(in) :: ak(krange)
+        complex(8), intent(in) :: bkwT(krange)
 
+        complex(8), intent(out) :: b0w
+        complex(8), allocatable, intent(out) :: bkw(:)
+      
         character(255), intent(in) :: workdir
-
-        complex(8), intent(out) :: vec_1(krange)
-        complex(8), intent(out) :: vec_k(krange)
-        complex(8), intent(out) :: vec_0
 
         ! locals
         integer :: j, k, l, ij
@@ -299,11 +230,15 @@
         real(8) :: aux1, aux2, dk, delta_kk
         complex(8) :: factor, denom
         complex(8) :: wfc_k(nmax), wfc_k_(nmax)
-        complex(8) :: dwfc_k(nmax)
+        complex(8) :: dwfc_0(nmax), dwfc_k(nmax)
         complex(8) :: pwfc_0(nmax), pwfc_k(nmax)
-        complex(8) :: wfc0_0(nmax)
+        complex(8) :: wfc0_1(nmax), wfc0_2(nmax)
+        complex(8) :: wfc_1(nmax), wfc_2(nmax)
         complex(8) :: auxc(nmax)
+        complex(8) :: vec_1(krange)
         complex(8) :: vec_2(krange)
+        complex(8) :: vec_k(krange)
+        complex(8) :: vec_0
                           
         complex(8) :: vec_sum
                                   
@@ -328,16 +263,21 @@
                                                     status="replace")
         open(newunit=unit_vec, file=trim(workdir)//"/vec_01k.dat",     &
                                                     status="replace")
+        open(newunit=unit_b0kw, file=trim(workdir)//"/b0wk.dat",       &
+                                                    status="replace")
       
+
+!       call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_1, wfc_1)
+!       call eigen_to_dvr(nmax, jacc, wx, eigvec, wf_2, wfc_2)
 
 
         ksteps_=krange-1
 
         call apply_momentum_operator(nmax, eigvec, xx, wx,        &
-                          jacc, wf0_0, auxc, 0)
+                          jacc, wf0_1, auxc, 0)
         call eigen_to_dvr(nmax, jacc, wx, eigvec, auxc, pwfc_0)
      
-        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_0, wfc0_0)
+        call eigen_to_dvr(nmax, jacc, wx, eigvec, wf0_1, wfc0_1)
 
         E0  = - 0.5d0 * kapp**2
 
@@ -355,7 +295,8 @@
            auxc_3 = 0.d0
  
            do l=1,krange
-!             if (l.eq.j) cycle
+!             if (j == l) cycle
+!             call build_wfc_k(xx, kk(l), kapp, mode_k, wfc_k_)
       
               Ekp_ = 0.5d0 * kk(l)**2
 
@@ -371,8 +312,8 @@
               pkk(l) = sum(auxc)
 
               auxc = conjg(wfc_k) * xx * wfc_k_ * wx*wx*jacc
-              dkk(l) = sum(auxc)
-              dkk(l) = -ci* ( Ek_ - Ekp_ ) * dkk(l)
+              dkk_ = sum(auxc)
+              dkk(l) = -ci* ( Ek_ - Ekp_ ) * dkk_
 
               ! *** analytical formula
               if(j.eq.l) then
@@ -394,10 +335,10 @@
               auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
               auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
 
-              write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
-                                   real(pkk(l)), imag(pkk(l)),         &
-                                   real(dkk(l)), imag(dkk(l)),         &
-                                   real(pkkk(l)), imag(pkkk(l))
+!             write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
+!                                  real(pkk(l)), imag(pkk(l)),         &
+!                                  real(dkk(l)), imag(dkk(l)),         &
+!                                  real(pkkk(l)), imag(pkkk(l))
 
 
               vec_2(l) = pkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
@@ -406,7 +347,7 @@
 
            enddo
 
-!          write(*,*) j
+           write(*,*) j
            write(unit_pkl,'(7E20.10)') kk(j),                         &
                                real(auxc_1), imag(auxc_1),             &
                                real(auxc_2), imag(auxc_2),             &
@@ -424,11 +365,11 @@
            pwfc_k = -ci*dwfc_k
 
 
-           auxc = conjg(wfc0_0) * pwfc_k * wx*wx*jacc
+           auxc = conjg(wfc0_1) * pwfc_k * wx*wx*jacc
            p0k(j) = sum(auxc)
 
 
-           auxc = conjg(wfc_k) * xx * wfc0_0 * wx*wx*jacc
+           auxc = conjg(wfc_k) * xx * wfc0_1 * wx*wx*jacc
            dk0_ = sum(auxc)
            dk0_ = -ci* ( Ek_ - E0 ) * dk0_
 
@@ -457,11 +398,17 @@
         vec_1 = pk0 * a0 / ( Ek+omega-E0 )
         vec_1 = exp(ci * ( Ek+omega-E0 ) * t_end ) * vec_1
 
+        allocate(bkw(krange))
+
+        b0w = b0wT + vec_0
+        bkw = bkwT + vec_1 +  vec_k
+
         do j=1,krange
-           write(unit_vec,'(1E20.10,*(1X,ES20.10))') kk(j),     &
-                                real(vec_0), imag(vec_0),              &
+           write(unit_vec,'(7E20.10)') kk(j), real(vec_0), imag(vec_0),&
                                 real(vec_1(j)), imag(vec_1(j)),        &
-                                real(vec_k(j)), imag(vec_k(j)), omega
+                                real(vec_k(j)), imag(vec_k(j))
+           write(unit_b0kw,'(5E20.10)') kk(j), real(b0w), imag(b0w),   &
+                                real(bkw(j)), imag(bkw(j))
         enddo
 
         vec_sum = sum(vec_1)
@@ -472,13 +419,14 @@
         close(unit_pkk)
         close(unit_pkl)
         close(unit_vec)
+        close(unit_b0kw)
       
       end subroutine
 
 
 
 
-      subroutine compute_hhg_ip(nt, time, wsteps, x_t, omg,          &
+      subroutine compute_hhg_ip(nt, time, x_t, wsteps, omg,          &
                                                hhg_1, hhg_2)
       
         implicit none
@@ -494,7 +442,6 @@
         complex(8), parameter :: ci = (0.d0, 1.d0)
         integer :: nw, i, it
         real :: w
-
 
         nw = wsteps+1
         allocate(omg(nw), hhg_1(nw), hhg_2(nw))
@@ -535,25 +482,24 @@
       end subroutine
 
 
+      subroutine compute_Qw(ksteps, kk, bkw, b0w, Qw)
+        implicit none
+        integer, intent(in) :: ksteps
+        real(8), intent(in) :: kk(ksteps+1)
+        complex(8), intent(in) :: b0w
+        complex(8), intent(in) :: bkw(ksteps+1)
+        complex(8), intent(out) :: Qw
 
-       subroutine compute_Qw(ksteps, kk, bkw, b0w, Qw)
-         implicit none
-         integer, intent(in) :: ksteps
-         real(8), intent(in) :: kk(ksteps+1)
-         complex(8), intent(in) :: b0w
-         complex(8), intent(in) :: bkw(ksteps+1)
-         complex(8), intent(out) :: Qw
- 
-         complex(8) :: sum_kw
-         complex(8) :: auxc(ksteps+1)
- 
- 
-         auxc = abs(bkw)**2
-         call integr_over_krange(ksteps, kk, auxc, sum_kw)
-         sum_kw = sum_kw / (2.d0*ppi)
-         Qw = abs(b0w)**2 + sum_kw
- 
-       end subroutine
+        complex(8) :: sum_kw
+        complex(8) :: auxc(ksteps+1)
+
+
+        auxc = abs(bkw)**2
+        call integr_over_krange(ksteps, kk, auxc, sum_kw)
+        sum_kw = sum_kw / (2.d0*ppi)
+        Qw = abs(b0w)**2 + sum_kw
+
+      end subroutine
 
 
 

@@ -2,7 +2,7 @@
       integer :: nb_points = 100
       
       logical, parameter :: do_conv_test = .false.
-      logical, parameter :: parallel = .true.
+      logical, parameter :: parallel = .false.
 
       integer, parameter :: n_threads = 3
       integer, parameter :: nsteps = 15d3
@@ -19,5 +19,4 @@
       real(8), parameter :: pfai_ = 0.0d0
 
       real(8), parameter :: omeg = 0.5d0
-      real(8), parameter :: dw_ = 0.2d0         
       real(8), parameter :: alpha= 1.d0/137

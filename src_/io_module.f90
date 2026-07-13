@@ -7,7 +7,7 @@
       !=========================================
       ! Write problem (human-readable)
       !=========================================
-      subroutine write_struct_input(filename, struct_dir,       &
+      subroutine write_structure_input(filename, struct_dir,       &
                                        nmax, snbr, nnbr,         &
                                        xmin, xmax, qq, jac)
         implicit none
@@ -38,7 +38,7 @@
       !=========================================
       ! Write problem (binary)
       !=========================================
-      subroutine write_struct_bin(filename, workdir,            &
+      subroutine write_structure_bin(filename, workdir,            &
                                   nmax, snbr, nnbr,         &
                                   xmin, xmax, qq, jac,      &
                                   xx, wx)
@@ -68,7 +68,7 @@
       !=========================================
       ! Read problem (binary)
       !=========================================
-      subroutine read_struct_bin(filename, struct_dir,         &
+      subroutine read_structure_bin(filename, struct_dir,         &
                                      nmax, snbr, nnbr,          &
                                      xmin, xmax, qq, jac,       &
                                      xx, wx)
@@ -105,19 +105,17 @@
                                  t_end, t_ini, nsteps, dt,             &
                                  noc, ntau, src_type,                  &
                                  nch, omg_max, omg_min,                &
-                                 dw, run,                       &
+                                 wstep, run,                           &
                                  order)
 
 
         implicit none
         character(*), intent(in) :: filename, struct_dir, dyn_dir
-        integer, intent(in) :: noc, ntau, nsteps
-        integer, intent(in) :: nch, run
+        integer, intent(in) :: noc, ntau, nsteps, nch, run
         integer, intent(in) :: order, src_type
         real(8), intent(in) :: f0, omega0, pfai
         real(8), intent(in) :: t_end, t_ini, dt
-        real(8), intent(in) :: omg_max, omg_min
-        real(8), intent(in) :: dw
+        real(8), intent(in) :: omg_max, omg_min, wstep
 
       
         integer :: unit
@@ -139,7 +137,7 @@
         write(unit,*) "nchan     =", nch
         write(unit,*) "omg_max   =", omg_max
         write(unit,*) "omg_min   =", omg_min
-        write(unit,*) "dw(nchan) =", dw
+        write(unit,*) "wstep     =", wstep
         write(unit,*) 
         write(unit,*) "order     =", order
         write(unit,*) 
@@ -156,17 +154,15 @@
                                  t_end, t_ini, nsteps, dt0,            &
                                  noc, ntau, src_type,                  &
                                  nch, omg_max, omg_min,                &
-                                 dw, omega, run,                &
+                                 wstep, omega, run,                    &
                                  order)
 
         implicit none
         character(*), intent(in) :: filename, workdir, struct_dir
-        integer, intent(in) :: noc, ntau, nsteps
-        integer, intent(in) :: nch, run
+        integer, intent(in) :: noc, ntau, nsteps, nch, run
         integer, intent(in) :: order, src_type
         real(8), intent(in) :: f0, omega0, pfai
-        real(8), intent(in) :: omg_max, omg_min
-        real(8), intent(in) :: dw
+        real(8), intent(in) :: omg_max, omg_min, wstep
         real(8), intent(in) :: t_end, t_ini, dt0
         real(8), intent(in) :: omega(nch)
       
@@ -185,8 +181,7 @@
         write(unit) src_type
 
         write(unit) nch, run
-        write(unit) omg_max, omg_min
-        write(unit) dw
+        write(unit) omg_max, omg_min, wstep
         write(unit) omega
 
         write(unit) order
@@ -204,7 +199,7 @@
                                  t_end, t_ini, nsteps, dt0,           &
                                  noc, ntau, src_type,                 &
                                  nch, omg_max, omg_min,                &
-                                 dw, omega, run,                &
+                                 wstep, omega, run,                    &
                                  order)
       
         implicit none
@@ -216,8 +211,7 @@
         integer, intent(out) :: nsteps, noc, ntau, nch, run
         integer, intent(out) :: order, src_type
         real(8), intent(out) :: f0, omega0, pfai
-        real(8), intent(out) :: omg_max, omg_min
-        real(8), intent(out) :: dw
+        real(8), intent(out) :: omg_max, omg_min, wstep
         real(8), allocatable, intent(out) :: omega(:)
         real(8), intent(out) :: t_end, t_ini, dt0
       
@@ -242,8 +236,7 @@
 
         read(unit) nch, run
 
-        read(unit) omg_max, omg_min
-        read(unit) dw
+        read(unit) omg_max, omg_min, wstep
         allocate(omega(nch))
         read(unit) omega
 

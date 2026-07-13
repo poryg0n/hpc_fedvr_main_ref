@@ -29,7 +29,7 @@
         real(8), public :: omg_start
         real(8), public :: omg_end
 
-        real(8), public :: dw
+        real(8), public :: wstep
         real(8), public :: wrange
 
         integer, public :: order
@@ -61,13 +61,13 @@
 
 
         subroutine init_src(src_type_, nch_,                          &
-                                omg_1, omg_0, dw_, run_)
+                                omg_1, omg_0, wstep_, run_)
   
            integer, intent(in) :: src_type_
            integer, intent(in) :: run_
            integer, intent(in) :: nch_
            real(8), intent(in) :: omg_1, omg_0
-           real(8), intent(in) :: dw_
+           real(8), intent(in) :: wstep_
            integer :: need 
 
   
@@ -75,15 +75,15 @@
            nch = nch_
            omg_min = omg_0
            omg_max = omg_1
-           dw = dw_
+           wstep = wstep_
            run = run_
 
-           omg_start = omg_min + (run-1) * dw * nch  
-           omg_end = omg_min + (run) * dw * nch  
+           omg_start = omg_min + (run-1) * wstep * nch  
+           omg_end = omg_min + (run) * wstep * nch  
 
            wrange = (omg_max-omg_min)
   
-           need = ceiling(wrange/(dw*(nch-1)))
+           need = ceiling(wrange/(wstep*(nch-1)))
 
         end subroutine
 
