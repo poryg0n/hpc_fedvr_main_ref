@@ -742,6 +742,36 @@
       end subroutine
 
 
+      subroutine write_b0w_and_bkw(filename, nch, krange, kk, omega,   &
+                                                 b0w, bkw, b0wT, bkwT)
+      
+        implicit none
+        character(*), intent(in) :: filename
+        integer, intent(in) :: nch, krange
+        real(8), intent(in) :: omega(nch), kk(krange)
+        complex(8), intent(in) :: b0w(nch), b0wT(nch)
+        complex(8), intent(in) :: bkw(krange, nch), bkwT(krange, nch)
+      
+        integer :: j, w, unit1, unit2
+      
+        open(newunit=unit1, file=filename//'_b0w.dat', status='replace')
+        open(newunit=unit2, file=filename//'_bkw.dat', status='replace')
+
+        do w=1, nch
+           write(unit1,'(I8,1x,*(ES20.10))') w, omega(w), b0w(w), b0wT(w)
+           do j=1,krange
+              write(unit2,'(I8,1x,*(ES20.10))') j, kk(j), omega(w),     &
+                                                   bkw(j,w), bkwT(j,w)
+           enddo
+        enddo
+      
+        close(unit1)
+        close(unit2)
+      
+      end subroutine
+
+
+
       subroutine write_Qw(filename, nch, omega, Qw)
       
         implicit none

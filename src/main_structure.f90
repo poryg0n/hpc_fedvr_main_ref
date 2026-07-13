@@ -131,7 +131,7 @@
 
       call write_eigval_bin(trim(workdir)//"eigval.bin", nmax, eigval)
       call write_eigvec_bin(trim(workdir)//"eigvec.bin", nmax, eigvec)
-      call write_struct_bin(trim(workdir)//"structure.bin",       &
+      call write_struct_bin(trim(workdir)//"struct.bin",       &
                                     workdir, nmax, snbr, nnbr,   &
                                     xmin, xmax, q, jac, xx, wx)
 
