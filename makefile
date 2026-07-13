@@ -45,14 +45,14 @@ CORE_OBJS = \
        conv_tests.o
 
 # --- Executables ---
-STRUCTURE_EXE = structure
+STRUCT_EXE = struct
 CDYN_EXE     = cdyn
 EXPLOIT_EXE   = exploit
 
 all: $(STRUCTURE_EXE)
 
 # --- Structure build ---
-$(STRUCTURE_EXE): $(CORE_OBJS) main_structure.o
+$(STRUCT_EXE): $(CORE_OBJS) main_structure.o
 	$(FC) $^ -o $@ $(LAPACK)
 
 # --- Future ---
@@ -74,4 +74,4 @@ $(EXPLOIT_EXE): $(CORE_OBJS) main_exploit.o
 
 .PHONY: clean
 clean:
-	rm -f *.o *.d *.mod fort.* $(STRUCTURE_EXE) $(CDYN_EXE)  $(EXPLOIT_EXE)
+	rm -f *.o *.d *.mod fort.* $(STRUCT_EXE) $(CDYN_EXE)  $(EXPLOIT_EXE)
