@@ -105,6 +105,7 @@
                                  t_end, t_ini, nsteps, dt,             &
                                  noc, ntau, src_type,                  &
                                  nch, omg_max, omg_min,                &
+                                 omg_end, omg_start,                &
                                  dw, run,                       &
                                  order)
 
@@ -117,6 +118,7 @@
         real(8), intent(in) :: f0, omega0, pfai
         real(8), intent(in) :: t_end, t_ini, dt
         real(8), intent(in) :: omg_max, omg_min
+        real(8), intent(in) :: omg_end, omg_start
         real(8), intent(in) :: dw
 
       
@@ -137,9 +139,13 @@
         write(unit,*) "src_type  =", src_type
         write(unit,*) 
         write(unit,*) "nchan     =", nch
+        write(unit,*) "dw(nchan) =", dw
         write(unit,*) "omg_max   =", omg_max
         write(unit,*) "omg_min   =", omg_min
-        write(unit,*) "dw(nchan) =", dw
+        write(unit,*) 
+        write(unit,*) "run         =", run
+        write(unit,*) "omg_start   =", omg_start
+        write(unit,*) "omg_end     =", omg_end
         write(unit,*) 
         write(unit,*) "order     =", order
         write(unit,*) 
