@@ -16,7 +16,7 @@ set datafile commentschars "#"
 set output outfile."_b0w_b0wT.png"
 set title "Momentum spectrum"
 set xlabel "{/Symbol w} (a.u.)"
-set ylabel "|b_{0{/Symbol w}}|^2"
+set ylabel "b_{0{/Symbol w}}"
 #set xrange [-1.6:1.6]
 
 set grid
@@ -41,11 +41,13 @@ set ylabel "b_{k{/Symbol w}}"
 plot \
     datafolder."components_bkw.dat" using 2:($5) pt 6 dt (10,5) lw 2 lc 6 title "Re(b_{k{/Symbol w}})", \
     datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
-    datafolder."components_bkw.dat" using 2:($8) pt 3 dt (10,5) lw 1 lc 8 title "|b_{k{/Symbol w}}|**2"
+    datafolder."components_bkw.dat" using 2:($8) pt 3 dt (10,5) lw 1 lc 8 title "|b_{k{/Symbol w}}|"
 
 
 set output outfile."_hhg_b0w.png"
-set yrange [1e-8:1e-4]
+set ylabel "|b_{0{/Symbol w}}|^2"
+set xlabel "{/Symbol w} (a.u.)"
+unset yrange
 plot \
     datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_0{/Symbol w}|", \
     datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_0{/Symbol w}(T)|"
