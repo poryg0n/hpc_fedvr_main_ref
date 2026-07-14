@@ -45,6 +45,7 @@ plot \
 
 
 set output outfile."_hhg_b0w.png"
+set yrange [1e-8:1e-4]
 plot \
     datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_0{/Symbol w}|", \
     datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_0{/Symbol w}(T)|"
