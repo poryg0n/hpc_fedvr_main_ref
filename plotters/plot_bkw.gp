@@ -6,6 +6,7 @@ outfile  = ARG2
 #mode     = int(ARG3)
 
 set format y "%.0s * 10^{%T}"
+unset format
 
 set terminal pngcairo size 1000,700
 set size ratio  0.3182 1,1
