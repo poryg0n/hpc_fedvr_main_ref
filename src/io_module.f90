@@ -765,13 +765,13 @@
 
         do w=1, nch
            write(unit1,'(I8,1x,E20.10,*(1x,ES20.10))') w, omega(w),    &
-                                               b0w(w), b0wT(w),        &
-                                               abs(b0w(w)), abs(b0wT(w))
+                                           b0w(w), b0wT(w),            &
+                                           abs(b0w(w)), abs(b0wT(w))
            do j=1,krange
               write(unit2,'(I8,1x,E20.10,*(1x,ES20.10))') j,           &
-                                          kk(j), omega(w),             &
-                                          bkw(j,w), bkwT(j,w),         &
-                                          abs(bkw(j,w)), abs(bkwT(j,w))
+                                       kk(j), omega(w),                &
+                                       bkw(j,w), bkwT(j,w),            &
+                                       abs(bkw(j,w)), abs(bkwT(j,w))
            enddo
         enddo
       
