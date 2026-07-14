@@ -1,29 +1,50 @@
 # Usage:
-# gnuplot -c plot_bkw.gp datafile outputfile
+# gnuplot -c plot_bkw.gp datafile outfile
 
-datafile = ARG1
+datafolder = ARG1
 outfile  = ARG2
 #mode     = int(ARG3)
 
-set format y "10^{%L}";
+set format y "%.0s * 10^{%T}"
 
 set terminal pngcairo size 1000,700
 set size ratio  0.3182 1,1
 
-set output outfile
 
 set datafile commentschars "#"
 
-
+set output outfile."_b0w_b0wT.png"
 set title "Momentum spectrum"
-set xlabel "k (a.u.)"
-set ylabel "|b_{k{/Symbol w}}|^2"
-set xrange [-1.6:1.6]
+set xlabel "{/Symbol w} (a.u.)"
+set ylabel "|b_{0{/Symbol w}}|^2"
+#set xrange [-1.6:1.6]
 
 set grid
 
-set logscale y
-set format y "10^{%L}"
 
 plot \
-    datafile using 1:(($2)**2 + ($3)**2) w l lw 2 title "|b_k{/Symbol w}|^2"
+    datafolder."components_b0w.dat" using 2:(($3)) pt 6 dt (10,5) lc 6 lw 2 title "Re(b_0{/Symbol w})", \
+    datafolder."components_b0w.dat" using 2:(($4)) pt 6 dt (10,5) lc 2 lw 2 title "Im(b_0{/Symbol w})", \
+    datafolder."components_b0w.dat" using 2:(($5)) pt 6 dt (10,5) lc 4 lw 2 title "Re(b_0{/Symbol w})(T)", \
+    datafolder."components_b0w.dat" using 2:(($6)) pt 6 dt (10,5) lc 5 lw 2 title "Im(b_0{/Symbol w})(T)", \
+    datafolder."components_b0w.dat" using 2:(($7)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_0{/Symbol w}|", \
+    datafolder."components_b0w.dat" using 2:(($8)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_0{/Symbol w}(T)|"
+
+
+set output outfile."_bkw_bkwT.png"
+set title "Momentum spectrum"
+set xlabel "k (a.u.)"
+set ylabel "b_{k{/Symbol w}}"
+#set xrange [-1.6:1.6]
+
+
+plot \
+    datafolder."components_bkw.dat" using 2:($5) pt 6 dt (10,5) lw 2 lc 6 title "Re(b_{k{/Symbol w}})", \
+    datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
+    datafolder."components_bkw.dat" using 2:($8) pt 3 dt (10,5) lw 1 lc 8 title "|b_{k{/Symbol w}}|**2"
+
+
+set output outfile."_hhg_b0w.png"
+plot \
+    datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_0{/Symbol w}|", \
+    datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_0{/Symbol w}(T)|"
