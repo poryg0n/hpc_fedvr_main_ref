@@ -14,6 +14,29 @@ set size ratio  0.3182 1,1
 
 set datafile commentschars "#"
 
+
+set output outfile."_bkw_bkwT.png"
+set title "Momentum spectrum"
+set xlabel "k (a.u.)"
+set ylabel "b_{k{/Symbol w}}"
+#set xrange [-1.6:1.6]
+
+
+plot \
+    datafolder."components_bkw.dat" using 2:($5) pt 6 dt (10,5) lw 2 lc 6 title "Re(b_{k{/Symbol w}})", \
+    datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
+
+
+set output outfile."_hhg_bkw.png"
+set title ""
+set xlabel "k (a.u.)"
+set ylabel "b_{k{/Symbol w}}"
+#set xrange [-1.6:1.6]
+
+plot \
+    datafolder."components_bkw.dat" using 2:($3) pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
+    datafolder."components_bkw.dat" using 2:($5) pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
+
 set output outfile."_b0w_b0wT.png"
 set title "Momentum spectrum"
 set xlabel "{/Symbol w} (a.u.)"
@@ -31,16 +54,6 @@ plot \
     datafolder."components_b0w.dat" using 2:(($6)) with linesp pt 6 dt (10,9) lc 5 lw 2 title "Im(b_0{/Symbol w}(T))"
 
 
-set output outfile."_bkw_bkwT.png"
-set title "Momentum spectrum"
-set xlabel "k (a.u.)"
-set ylabel "b_{k{/Symbol w}}"
-#set xrange [-1.6:1.6]
-
-
-plot \
-    datafolder."components_bkw.dat" using 2:($5) pt 6 dt (10,5) lw 2 lc 6 title "Re(b_{k{/Symbol w}})", \
-    datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
 
 
 set format y "%2.0t{/Symbol \264} 10^{%L}"
@@ -61,13 +74,3 @@ plot \
 
 
 
-set output outfile."_hhg_bkw.png"
-set title ""
-set xlabel "k (a.u.)"
-set ylabel "b_{k{/Symbol w}}"
-#set xrange [-1.6:1.6]
-
-
-plot \
-    datafolder."components_bkw.dat" using 2:($3) pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
-    datafolder."components_bkw.dat" using 2:($5) pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
