@@ -36,7 +36,7 @@ set ytics  1.e-6, 1.e-3, 1.e3
 #unset format y
 
 set output outfile2
-set ylabel 'Amplitudes' font ', 15' enhanced
+set ylabel 'P(k)' font ', 15' enhanced
 set key top center
 
     plot datafile.'/pemd.dat' using 1:($2*10**3) with lines lw 2 lc 8 title '|a_k|^2', \
