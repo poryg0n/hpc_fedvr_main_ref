@@ -5,7 +5,8 @@ datafolder = ARG1
 outfile  = ARG2
 #mode     = int(ARG3)
 
-#set format y "%.0s * 10^{%L}"
+set format y "%2.0t{/Symbol \264} 10^{%L}"
+set format y "10^{%L}"
 #unset format
 
 set terminal pngcairo size 1000,700
