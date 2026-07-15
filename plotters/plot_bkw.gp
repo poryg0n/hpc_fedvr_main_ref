@@ -75,7 +75,7 @@ set log y
 plot \
     datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_{0{/Symbol w}}(T)|^2", \
     datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_{0{/Symbol w}}|^2", \
-    datafolder."Qomega.dat" using 2:(3) with linesp pt 6 dt (10,5) lc 6 lw 2 title "|b_{0{/Symbol w}}|^2", \
+    datafolder."Qomega.dat" using 2:(3) with linesp pt 6 dt (10,5) lc 6 lw 2 title "Q({/Symbol w})", \
     datafolder."/hhg.dat" using 1:3 with lines lw 2 title "C-HHG"
 
 
