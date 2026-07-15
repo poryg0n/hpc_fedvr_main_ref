@@ -34,8 +34,8 @@ set ylabel "{/Symbol \362}|b_{k{/Symbol w}}|dk/(2pi)"
 #set xrange [-1.6:1.6]
 
 plot \
-    datafolder."components_bkw2dk.dat" using 2:($3) pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
-    datafolder."components_bkw2dk.dat" using 2:($5) pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
+    datafolder."components_bkw2dk.dat" using 2:($3) withy linesp pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
+    datafolder."components_bkw2dk.dat" using 2:($5) withy linesp pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
 
 
 
