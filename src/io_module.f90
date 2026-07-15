@@ -785,7 +785,7 @@
               enddo
            end if
            veck = abs(bkw(:,w))**2
-           call integr_over_krange(ksteps_, kk, veck, vec_w(j))
+           call integr_over_krange(ksteps_, kk, veck, vec_w(w))
            write(unit3,'(I8,1x,E20.10,*(1x,ES20.10))') w,        &
                                           omega(w),             &
                                           vec_w(w)
