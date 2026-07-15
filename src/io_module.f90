@@ -761,9 +761,11 @@
       
         integer :: j, w, unit1, unit2, unit3
         integer :: ksteps_
-        complex(8) :: veck(krange), vec_w(nch)
+        real(8) :: ppi
+        complex(8) :: veck(krange), vec_w(nch), vec_wT(nch)
 
         ksteps_ = krange-1
+        ppi = 4.d0*datan(1.d0)
       
         open(newunit=unit1, file=filename//'_b0w.dat', status='replace')
         open(newunit=unit2, file=filename//'_bkw.dat', status='replace')
@@ -784,10 +786,15 @@
 
               enddo
            end if
+           veck = abs(bkwT(:,w))**2
+           call integr_over_krange(ksteps_, kk, veck, vec_wT(w))
            veck = abs(bkw(:,w))**2
            call integr_over_krange(ksteps_, kk, veck, vec_w(w))
+           vec_wT(w) = vec_wT(w)/(2.d0*ppi)
+           vec_w(w) = vec_w(w)/(2.d0*ppi)
            write(unit3,'(I8,1x,E20.10,*(1x,ES20.10))') w,        &
                                           omega(w),             &
+                                          vec_wT(w),             &
                                           vec_w(w)
         enddo
       

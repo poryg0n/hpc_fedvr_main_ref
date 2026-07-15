@@ -62,12 +62,12 @@ plot \
 
 
 set output outfile."_hhg_bkw.png"
-set title "Momentum spectrum"
+set title ""
 set xlabel "k (a.u.)"
 set ylabel "b_{k{/Symbol w}}"
 #set xrange [-1.6:1.6]
 
 
 plot \
-    datafolder."components_bkw.dat" using 2:($5) pt 6 dt (10,5) lw 2 lc 6 title "Re(b_{k{/Symbol w}})", \
-    datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
+    datafolder."components_bkw.dat" using 2:($3) pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
+    datafolder."components_bkw.dat" using 2:($5) pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
