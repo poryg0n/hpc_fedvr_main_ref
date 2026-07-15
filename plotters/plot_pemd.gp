@@ -5,7 +5,6 @@ datafile = ARG1
 outfile1  = ARG2
 outfile2  = ARG3
 outfile3  = ARG4
-logscale = int(ARG5)
 
 set terminal pngcairo size 1000,700
 set output outfile1
@@ -25,12 +24,7 @@ set ytics  1.e-9, 1.e-2, 1.e-2
 set xtics -1.0, .5, 1.0
 
 
-if (logscale == 1) {
-    set log y
     plot datafile.'/pemd.dat' using 1:2 with lines lw 2 lc 8 title 'P(k)'
-} else {
-    plot datafile.'/pemd.dat' using 1:2 with lines lw 2 title 'P(k)'
-}
 
 
 set output outfile2
@@ -40,12 +34,8 @@ set ytics  1.e-6, 1.e-3, 1.e3
 #unset ytics
 #unset format y
 
-if (logscale == 1) {
     set log y
     plot datafile.'/pemd.dat' using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2', \
-} else {
-    plot datafile.'/pemd.dat' using 1:3 with lines lw 2 title '|b_{kw}(T)|^2'
-}
 
 
 #set output outfile3
