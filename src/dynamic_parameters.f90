@@ -177,8 +177,8 @@
            print*, "omg_max       = ", omg_max
            print*, "omg_min       = ", omg_min
            print*, "             "
-           print*, "omg_start     = ", omg_start
            print*, "omg_end       = ", omg_end
+           print*, "omg_start     = ", omg_start
            print*, "             "
            print*, "run           = ", run
            print*, "             "
