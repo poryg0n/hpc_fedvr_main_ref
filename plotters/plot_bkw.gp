@@ -15,10 +15,10 @@ set datafile commentschars "#"
 
 
 set output outfile."_bkw_bkwT.png"
-set title "Momentum spectrum"
+set title "b_{k{/Symbol w}} amplitude"
 set xlabel "k (a.u.)"
 set ylabel "b_{k{/Symbol w}}"
-set xrange [-1.6:1.6]
+set xrange [-1.61:1.61]
 
 
 plot \
@@ -33,7 +33,7 @@ set title ""
 set xlabel "{/Symbol w} (a.u.)"
 set ylabel "{/Symbol \362}|b_{k{/Symbol w}}|^2dk/(2pi)"
 set log y
-#set xrange [-1.6:1.6]
+unset xrange
 
 plot \
     datafolder."components_bkw2dk.dat" using 2:($3) with linesp pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}}(T)|^2", \
