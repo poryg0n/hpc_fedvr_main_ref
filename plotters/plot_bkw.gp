@@ -50,5 +50,5 @@ set xlabel "{/Symbol w} (a.u.)"
 unset yrange
 set log y
 plot \
-    datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_{0{/Symbol w}}|", \
-    datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_{k{/Symbol w}}(T)|"
+    datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_{0{/Symbol w}}|^2", \
+    datafolder."components_b0w.dat" using 2:(($8**2)) with linesp pt 6 dt (10,5) lc 8 lw 2 title "|b_{0{/Symbol w}}(T)|^2"

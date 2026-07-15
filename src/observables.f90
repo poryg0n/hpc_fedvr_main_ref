@@ -465,7 +465,8 @@
         enddo
 
         vec_sum = sum(vec_1)
-        write(*,*) "The sum for vec_1 is ", vec_sum
+!       write(*,*) "The sum for vec_1 is ", vec_sum
+        write(*,*) "vec_0 is ", vec_0
 
 
         close(unit_pk0)
