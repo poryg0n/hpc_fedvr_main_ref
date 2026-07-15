@@ -43,14 +43,14 @@ plot \
 
 
 set output outfile."_b0w_b0wT.png"
-set title "b_{0{/Symbol w} amplitude} (log)"
 set xlabel "{/Symbol w} (a.u.)"
 set ylabel "b_{0{/Symbol w}}"
+set title "b_{0{/Symbol w} amplitude} (log)"
 #set xrange [-1.6:1.6]
 
 set grid
-set key left 
-
+set key right
+unset log y
 
 plot \
     datafolder."components_b0w.dat" using 2:(($3)) with linesp pt 6 dt (10,2) lc 8 lw 2 title "Re(b_0{/Symbol w})", \
@@ -66,7 +66,9 @@ set format y "10^{%L}"
 set output outfile."_hhg_b0w.png"
 set ylabel "|b_{0{/Symbol w}}|^2"
 set xlabel "{/Symbol w} (a.u.)"
+set title "Q-HHG vs C-HHG"
 unset yrange
+set key right
 set xtics .5, .1, 1.1
 set ytics 1.e-13, 1.e-2, 1.e2
 set log y
