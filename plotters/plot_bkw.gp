@@ -44,10 +44,13 @@ plot \
 
 
 set format y "%2.0t{/Symbol \264} 10^{%L}"
+set format y "10^{%L}"
 set output outfile."_hhg_b0w.png"
 set ylabel "|b_{0{/Symbol w}}|^2"
 set xlabel "{/Symbol w} (a.u.)"
 unset yrange
+set xtics .5, .1, 1.1
+set ytics 1.e-13, 1.e-2, 1.e2
 set log y
 plot \
     datafolder."components_b0w.dat" using 2:(($7**2)) with linesp pt 6 dt (10,5) lc 7 lw 2 title "|b_{0{/Symbol w}}|^2", \
