@@ -1,5 +1,6 @@
       module io_module
         use space_time_ops
+        use math_util
         implicit none
       contains
 
@@ -758,10 +759,16 @@
         complex(8), intent(in) :: b0w(nch), b0wT(nch)
         complex(8), intent(in) :: bkw(krange, nch), bkwT(krange, nch)
       
-        integer :: j, w, unit1, unit2
+        integer :: j, w, unit1, unit2, unit3
+        integer :: ksteps_
+        complex(8) :: veck(krange), vec_w(nch)
+
+        ksteps_ = krange-1
       
         open(newunit=unit1, file=filename//'_b0w.dat', status='replace')
         open(newunit=unit2, file=filename//'_bkw.dat', status='replace')
+        open(newunit=unit3, file=filename//'_bkw2dk.dat',              &
+                                               status='replace')
 
         do w=1, nch
            write(unit1,'(I8,1x,E20.10,*(1x,ES20.10))') w, omega(w),    &
@@ -773,8 +780,15 @@
                                           kk(j), omega(w),             &
                                           bkw(j,w), bkwT(j,w),         &
                                           abs(bkw(j,w)), abs(bkwT(j,w))
+
+
               enddo
            end if
+           veck = abs(bkw(:,w))**2
+           call integr_over_krange(ksteps_, kk, veck, vec_w(j))
+           write(unit3,'(I8,1x,E20.10,*(1x,ES20.10))') w,        &
+                                          omega(w),             &
+                                          vec_w(w)
         enddo
       
         close(unit1)
