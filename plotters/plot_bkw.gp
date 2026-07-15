@@ -32,8 +32,8 @@ set output outfile."_hhg_bkw.png"
 set title "Q-HHG integral term"
 set xlabel "{/Symbol w} (a.u.)"
 set ylabel "{/Symbol \362}|b_{k{/Symbol w}}|^2dk/(2pi)"
-set log y
 unset xrange
+unset log y
 
 plot \
     datafolder."components_bkw2dk.dat" using 2:($3) with linesp pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}}(T)|^2", \
@@ -50,7 +50,7 @@ set title "b_{0{/Symbol w} amplitude} (log)"
 
 set grid
 set key right
-unset log y
+set log y
 
 plot \
     datafolder."components_b0w.dat" using 2:(($3)) with linesp pt 6 dt (10,2) lc 8 lw 2 title "Re(b_0{/Symbol w})", \
