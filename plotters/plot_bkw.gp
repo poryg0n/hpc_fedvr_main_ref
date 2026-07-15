@@ -29,12 +29,13 @@ plot \
 
 set output outfile."_hhg_bkw.png"
 set title ""
-set xlabel "k (a.u.)"
-set ylabel "{/Symbol \362}|b_{k{/Symbol w}}|dk/(2pi)"
+set xlabel "{/Symbol w} (a.u.)"
+set ylabel "{/Symbol \362}|b_{k{/Symbol w}}|^2dk/(2pi)"
+set log y
 #set xrange [-1.6:1.6]
 
 plot \
-    datafolder."components_bkw2dk.dat" using 2:($3) with linesp pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}(T)}|^2", \
+    datafolder."components_bkw2dk.dat" using 2:($3) with linesp pt 6 dt (10,5) lw 2 lc 6 title "|b_{k{/Symbol w}}(T)|^2", \
     datafolder."components_bkw2dk.dat" using 2:($5) with linesp pt 4 dt (10,5) lw 1 lc 2 title "|b_{k{/Symbol w}}|^2", \
 
 
