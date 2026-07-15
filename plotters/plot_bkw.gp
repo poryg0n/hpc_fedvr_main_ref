@@ -43,9 +43,10 @@ plot \
 
 
 set output outfile."_b0w_b0wT.png"
-set title "Momentum spectrum"
+set title "b_{0{/Symbol w} amplitude} (log)"
 set xlabel "{/Symbol w} (a.u.)"
 set ylabel "b_{0{/Symbol w}}"
+set title "Q-HHG vs C-HHG"
 #set xrange [-1.6:1.6]
 
 set grid
@@ -66,6 +67,7 @@ set format y "10^{%L}"
 set output outfile."_hhg_b0w.png"
 set ylabel "|b_{0{/Symbol w}}|^2"
 set xlabel "{/Symbol w} (a.u.)"
+set title "Q-HHG integral term"
 unset yrange
 set xtics .5, .1, 1.1
 set ytics 1.e-13, 1.e-2, 1.e2
