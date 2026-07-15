@@ -34,12 +34,9 @@ set ytics  1.e-6, 1.e-3, 1.e3
 #unset ytics
 #unset format y
 
-    set log y
-    plot datafile.'/pemd.dat' using 1:($3) with lines lw 2 lc 8 title '|b_{kw}(T)|^2', \
+set output outfile2
+set ylabel 'Amplitudes' font ', 15' enhanced
+set log y
 
-
-#set output outfile3
-#set ylabel 'Amplitudes' font ', 15' enhanced
-#
-#    plot datafile.'/pemd.dat' using 1:($3*10**4) with lines lw 2 lc 8 title 'Re{a_k}', \
-#         datafile.'/pemd.dat' using 1:($3) with lines lw 2 lc 6 title 'Re{b_{kw}(T)}'
+    plot datafile.'/pemd.dat' using 1:($2) with lines lw 2 lc 8 title 'Re{a_k}', \
+         datafile.'/pemd.dat' using 1:($3) with lines lw 2 lc 6 title 'Re{b_{kw}(T)}'
