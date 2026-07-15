@@ -5,8 +5,6 @@ datafolder = ARG1
 outfile  = ARG2
 #mode     = int(ARG3)
 
-set format y "%2.0t{/Symbol \264} 10^{%L}"
-set format y "10^{%L}"
 #unset format
 
 set terminal pngcairo size 1000,700
@@ -20,7 +18,7 @@ set output outfile."_bkw_bkwT.png"
 set title "Momentum spectrum"
 set xlabel "k (a.u.)"
 set ylabel "b_{k{/Symbol w}}"
-#set xrange [-1.6:1.6]
+set xrange [-1.6:1.6]
 
 
 plot \
@@ -28,6 +26,8 @@ plot \
     datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
 
 
+set format y "%2.0t{/Symbol \264} 10^{%L}"
+set format y "10^{%L}"
 set output outfile."_hhg_bkw.png"
 set title ""
 set xlabel "{/Symbol w} (a.u.)"
