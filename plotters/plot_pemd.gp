@@ -14,6 +14,7 @@ set ylabel 'P(k)' font ', 15' enhanced
 set title 'Photoelectron Momentum Distribution (PEMD)' font ",16" enhanced
 
 set format y "10^{%L}";
+set log y
 
 set grid
 set size ratio 0.3182 1,1
@@ -36,7 +37,6 @@ set ytics  1.e-6, 1.e-3, 1.e3
 
 set output outfile2
 set ylabel 'Amplitudes' font ', 15' enhanced
-set log y
 
-    plot datafile.'/pemd.dat' using 1:($2) with lines lw 2 lc 8 title 'Re{a_k}', \
+    plot datafile.'/pemd.dat' using 1:($2*10**4) with lines lw 2 lc 8 title 'Re{a_k}', \
          datafile.'/pemd.dat' using 1:($3) with lines lw 2 lc 6 title 'Re{b_{kw}(T)}'
