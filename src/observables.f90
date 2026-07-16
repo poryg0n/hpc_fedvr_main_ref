@@ -400,7 +400,7 @@
                                    real(p_kk_a(l)), imag(p_kk_a(l))
 
 
-              vec_2(l) = dkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
+              vec_2(l) = p_kk_a(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
               vec_2(l) = exp(ci*( Ek_+omega-Ekp_ ) * t_end ) * vec_2(l)
 
 
