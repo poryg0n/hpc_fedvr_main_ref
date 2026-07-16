@@ -316,7 +316,7 @@
         complex(8) :: pk0_, p0k_, pkk_
         complex(8) :: auxc_1, auxc_2, auxc_3
         complex(8) :: pk0(krange), p0k(krange), pkk(krange)
-        complex(8) :: pkkk(krange), dkk(krange)
+        complex(8) :: p_kk_a(krange), dkk(krange)
 
         integer :: unit_pk0, unit_pkk, unit_pkl, unit_vec, unit_b0kw
 
@@ -386,21 +386,21 @@
                       -  kk(j)*abs(kk(l)) / (abs(kk(l)) +ci*kapp) )
 
 
-              pkkk(l) = 2.d0*ppi*kk(j) * delta_kk                      &
+              p_kk_a(l) = 2.d0*ppi*kk(j) * delta_kk                      &
                                    - 2.d0 * kapp * factor/denom
      
 
               auxc_1 = auxc_1 + pkk(l) * ak(l) * dk0
               auxc_2 = auxc_2 + dkk(l) * ak(l) * dk0
-              auxc_3 = auxc_3 + pkkk(l) * ak(l) * dk0
+              auxc_3 = auxc_3 + p_kk_a(l) * ak(l) * dk0
 
               write(unit_pkk, '(8E20.10)') kk(j), kk(l),               &
                                    real(pkk(l)), imag(pkk(l)),         &
                                    real(dkk(l)), imag(dkk(l)),         &
-                                   real(pkkk(l)), imag(pkkk(l))
+                                   real(p_kk_a(l)), imag(p_kk_a(l))
 
 
-              vec_2(l) = pkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
+              vec_2(l) = dkk(l) * ak(l) / ( Ek_+omega-Ekp_ + ci*eta )
               vec_2(l) = exp(ci*( Ek_+omega-Ekp_ ) * t_end ) * vec_2(l)
 
 
