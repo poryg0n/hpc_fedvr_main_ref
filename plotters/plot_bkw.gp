@@ -26,8 +26,6 @@ plot \
     datafolder."components_bkw.dat" using 2:($6) pt 4 dt (10,5) lw 1 lc 2 title "Im(b_{k{/Symbol w}})", \
 
 
-set format y "%2.0t{/Symbol \264} 10^{%L}"
-set format y "10^{%L}"
 set output outfile."_hhg_bkw.png"
 set title "Q-HHG integral term"
 set xlabel "{/Symbol w} (a.u.)"
@@ -45,6 +43,8 @@ plot \
 set output outfile."_b0w_b0wT.png"
 set xlabel "{/Symbol w} (a.u.)"
 set ylabel "b_{0{/Symbol w}}"
+set format y "%2.0t{/Symbol \264} 10^{%L}"
+set format y "10^{%L}"
 set title "b_{0{/Symbol w} amplitude} (log)"
 #set xrange [-1.6:1.6]
 
