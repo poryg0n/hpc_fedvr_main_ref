@@ -47,8 +47,7 @@ set output outfile."_pkkak_2.png"
 set ylabel 'C^{/Symbol w}_{k0} p_{k0}a_0' font ', 15' enhanced
 set title 'Non integral term in b_{k{/Symbol w}}' font ",16" enhanced
 
-set format y "10^{%L}";
-
+unset format
 set grid
 set size ratio 0.3182 1,1
 set key left top
