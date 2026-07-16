@@ -47,15 +47,15 @@ set output outfile."_pkkak_2.png"
 set ylabel 'C^{/Symbol w}_{k0} p_{k0}a_0' font ', 15' enhanced
 set title 'Non integral term in b_{k{/Symbol w}}' font ",16" enhanced
 
+unset log y
 unset format
 set grid
 set size ratio 0.3182 1,1
 set key left top
 #set xrange [-1.33:1.33]
-set yrange [-1.e-6 : 1.e-2]
 #set ytics  1.e-9, 1.e-2, 1.e-2
 #set xtics -1.0, .5, 1.0
-unset log y
+set yrange [-1.e-6 : 1.e-2]
 
 
 plot datafolder."/vec_01k.dat" using 1:($2) with linesp pt 4 dt (10,5) lw 2 lc 7 title "Re({/Symbol \362} C^{/Symbol w}_{k0} p_{0k}a_{k}dk)", \
