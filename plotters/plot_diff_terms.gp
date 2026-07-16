@@ -69,6 +69,7 @@ plot datafolder."/vec_01k.dat" using 1:($2) with linesp pt 4 dt (10,5) lw 2 lc 7
 unset log y
 
 unset format y 
+unset yrange
 set output outfile."_pk0a0.png"
 plot datafolder."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafolder."/vec_01k.dat" using 1:($5)  pt 5 lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \
