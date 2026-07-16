@@ -800,6 +800,7 @@
       
         close(unit1)
         close(unit2)
+        close(unit3)
       
       end subroutine
 
