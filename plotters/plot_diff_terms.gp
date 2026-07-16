@@ -46,6 +46,6 @@ unset log y
 
 unset format y 
 set output outfile."_pk0a0.png"
-plot datafile."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
+plot datafolder."/vec_01k.dat" using 1:($4)  pt 4 lc 4 title "Re(C^{/Symbol w}_{k0} p_{k0}a_0)", \
      datafile."/vec_01k.dat" using 1:($5)  pt 5 lc 6 title "Im(C^{/Symbol w}_{k0} p_{k0}a_0)", \
-     datafile."/pk0.dat" using 1:($3) with lines lw 2 lc 8 title "p_{k0}", \
+     datafolder."/pk0.dat" using 1:($3) with lines lw 2 lc 8 title "p_{k0}", \
