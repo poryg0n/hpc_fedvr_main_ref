@@ -53,7 +53,7 @@ set grid
 set size ratio 0.3182 1,1
 set key left top
 #set xrange [-1.33:1.33]
-#set yrange [1.e-14 : 1.e-3]
+set yrange [-1.e-6 : 1.e-2]
 #set ytics  1.e-9, 1.e-2, 1.e-2
 #set xtics -1.0, .5, 1.0
 unset log y
